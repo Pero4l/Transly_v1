@@ -12,7 +12,17 @@ const generateToken = (id) => {
 exports.register = async (req, res) => {
   const { name, email, password, role, phone } = req.body;
 
-  
+  if(!name || !email || !password || !role || !phone) {
+    return res.status(400).json({ success: false, error: 'All fields are required' });
+  }
+
+  if(name.length < 7) {
+    return res.status(400).json({ success: false, error: 'Name must be at least 7 characters long' });
+  }
+
+  if(password.length < 6) {
+    return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long' });
+  }
 
   try {
     const userExists = await User.findOne({ where: { email } });
