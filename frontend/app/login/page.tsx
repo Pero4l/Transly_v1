@@ -1,11 +1,51 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 
-
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("transly_token", data.token);
+        localStorage.setItem("transly_user", JSON.stringify(data.user));
+        if (data.user.role === 'admin') {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
+      } else {
+        setError(data.error || "Login failed");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
@@ -16,7 +56,7 @@ export default function LoginPage() {
           </Link>
         </div>
         
-        <Card className="glass border-0 shadow-xl">
+        <Card className="glass border-0 shadow-xl rounded-2xl">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
             <CardDescription>
@@ -24,28 +64,46 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
-              <Input id="email" type="email" placeholder="jane.doe@example.com" defaultValue="admin@transly.com" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>
-                <Link href="#" className="text-xs text-orange-600 hover:underline">Forgot password?</Link>
+            <form onSubmit={handleLogin} className="space-y-4">
+              {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="jane.doe@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
-              <Input id="password" type="password" defaultValue="password123" />
-            </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>
+                  <Link href="#" className="text-xs text-orange-600 hover:underline">Forgot password?</Link>
+                </div>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-            <Link href="/dashboard" className="w-full inline-block mt-4">
-              <Button className="w-full text-md h-12">Sign In</Button>
-            </Link>
+              <div className="pt-2">
+                <Button className="w-full text-md h-12" type="submit" disabled={loading}>
+                  {loading ? "Signing In..." : "Sign In"}
+                </Button>
+              </div>
+            </form>
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">Or continue with</span>
+                <span className="bg-slate-50 px-2 text-slate-500">Or continue with</span>
               </div>
             </div>
 
@@ -59,7 +117,7 @@ export default function LoginPage() {
               Sign in with Gmail
             </Button>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4 pt-0">
+          <CardFooter className="flex flex-col space-y-4 pt-0 pb-6">
             <div className="text-center text-sm text-slate-600">
               Don't have an account? <Link href="/signup" className="text-orange-600 hover:underline font-medium">Create one</Link>
             </div>

@@ -15,11 +15,12 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
+    --background: #fafaf9; /* slate-50 */
     --foreground: #1c1917;
-    --card: #ffffff;
+    --card: rgba(255, 255, 255, 0.85);
     --card-foreground: #1c1917;
     --border: #e7e5e4;
+    --ring: rgba(234, 88, 12, 0.4); /* brand-600 with opacity */
   }
 }
 

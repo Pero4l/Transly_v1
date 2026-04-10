@@ -1,10 +1,49 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 
 export default function SignupPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("customer");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("transly_token", data.token);
+        localStorage.setItem("transly_user", JSON.stringify(data.user));
+        router.push("/dashboard");
+      } else {
+        setError(data.error || "Signup failed");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
@@ -15,7 +54,7 @@ export default function SignupPage() {
           </Link>
         </div>
         
-        <Card className="glass border-0 shadow-xl">
+        <Card className="glass border-0 shadow-xl rounded-2xl">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>
@@ -23,37 +62,71 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSignup} className="space-y-4">
+              {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
+              
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="firstName">First name</label>
-                <Input id="firstName" placeholder="Jane" />
+                <label className="text-sm font-medium text-slate-700" htmlFor="name">Full name</label>
+                <Input 
+                  id="name" 
+                  type="text"
+                  placeholder="Jane Doe" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
               </div>
+              
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="lastName">Last name</label>
-                <Input id="lastName" placeholder="Doe" />
+                <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="jane.doe@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
-              <Input id="email" type="email" placeholder="jane.doe@example.com" />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>
-              <Input id="password" type="password" />
-            </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-            <Link href="/dashboard" className="w-full inline-block mt-4">
-              <Button className="w-full text-md h-12">Sign Up</Button>
-            </Link>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="role">I am a...</label>
+                <select 
+                  id="role"
+                  className="flex h-11 w-full rounded-xl border-2 border-slate-200 bg-white/50 backdrop-blur-sm px-4 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="customer">Customer</option>
+                  <option value="driver">Driver</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div className="pt-2">
+                <Button className="w-full text-md h-12" type="submit" disabled={loading}>
+                  {loading ? "Signing Up..." : "Sign Up"}
+                </Button>
+              </div>
+            </form>
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">Or sign up with</span>
+                <span className="bg-slate-50 px-2 text-slate-500">Or sign up with</span>
               </div>
             </div>
 
@@ -67,7 +140,7 @@ export default function SignupPage() {
               Sign up with Gmail
             </Button>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4 pt-0">
+          <CardFooter className="flex flex-col space-y-4 pt-0 pb-6">
             <div className="text-center text-sm text-slate-600">
               Already have an account? <Link href="/login" className="text-orange-600 hover:underline font-medium">Log in</Link>
             </div>
