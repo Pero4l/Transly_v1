@@ -5,7 +5,7 @@ const sendEmail = require('../utils/sendEmail');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: '1d',
   });
 };
 
@@ -22,6 +22,10 @@ exports.register = async (req, res) => {
 
   if(password.length < 6) {
     return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long' });
+  }
+
+  if(phone.length < 10) {
+    return res.status(400).json({ success: false, error: 'Phone number must be at least 10 digits long' });
   }
 
   try {
