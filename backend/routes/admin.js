@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllUsers, getAllShipments, assignDriver, updateSettings, createDriver, toggleSuspend, createAdmin } = require('../controllers/admin.controller');
+const { getAllUsers, getAllCustomers, getAllShipments, assignDriver, updateSettings, createDriver, toggleSuspend, createAdmin } = require('../controllers/admin.controller');
 const { protect } = require('../middlewares/authMiddleware');
 const { authorizeAdmin } = require('../middlewares/adminMiddleware');
 
@@ -9,6 +9,7 @@ router.use(protect);
 router.use(authorizeAdmin);
 
 router.get('/users', getAllUsers);
+router.get('/customers', getAllCustomers); 
 router.get('/shipments', getAllShipments);
 router.post('/assign-driver', assignDriver);
 router.post('/settings', updateSettings);

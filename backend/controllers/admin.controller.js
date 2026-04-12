@@ -11,6 +11,18 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.getAllCustomers = async (req, res) => {
+  try {
+    const customers = await User.findAll({ 
+      where: { role: 'customer' },
+      attributes: { exclude: ['password'] } 
+    });
+    res.status(200).json({ success: true, customers });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 exports.getAllShipments = async (req, res) => {
   try {
     const shipments = await Shipment.findAll();

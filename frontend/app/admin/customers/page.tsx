@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Download, Search, UserCheck, UserX, Mail, Phone } from "lucide-react";
@@ -14,36 +14,6 @@ type Customer = {
   status: "Active" | "Inactive";
 };
 
-const DUMMY_CUSTOMERS: Customer[] = [
-  {
-    id: "CUS-1029",
-    name: "Acme Corp",
-    email: "contact@acme.com",
-    phone: "+1 555-0100",
-    status: "Active",
-  },
-  {
-    id: "CUS-1030",
-    name: "Jane Doe",
-    email: "jane.doe@example.com",
-    phone: "+1 555-0122",
-    status: "Active",
-  },
-  {
-    id: "CUS-1031",
-    name: "TechGadgets Inc.",
-    email: "shipping@techgadgets.io",
-    phone: "+1 555-0199",
-    status: "Active",
-  },
-  {
-    id: "CUS-1032",
-    name: "Nova Logistics",
-    email: "help@novalogistics.co",
-    phone: "+1 555-0133",
-    status: "Inactive",
-  },
-];
 
 function downloadCsv(customers: Customer[]) {
   const header = ["Customer ID", "Name", "Email", "Phone", "Status"];
@@ -73,7 +43,29 @@ export default function AdminCustomersPage() {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
   >("all");
-  const [customers, setCustomers] = useState<Customer[]>(DUMMY_CUSTOMERS);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCustomers = async () => {
+    const token = localStorage.getItem("transly_token");
+    try {
+      const res = await fetch("http://localhost:9400/admin/customers", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCustomers(data.customers);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const filteredCustomers = useMemo(() => {
     return customers.filter((customer) => {
@@ -81,25 +73,32 @@ export default function AdminCustomersPage() {
         `${customer.id} ${customer.name} ${customer.email}`.toLowerCase();
       const matchesQuery =
         query.trim() === "" || searchText.includes(query.toLowerCase());
+      
+      const isActive = !customer.is_suspended;
       const matchesStatus =
         statusFilter === "all" ||
-        (statusFilter === "active" && customer.status === "Active") ||
-        (statusFilter === "inactive" && customer.status === "Inactive");
+        (statusFilter === "active" && isActive) ||
+        (statusFilter === "inactive" && !isActive);
       return matchesQuery && matchesStatus;
     });
   }, [customers, query, statusFilter]);
 
-  const toggleStatus = (id: string) => {
-    setCustomers((current) =>
-      current.map((customer) =>
-        customer.id === id
-          ? {
-              ...customer,
-              status: customer.status === "Active" ? "Inactive" : "Active",
-            }
-          : customer,
-      ),
-    );
+  const toggleStatus = async (id: string) => {
+    const token = localStorage.getItem("transly_token");
+    try {
+      const res = await fetch(`http://localhost:9400/admin/users/${id}/suspend`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCustomers(current => 
+          current.map(c => c.id === id ? { ...c, is_suspended: data.is_suspended } : c)
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -176,7 +175,9 @@ export default function AdminCustomersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.length === 0 ? (
+                {loading ? (
+                  <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-500">Loading customers...</td></tr>
+                ) : filteredCustomers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={5}
@@ -192,7 +193,7 @@ export default function AdminCustomersPage() {
                       className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
                     >
                       <td className="px-6 py-4 font-medium text-slate-900">
-                        {customer.id}
+                        {customer.id.substring(0, 8)}...
                       </td>
                       <td className="px-6 py-4 font-medium">{customer.name}</td>
                       <td className="px-6 py-4">
@@ -200,31 +201,31 @@ export default function AdminCustomersPage() {
                           <Mail className="w-3 h-3 mr-2" /> {customer.email}
                         </div>
                         <div className="text-slate-500 flex items-center">
-                          <Phone className="w-3 h-3 mr-2" /> {customer.phone}
+                          <Phone className="w-3 h-3 mr-2" /> {customer.phone || 'N/A'}
                         </div>
                       </td>
                       <td
-                        className={`px-6 py-4 font-medium ${customer.status === "Active" ? "text-emerald-600" : "text-slate-500"}`}
+                        className={`px-6 py-4 font-medium ${!customer.is_suspended ? "text-emerald-600" : "text-slate-500"}`}
                       >
-                        {customer.status}
+                        {!customer.is_suspended ? "Active" : "Suspended"}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button
                           variant="ghost"
                           size="icon"
                           className={
-                            customer.status === "Active"
+                            !customer.is_suspended
                               ? "text-slate-400 hover:text-red-500"
                               : "text-slate-400 hover:text-emerald-500"
                           }
                           onClick={() => toggleStatus(customer.id)}
                           aria-label={
-                            customer.status === "Active"
+                            !customer.is_suspended
                               ? "Mark inactive"
                               : "Mark active"
                           }
                         >
-                          {customer.status === "Active" ? (
+                          {!customer.is_suspended ? (
                             <UserX className="h-4 w-4" />
                           ) : (
                             <UserCheck className="h-4 w-4" />
