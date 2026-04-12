@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Package, Search, User, Menu, Bell, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send } from "lucide-react";
+import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send, Loader2 } from "lucide-react";
+import { getSocket } from "@/lib/socket";
 
 export function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -34,6 +35,30 @@ export function Navbar() {
         }
       })
       .catch(console.error);
+
+      // Socket for real-time notifications
+      if (savedUser) {
+        const socket = getSocket();
+        socket.emit("join_personal_room", savedUser.id);
+        
+        socket.on("new_message_notification", (data) => {
+            // Check if we already have this notification (basic check)
+            setNotifications(prev => [
+                {
+                    id: `chat-${Date.now()}`,
+                    message: `New message: ${data.text.substring(0, 30)}...`,
+                    read: false,
+                    createdAt: new Date().toISOString(),
+                    type: 'info'
+                },
+                ...prev
+            ]);
+        });
+
+        return () => {
+            socket.off("new_message_notification");
+        };
+      }
     }
   }, []);
 

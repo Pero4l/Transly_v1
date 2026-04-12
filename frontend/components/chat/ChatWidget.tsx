@@ -13,6 +13,7 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [conversation, setConversation] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
 
@@ -22,16 +23,40 @@ export function ChatWidget() {
 
     if (savedUser && isOpen) {
       startChat(savedUser);
+      setUnreadCount(0);
     }
   }, [isOpen]);
 
   useEffect(() => {
+    if (user) {
+      socket.emit("join_personal_room", user.id);
+      
+      socket.on("new_message_notification", (data) => {
+        if (!isOpen) {
+          setUnreadCount(prev => prev + 1);
+        }
+      });
+
+      return () => {
+        socket.off("new_message_notification");
+      };
+    }
+  }, [user, isOpen]);
+
+  useEffect(() => {
     if (conversation) {
       socket.emit("join_conversation", conversation.id);
+      
+      if (isOpen) {
+         socket.emit("mark_as_read", { conversationId: conversation.id, userId: user.id });
+      }
 
       socket.on("receive_message", (msg) => {
         if (msg.conversationId === conversation.id) {
           setMessages((prev) => [...prev, msg]);
+          if (isOpen) {
+             socket.emit("mark_as_read", { conversationId: conversation.id, userId: user.id });
+          }
         }
       });
 
@@ -39,7 +64,7 @@ export function ChatWidget() {
         socket.off("receive_message");
       };
     }
-  }, [conversation]);
+  }, [conversation, isOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,7 +80,7 @@ export function ChatWidget() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({}), // Let backend pick an admin
+        body: JSON.stringify({}), 
       });
       const convData = await convRes.json();
       if (convData.success && convData.conversation) {
@@ -103,9 +128,14 @@ export function ChatWidget() {
       {!isOpen ? (
         <Button 
           onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full shadow-2xl bg-orange-600 hover:bg-orange-700 p-0 flex items-center justify-center animate-bounce-subtle"
+          className="h-14 w-14 rounded-full shadow-2xl bg-orange-600 hover:bg-orange-700 p-0 flex items-center justify-center animate-bounce-subtle relative"
         >
           <MessageCircle className="h-7 w-7 text-white" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm animate-pulse">
+              {unreadCount}
+            </span>
+          )}
         </Button>
       ) : (
         <Card className="w-80 sm:w-96 border-0 shadow-2xl rounded-2xl overflow-hidden glass flex flex-col h-[500px]">

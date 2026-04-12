@@ -1,8 +1,22 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function AdminSettingsPage() {
+  const [loading, setLoading] = useState(false);
+
+  const handleUpdate = async () => {
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+        setLoading(false);
+        alert("Settings updated successfully");
+    }, 1500);
+  };
+
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
@@ -26,7 +40,10 @@ export default function AdminSettingsPage() {
                <Input defaultValue="1.25" />
              </div>
           </div>
-          <Button>Update Pricing</Button>
+          <Button onClick={handleUpdate} disabled={loading}>
+            {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Update Pricing
+          </Button>
         </CardContent>
       </Card>
       

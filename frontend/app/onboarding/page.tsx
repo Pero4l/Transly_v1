@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { Loader2 } from "lucide-react";
 
 export default function OnboardingPage() {
   const [phone, setPhone] = useState("");
@@ -79,7 +80,8 @@ export default function OnboardingPage() {
               />
             </div>
             <Button type="submit" className="w-full h-12 shadow-lg mt-4 shadow-orange-500/20 hover:-translate-y-0.5 transition-transform" disabled={loading}>
-              {loading ? "Validating..." : "Complete Profile"}
+              {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+              {loading ? "Completing Profile..." : "Complete Profile"}
             </Button>
           </form>
         </CardContent>

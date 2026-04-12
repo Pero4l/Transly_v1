@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Search, MapPin, CheckCircle2, Clock, Truck, Package, AlertCircle } from "lucide-react";
+import { Search, MapPin, CheckCircle2, Clock, Truck, Package, AlertCircle, Loader2 } from "lucide-react";
 
 export default function TrackingPage() {
   const [trackingNumber, setTrackingNumber] = useState("");
@@ -51,8 +51,9 @@ export default function TrackingPage() {
               placeholder="Enter tracking number (e.g. TRK-123456)" 
               className="h-12 text-md"
             />
-            <Button type="submit" size="lg" className="px-8 h-12" disabled={loading}>
-              {loading ? "Tracking..." : "Track"}
+            <Button type="submit" size="lg" className="px-8 h-12 font-bold" disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+              {loading ? "Searching..." : "Track"}
             </Button>
           </form>
         </div>

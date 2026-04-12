@@ -5,7 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { MapPin, User, Package, FileText } from "lucide-react";
+import { MapPin, User, Package, FileText, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function RequestPage() {
@@ -142,8 +142,9 @@ export default function RequestPage() {
               <CardContent className="space-y-4">
                 <p className="text-slate-500 text-sm mb-4">Pricing is automatically calculated base on origin and destination coordinates.</p>
                 <div className="pt-4 mt-6 border-t border-slate-100">
-                  <Button className="w-full h-12 text-md rounded-xl shadow-lg hover:-translate-y-0.5 transition-transform" type="submit" disabled={loading}>
-                    {loading ? "Processing..." : "Create Request"}
+                  <Button className="w-full h-12 text-md rounded-xl shadow-lg hover:-translate-y-0.5 transition-transform font-bold" type="submit" disabled={loading}>
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                    {loading ? "Verifying Route..." : "Create Request"}
                   </Button>
                 </div>
               </CardContent>

@@ -27,19 +27,41 @@ export default function AdminChatPage() {
     if (selectedConv) {
       socket.emit("join_conversation", selectedConv.id);
       fetchMessages(selectedConv.id);
+      
+      // Mark as read on selection
+      socket.emit("mark_as_read", { conversationId: selectedConv.id, userId: user.id });
+      setConversations(prev => prev.map(c => 
+        c.id === selectedConv.id ? { ...c, unreadCount: 0 } : c
+      ));
 
       socket.on("receive_message", (msg) => {
         if (msg.conversationId === selectedConv.id) {
           setMessages((prev) => [...prev, msg]);
+          // Mark as read since we are looking at it
+          socket.emit("mark_as_read", { conversationId: selectedConv.id, userId: user.id });
         }
-        // Update last message in list
+        
+        // Update last message and unread count if not selected
         setConversations(prev => prev.map(c => 
-          c.id === msg.conversationId ? { ...c, lastMessage: msg.text } : c
+          c.id === msg.conversationId ? { 
+            ...c, 
+            lastMessage: msg.text,
+            unreadCount: (selectedConv?.id === msg.conversationId || msg.senderId === user.id) ? 0 : (c.unreadCount || 0) + 1
+          } : c
         ));
+      });
+
+      socket.on("new_message_notification", (data) => {
+          if (selectedConv?.id !== data.conversationId) {
+             setConversations(prev => prev.map(c => 
+                c.id === data.conversationId ? { ...c, unreadCount: (c.unreadCount || 0) + 1, lastMessage: data.text } : c
+             ));
+          }
       });
 
       return () => {
         socket.off("receive_message");
+        socket.off("new_message_notification");
       };
     }
   }, [selectedConv]);
@@ -119,13 +141,20 @@ export default function AdminChatPage() {
                 <div 
                   key={conv.id} 
                   onClick={() => setSelectedConv(conv)}
-                  className={`p-4 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${selectedConv?.id === conv.id ? 'bg-orange-50/50 border-l-4 border-l-orange-600' : ''}`}
+                  className={`p-4 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors relative group ${selectedConv?.id === conv.id ? 'bg-orange-50/50 border-l-4 border-l-orange-600' : ''}`}
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-slate-800 text-sm">{other?.name || 'Unknown User'}</span>
-                    <span className="text-[10px] text-slate-400 capitalize">{other?.role}</span>
+                    <span className="font-bold text-slate-800 text-sm">{getOtherUser(conv)?.name || 'Unknown User'}</span>
+                    <span className="text-[10px] text-slate-400 capitalize">{getOtherUser(conv)?.role}</span>
                   </div>
-                  <p className="text-xs text-slate-500 line-clamp-1">{conv.lastMessage || 'No messages yet'}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-slate-500 line-clamp-1 flex-1">{conv.lastMessage || 'No messages yet'}</p>
+                    {conv.unreadCount > 0 && (
+                      <span className="ml-2 bg-orange-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                        {conv.unreadCount}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })

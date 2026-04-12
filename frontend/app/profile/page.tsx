@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { User, Mail, Phone, MapPin, Shield, Camera, Save, Loader2 } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -84,7 +85,10 @@ export default function ProfilePage() {
   }
 
   return (
+    <>
+    <Navbar />
     <div className="max-w-4xl mx-auto p-4 lg:p-8 space-y-8">
+        
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Personal Profile</h1>
@@ -184,5 +188,6 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

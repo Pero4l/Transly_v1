@@ -5,12 +5,13 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { MapPin, Navigation, PackageCheck, Phone, CheckCircle, Package } from "lucide-react";
+import { MapPin, Navigation, PackageCheck, Phone, CheckCircle, Package, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function DriverDashboardPage() {
   const [shipments, setShipments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const router = useRouter();
 
   const fetchDriverShipments = async () => {
@@ -41,6 +42,7 @@ export default function DriverDashboardPage() {
   }, []);
 
   const updateStatus = async (id: number, status: string) => {
+    setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`http://localhost:9400/shipments/${id}/status`, {
@@ -59,10 +61,17 @@ export default function DriverDashboardPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  if (loading) return <div className="min-h-screen pt-20 text-center">Loading Routes...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+        <Loader2 className="h-10 w-10 animate-spin text-orange-600 mb-4" />
+        <p className="text-slate-500 font-bold tracking-tight">Syncing your routes...</p>
+    </div>
+  );
 
   const activeShipments = shipments.filter(s => s.status === 'assigned' || s.status === 'picked_up' || s.status === 'in_transit');
   const pastShipments = shipments.filter(s => s.status === 'delivered');
@@ -128,18 +137,21 @@ export default function DriverDashboardPage() {
 
                     <div className="flex gap-2 pt-2">
                       {s.status === 'assigned' && (
-                         <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => updateStatus(s.id, 'picked_up')}>
-                           <Package className="mr-2 h-4 w-4" /> Picked Up
+                         <Button className="w-full bg-blue-600 hover:bg-blue-700 font-bold" disabled={actionLoading} onClick={() => updateStatus(s.id, 'picked_up')}>
+                           {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Package className="mr-2 h-4 w-4" />}
+                           {actionLoading ? 'Updating' : 'Picked Up'}
                          </Button>
                       )}
                       {s.status === 'picked_up' && (
-                         <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => updateStatus(s.id, 'in_transit')}>
-                           <Navigation className="mr-2 h-4 w-4" /> Start Transit
+                         <Button className="w-full bg-indigo-600 hover:bg-indigo-700 font-bold" disabled={actionLoading} onClick={() => updateStatus(s.id, 'in_transit')}>
+                           {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="mr-2 h-4 w-4" />}
+                           {actionLoading ? 'Updating' : 'Start Transit'}
                          </Button>
                       )}
                       {s.status === 'in_transit' && (
-                         <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => updateStatus(s.id, 'delivered')}>
-                           <PackageCheck className="mr-2 h-4 w-4" /> Mark Delivered
+                         <Button className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold" disabled={actionLoading} onClick={() => updateStatus(s.id, 'delivered')}>
+                           {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackageCheck className="mr-2 h-4 w-4" />}
+                           {actionLoading ? 'Updating' : 'Mark Delivered'}
                          </Button>
                       )}
                     </div>

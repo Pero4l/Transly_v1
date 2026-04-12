@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Download, Search, UserCheck, UserX, Mail, Phone } from "lucide-react";
+import { Download, Search, UserCheck, UserX, Mail, Phone, Loader2, MapPin, CheckCircle, Ban } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
 
 type Customer = {
   id: string;
@@ -45,6 +46,7 @@ export default function AdminCustomersPage() {
   >("all");
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const fetchCustomers = async () => {
     const token = localStorage.getItem("transly_token");
@@ -84,6 +86,7 @@ export default function AdminCustomersPage() {
   }, [customers, query, statusFilter]);
 
   const toggleStatus = async (id: string) => {
+    setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`http://localhost:9400/admin/users/${id}/suspend`, {
@@ -98,6 +101,8 @@ export default function AdminCustomersPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -176,14 +181,19 @@ export default function AdminCustomersPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-500">Loading customers...</td></tr>
+                  <tr>
+                    <td colSpan={5} className="px-6 py-20 text-center">
+                        <Loader2 className="h-10 w-10 animate-spin text-orange-600 mx-auto" />
+                        <p className="text-sm text-slate-500 mt-2 font-medium">Loading customer database...</p>
+                    </td>
+                  </tr>
                 ) : filteredCustomers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-6 py-8 text-center text-slate-500"
+                      className="px-6 py-12 text-center text-slate-500 font-medium"
                     >
-                      No customers match your search.
+                      No customers match your search criteria.
                     </td>
                   </tr>
                 ) : (
@@ -218,6 +228,7 @@ export default function AdminCustomersPage() {
                               ? "text-slate-400 hover:text-red-500"
                               : "text-slate-400 hover:text-emerald-500"
                           }
+                          disabled={actionLoading}
                           onClick={() => toggleStatus(customer.id)}
                           aria-label={
                             !customer.is_suspended
@@ -225,7 +236,9 @@ export default function AdminCustomersPage() {
                               : "Mark active"
                           }
                         >
-                          {!customer.is_suspended ? (
+                          {actionLoading ? (
+                             <Loader2 className="h-4 w-4 animate-spin text-orange-600" />
+                          ) : !customer.is_suspended ? (
                             <UserX className="h-4 w-4" />
                           ) : (
                             <UserCheck className="h-4 w-4" />

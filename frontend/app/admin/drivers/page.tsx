@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/Button";
-import { Truck, Search, Mail, Phone, UserX, UserCheck, Eye, EyeOff } from "lucide-react";
+import { Truck, Search, Mail, Phone, UserX, UserCheck, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
@@ -17,6 +17,7 @@ export default function AdminDriversPage() {
 
     const [drivers, setDrivers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
     const [query, setQuery] = useState("");
 
     const fetchData = async () => {
@@ -49,6 +50,7 @@ export default function AdminDriversPage() {
 
     const handleDriverRegister = async (e: React.FormEvent) => {
       e.preventDefault();
+      setActionLoading(true);
       const token = localStorage.getItem("transly_token");
       try {
         const res = await fetch("http://localhost:9400/admin/driver", {
@@ -64,10 +66,15 @@ export default function AdminDriversPage() {
           const error = await res.json();
           alert(error.error || "Failed to create driver");
         }
-      } catch(err) { alert(err) }
+      } catch(err) { 
+        alert(err);
+      } finally {
+        setActionLoading(false);
+      }
     }
 
     const toggleStatus = async (id: string) => {
+      setActionLoading(true);
       const token = localStorage.getItem("transly_token");
       try {
         const res = await fetch(`http://localhost:9400/admin/users/${id}/suspend`, {
@@ -82,6 +89,8 @@ export default function AdminDriversPage() {
         }
       } catch (err) {
         console.error(err);
+      } finally {
+        setActionLoading(false);
       }
     };
 
@@ -122,7 +131,10 @@ export default function AdminDriversPage() {
               <Input placeholder="Guarantor NIN" required onChange={e => setDriverData({...driverData, guarantor_nin: e.target.value})} />
 
               <div className="md:col-span-2 mt-4 flex justify-end">
-                <Button type="submit" className="bg-slate-900 w-full md:w-auto text-lg px-10">Submit Identity Profiles</Button>
+                <Button disabled={actionLoading} type="submit" className="bg-slate-900 w-full md:w-auto text-lg px-10">
+                    {actionLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    Submit Identity Profiles
+                </Button>
               </div>
             </form>
           </CardContent>
@@ -160,7 +172,12 @@ export default function AdminDriversPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-500">Loading drivers...</td></tr>
+                  <tr>
+                    <td colSpan={5} className="px-6 py-10 text-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-orange-600 mx-auto" />
+                        <p className="text-sm text-slate-500 mt-2">Loading drivers list...</p>
+                    </td>
+                  </tr>
                 ) : filteredDrivers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center">
@@ -192,10 +209,11 @@ export default function AdminDriversPage() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          disabled={actionLoading}
                           onClick={() => toggleStatus(driver.id)}
                           className={!driver.is_suspended ? "text-slate-400 hover:text-red-500" : "text-slate-400 hover:text-emerald-500"}
                         >
-                          {!driver.is_suspended ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                          {actionLoading ? <Loader2 className="h-4 w-4 animate-spin text-orange-600" /> : (!driver.is_suspended ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />)}
                         </Button>
                       </td>
                     </tr>

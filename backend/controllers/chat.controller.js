@@ -6,8 +6,8 @@ exports.startOrGetConversation = async (req, res) => {
   const user1Id = req.user.id;
 
   try {
-    // If no recipient provided and current user is a customer, find an admin to chat with
-    if (!user2Id && req.user.role === 'customer') {
+    // If no recipient provided and current user is a customer or driver, find an admin to chat with
+    if (!user2Id && (req.user.role === 'customer' || req.user.role === 'driver')) {
       const admin = await User.findOne({ where: { role: 'admin' } });
       if (!admin) {
         return res.status(404).json({ success: false, error: 'No support agent available' });
@@ -51,9 +51,34 @@ exports.getConversations = async (req, res) => {
       include: [
         { model: User, as: 'user1', attributes: ['id', 'name', 'role'] },
         { model: User, as: 'user2', attributes: ['id', 'name', 'role'] }
-      ]
+      ],
+      order: [['updatedAt', 'DESC']]
     });
-    res.status(200).json({ success: true, conversations });
+
+    const conversationWithUnread = await Promise.all(conversations.map(async (conv) => {
+        const unreadCount = await Message.count({
+            where: {
+                conversationId: conv.id,
+                senderId: { [Op.ne]: req.user.id },
+                read: false
+            }
+        });
+        
+        // Get last message text
+        const lastMsg = await Message.findOne({
+            where: { conversationId: conv.id },
+            order: [['createdAt', 'DESC']]
+        });
+
+        return {
+            ...conv.toJSON(),
+            unreadCount,
+            lastMessage: lastMsg ? lastMsg.text : null,
+            lastMessageTime: lastMsg ? lastMsg.createdAt : null
+        };
+    }));
+
+    res.status(200).json({ success: true, conversations: conversationWithUnread });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

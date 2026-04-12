@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Download, Filter, Search, X, Eye } from "lucide-react";
+import { Download, Filter, Search, X, Eye, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { ShipmentDetails } from "@/components/shipments/ShipmentDetails";
 
@@ -12,6 +12,7 @@ export default function AdminShipmentsPage() {
   const [shipments, setShipments] = useState([]);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchShipments = async () => {
@@ -36,6 +37,7 @@ export default function AdminShipmentsPage() {
   }, []);
 
   const handleViewDetails = async (id: string) => {
+    setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`http://localhost:9400/shipments/${id}`, {
@@ -47,6 +49,8 @@ export default function AdminShipmentsPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -97,9 +101,11 @@ export default function AdminShipmentsPage() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[400px] flex flex-col">
               {loading ? (
-                <div className="p-10 text-center text-slate-500">Loading shipments...</div>
+                <div className="flex-1 flex items-center justify-center p-20">
+                    <Loader2 className="h-10 w-10 animate-spin text-orange-600" />
+                </div>
               ) : (
                 <table className="w-full text-sm text-left">
                   <thead className="text-xs text-slate-500 bg-slate-50/80 uppercase border-b border-slate-100">
@@ -113,12 +119,12 @@ export default function AdminShipmentsPage() {
                   </thead>
                   <tbody>
                     {filteredShipments.length === 0 ? (
-                      <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-500">No shipments found.</td></tr>
+                      <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-500 font-medium">No shipments found matching your search.</td></tr>
                     ) : (
                       filteredShipments.map((req: any, i: number) => (
                         <tr key={req.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                          <td className="px-6 py-4 font-medium text-slate-900">{req.trackingNumber}</td>
-                          <td className="px-6 py-4 text-slate-500">{req.origin} → {req.destination}</td>
+                          <td className="px-6 py-4 font-bold text-slate-900 tracking-tight">{req.trackingNumber}</td>
+                          <td className="px-6 py-4 text-slate-500 font-medium">{req.origin} → {req.destination}</td>
                           <td className="px-6 py-4 text-slate-500">{req.driverId ? 'Assigned' : 'Unassigned'}</td>
                           <td className="px-6 py-4 text-right">
                             <Badge 
@@ -131,10 +137,12 @@ export default function AdminShipmentsPage() {
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 px-2 text-orange-600 flex items-center gap-1 mx-auto"
+                              disabled={actionLoading}
+                              className="h-8 px-3 text-orange-600 hover:text-orange-700 hover:bg-orange-50 font-bold flex items-center gap-1 mx-auto transition-all"
                               onClick={() => handleViewDetails(req.id)}
                             >
-                              <Eye className="h-4 w-4" /> View
+                              {actionLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Eye className="h-4 w-4" />}
+                              View
                             </Button>
                           </td>
                         </tr>

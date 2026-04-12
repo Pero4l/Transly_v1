@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowUpRight, Truck, Package, Activity, DollarSign, Ban } from "lucide-react";
+import { ArrowUpRight, Truck, Package, Activity, DollarSign, Ban, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AdminDashboardPage() {
   const [shipments, setShipments] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   
   // Driver Form
   // const [showDriverForm, setShowDriverForm] = useState(false);
@@ -54,6 +55,7 @@ export default function AdminDashboardPage() {
 
   const assignDriver = async (shipmentId: number, driverId: string) => {
     if(!driverId) return;
+    setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
       await fetch("http://localhost:9400/admin/assign-driver", {
@@ -62,10 +64,15 @@ export default function AdminDashboardPage() {
         body: JSON.stringify({ shipmentId, driverId })
       });
       fetchData();
-    } catch(err) {}
+    } catch(err) {
+      console.error(err);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const toggleSuspend = async (userId: string) => {
+    setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
       await fetch(`http://localhost:9400/admin/users/${userId}/suspend`, {
@@ -73,7 +80,11 @@ export default function AdminDashboardPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
-    } catch(err) {}
+    } catch(err) {
+      console.error(err);
+    } finally {
+      setActionLoading(false);
+    }
   }
 
   // const handleDriverRegister = async (e: React.FormEvent) => {
@@ -96,7 +107,12 @@ export default function AdminDashboardPage() {
   //   } catch(err) { alert(err) }
   // }
 
-  if (loading) return <div className="p-10 text-center">Loading Admin Portal...</div>;
+  if (loading) return (
+    <div className="min-h-[400px] flex flex-col items-center justify-center p-10 bg-white/50 rounded-3xl border border-dashed border-slate-200 m-8">
+        <Loader2 className="h-12 w-12 animate-spin text-orange-600 mb-4" />
+        <p className="text-slate-500 font-bold tracking-tight">Initializing platform overview...</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 pb-12">
@@ -204,11 +220,12 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3">
                           {req.status === 'pending' ? (
                             <select 
-                              className="text-xs border rounded p-2 bg-slate-50 w-full"
+                              className="text-xs border rounded p-2 bg-slate-50 w-full disabled:opacity-50"
                               onChange={(e) => assignDriver(req.id, e.target.value)}
                               defaultValue=""
+                              disabled={actionLoading}
                             >
-                              <option value="" disabled>Assign via Dispatch</option>
+                              <option value="" disabled>{actionLoading ? 'Allocating...' : 'Assign via Dispatch'}</option>
                               {drivers.map(d => <option key={d.id} value={d.id}>{d.name} ({d.email})</option>)}
                             </select>
                           ) : (
