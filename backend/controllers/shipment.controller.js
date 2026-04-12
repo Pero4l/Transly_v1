@@ -37,17 +37,31 @@ exports.createShipment = async (req, res) => {
     });
 
     try {
+      
+      await sendEmail({
+        email: "translynigeria@gmail.com",
+        subject:"New Shipment Created",
+        message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: $${price}`
+      })
+
       await sendEmail({
         email: req.user.email,
         subject: 'Shipment Created',
         message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: $${price}`,
       });
+      
       await Notification.create({
         userId: req.user.id,
         message: `Shipment ${trackingNumber} created successfully.`,
         type: 'success'
       });
-      console.log('Customer notified of new shipment');
+
+        await Notification.create({
+        userId: "e961c3e0-1603-42dc-a670-f1efd6f58bf1",
+        message: `A new Shipment with tracking number: ${trackingNumber} created successfully by ${req.user.name}.`,
+        type: 'success'
+      });
+      
     } catch(err) { console.error('Failed to send email:', err); }
 
     res.status(201).json({ success: true, shipment });

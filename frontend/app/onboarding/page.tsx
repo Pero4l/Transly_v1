@@ -26,7 +26,7 @@ export default function OnboardingPage() {
     setLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:5000/auth/profile", {
+      const res = await fetch("http://localhost:9400/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ phone, address })
@@ -35,7 +35,7 @@ export default function OnboardingPage() {
       if(data.success) {
         const user = JSON.parse(localStorage.getItem("transly_user") || "{}");
         localStorage.setItem("transly_user", JSON.stringify({...user, ...data.user}));
-        window.location.href = "/dashboard";
+        window.location.href = "/request";
       } else {
         alert(data.error);
       }
