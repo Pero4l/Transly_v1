@@ -107,7 +107,7 @@ exports.createDriver = async (req, res) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: 'Welcome to Transly Fleet',
+        subject: 'Welcome to Transly Driver Team!',
         message: `You have been added. Password: ${generatedPassword}. Login to start.`
       });
     } catch(err) {}
