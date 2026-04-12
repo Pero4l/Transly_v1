@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { ShipmentDetails } from "@/components/shipments/ShipmentDetails";
 
 export default function DashboardPage() {
-  const [shipments, setShipments] = useState([]);
+  const [shipments, setShipments] = useState<any[]>([]);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function DashboardPage() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/shipments", {
+      const res = await fetch("http://localhost:9400/shipments", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const handleViewDetails = async (id: string) => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:5000/api/shipments/${id}`, {
+      const res = await fetch(`http://localhost:9400/shipments/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -63,7 +63,7 @@ export default function DashboardPage() {
   const updateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:5000/api/shipments/${id}/status`, {
+      const res = await fetch(`http://localhost:9400/shipments/${id}/status`, {
         method: "PUT",
         headers: { 
           Authorization: `Bearer ${token}`,

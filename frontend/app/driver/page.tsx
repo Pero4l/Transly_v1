@@ -22,7 +22,7 @@ export default function DriverDashboardPage() {
     }
     
     try {
-      const res = await fetch("http://localhost:5000/api/shipments", {
+      const res = await fetch("http://localhost:9400/shipments", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -43,7 +43,7 @@ export default function DriverDashboardPage() {
   const updateStatus = async (id: number, status: string) => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:5000/api/shipments/${id}/status`, {
+      const res = await fetch(`http://localhost:9400/shipments/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

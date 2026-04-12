@@ -23,7 +23,7 @@ export function Navbar() {
     }
 
     if (token) {
-      fetch("http://localhost:5000/notifications", {
+      fetch("http://localhost:9400/notifications", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -41,7 +41,7 @@ export function Navbar() {
   const markAllAsRead = async () => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:5000/api/notifications/read-all", {
+      const res = await fetch("http://localhost:9400/notifications/read-all", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });
