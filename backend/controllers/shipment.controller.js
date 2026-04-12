@@ -103,3 +103,45 @@ exports.updateShipmentStatus = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+exports.getShipmentById = async (req, res) => {
+  try {
+    const shipment = await Shipment.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'driver', attributes: ['name', 'phone'] },
+        { model: User, as: 'customer', attributes: ['name', 'phone', 'email'] }
+      ]
+    });
+
+    if (!shipment) {
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
+
+    // Authorization check: Admin can see all, Customer/Driver see only theirs
+    if (req.user.role !== 'admin' && shipment.customerId !== req.user.id && shipment.driverId !== req.user.id) {
+      return res.status(403).json({ success: false, error: 'Not authorized to view this shipment' });
+    }
+
+    res.status(200).json({ success: true, shipment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.trackShipment = async (req, res) => {
+  const { trackingNumber } = req.params;
+  try {
+    const shipment = await Shipment.findOne({
+      where: { trackingNumber },
+      attributes: ['trackingNumber', 'status', 'origin', 'destination', 'updatedAt']
+    });
+
+    if (!shipment) {
+      return res.status(404).json({ success: false, error: 'Tracking number not found' });
+    }
+
+    res.status(200).json({ success: true, shipment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
