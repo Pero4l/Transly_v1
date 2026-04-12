@@ -4,7 +4,6 @@ const http = require('http');
 const cors = require("cors");
 const socketConfig = require('./config/socket');
 const db = require("./config/db");
-const { User, DriverProfile, Shipment, Setting, Notification, Conversation, Message } = require('./models');
 
 const app = express();
 const server = http.createServer(app);
