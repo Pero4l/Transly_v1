@@ -7,8 +7,8 @@ import { ChatWidget } from "@/components/chat/ChatWidget";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Transly | Deliveries made easy",
-  description: "A professional and user-friendly platform for tracking and managing deliveries.",
+  title: "Transly",
+  description: "A professional and user-friendly platform sending deliveries.",
 };
 
 export default function RootLayout({
