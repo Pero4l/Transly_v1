@@ -19,7 +19,7 @@ export function Navbar() {
     }
 
     if (token) {
-      fetch("http://localhost:5000/api/notifications", {
+      fetch("http://localhost:5000/notifications", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())

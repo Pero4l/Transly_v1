@@ -1,10 +1,10 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const sequelize = require('../config/db');
 
 const Shipment = sequelize.define('Shipment', {
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   trackingNumber: {
@@ -13,7 +13,7 @@ const Shipment = sequelize.define('Shipment', {
     unique: true,
   },
   customerId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: 'Users',
@@ -21,7 +21,7 @@ const Shipment = sequelize.define('Shipment', {
     }
   },
   driverId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     references: {
       model: 'Users',
@@ -51,6 +51,26 @@ const Shipment = sequelize.define('Shipment', {
   paymentStatus: {
     type: DataTypes.ENUM('pending', 'paid'),
     defaultValue: 'pending',
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  productType: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  receiverName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  receiverPhone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  receiverAddress: {
+    type: DataTypes.STRING,
+    allowNull: false,
   }
 }, {
   timestamps: true,

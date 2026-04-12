@@ -66,3 +66,56 @@ exports.updateSettings = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+exports.createDriver = async (req, res) => {
+  const { name, email, phone, address, vehicleType, licenseNumber, nin, guarantor_name, guarantor_phone, guarantor_address, guarantor_nin } = req.body;
+  
+  if (!name || !email || !phone || !vehicleType || !licenseNumber) {
+    return res.status(400).json({ success: false, error: 'Name, email, phone, vehicleType, and licenseNumber are required' });
+  }
+
+  try {
+    const existing = await User.findOne({ where: { email }});
+    if (existing) return res.status(400).json({ success: false, error: 'Email already registered' });
+
+    const generatedPassword = Math.random().toString(36).slice(-8); // Random password for manual drivers
+    const bcrypt = require('bcryptjs');
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(generatedPassword, salt);
+
+    const user = await User.create({
+      name, email, phone, address, password: hashedPassword, role: 'driver'
+    });
+
+    await DriverProfile.create({
+      userId: user.id, vehicleType, licenseNumber, nin, guarantor_name, guarantor_phone, guarantor_address, guarantor_nin
+    });
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Welcome to Transly Fleet',
+        message: `You have been added. Password: ${generatedPassword}. Login to start.`
+      });
+    } catch(err) {}
+
+    res.status(201).json({ success: true, message: 'Driver created', driverId: user.id });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.toggleSuspend = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+    
+    user.is_suspended = !user.is_suspended;
+    await user.save();
+    
+    res.status(200).json({ success: true, is_suspended: user.is_suspended, message: `User suspension status is now ${user.is_suspended}` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

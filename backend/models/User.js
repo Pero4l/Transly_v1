@@ -1,10 +1,10 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const sequelize = require('../config/db');
 
 const User = sequelize.define('User', {
   id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
   },
   name: {
@@ -26,6 +26,27 @@ const User = sequelize.define('User', {
   },
   phone: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  is_suspended: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  auth_provider: {
+    type: DataTypes.ENUM('local', 'google'),
+    defaultValue: 'local',
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
   },
   verified: {
     type: DataTypes.BOOLEAN,

@@ -8,7 +8,16 @@ const calculatePrice = async (distance) => {
 };
 
 exports.createShipment = async (req, res) => {
-  const { origin, destination, distance } = req.body;
+  const { 
+    origin, 
+    destination, 
+    distance,
+    description,
+    productType,
+    receiverName,
+    receiverPhone,
+    receiverAddress
+  } = req.body;
   try {
     const trackingNumber = 'TRK-' + Math.floor(100000 + Math.random() * 900000);
     const price = await calculatePrice(distance || 0);
@@ -20,6 +29,11 @@ exports.createShipment = async (req, res) => {
       destination,
       distance: distance || 0,
       price,
+      description,
+      productType,
+      receiverName,
+      receiverPhone,
+      receiverAddress
     });
 
     try {

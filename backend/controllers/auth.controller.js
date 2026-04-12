@@ -1,0 +1,210 @@
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const { User } = require('../models');
+const sendEmail = require('../utils/sendEmail');
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '1d',
+  });
+};
+
+exports.register = async (req, res) => {
+  const { name, email, password, phone } = req.body;
+
+  if(!name || !email || !password || !phone) {
+    return res.status(400).json({ success: false, error: 'All fields are required' });
+  }
+
+  if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+      return res.status(400).json({ message: "Password must contain both uppercase and lowercase letters" });
+    } else if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ message: "Password must contain a number" });
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    } else if (name.length < 5) {
+      return res.status(400).json({ message: "Name must be at least 5 characters" });
+    } else if (phone.length < 10) {
+      return res.status(400).json({ message: "Phone number must be at least 10 digits long" });
+    }
+
+  try {
+    const userExists = await User.findOne({ where: { email } });
+    if (userExists) {
+      return res.status(400).json({ success: false, error: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'customer',
+      phone,
+    });
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Welcome to Transly!',
+        message: `Hello ${user.name},\n\nWelcome to Transly platform! Your account has been created successfully.\n\nBest,\nTransly Team`,
+      });
+    } catch (err) {
+      console.error('Email not sent:', err);
+    }
+
+    res.status(201).json({
+      success: true,
+      token: generateToken(user.id),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    res.status(200).json({
+      success: true,
+      token: generateToken(user.id),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        address: user.address,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.getMe = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      phone: req.user.phone,
+      address: req.user.address,
+    }
+  });
+};
+
+exports.googleAuth = async (req, res) => {
+  const { name, email } = req.body;
+  try {
+    let user = await User.findOne({ where: { email } });
+    if (!user) {
+      const generatedPassword = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+      user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        auth_provider: 'google',
+        role: 'customer'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      token: generateToken(user.id),
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, address: user.address }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ success: false, error: 'There is no user with that email' });
+
+    const resetToken = crypto.randomBytes(3).toString('hex').toUpperCase(); // 6 char OTP
+    const salt = await bcrypt.genSalt(10);
+    user.resetPasswordToken = await bcrypt.hash(resetToken, salt);
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    await sendEmail({
+      email: user.email,
+      subject: 'Password Reset OTP',
+      message: `Your password reset OTP is: ${resetToken}\nIt is valid for 10 minutes.`,
+    });
+
+    res.status(200).json({ success: true, message: 'OTP sent to email' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, otp, password } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user || !user.resetPasswordToken || user.resetPasswordExpire < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired OTP' });
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.resetPasswordToken);
+    if (!isMatch) return res.status(400).json({ success: false, error: 'Invalid OTP' });
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpire = null;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  const { phone, address } = req.body;
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+    user.phone = phone || user.phone;
+    user.address = address || user.address;
+    await user.save();
+    
+    res.status(200).json({ success: true, user: { phone: user.phone, address: user.address }});
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};

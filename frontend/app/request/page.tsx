@@ -5,42 +5,54 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { MapPin, User, Package } from "lucide-react";
+import { MapPin, User, Package, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function RequestPage() {
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
+  const [formData, setFormData] = useState({
+    origin: "", destination: "", description: "", productType: "", 
+    receiverName: "", receiverPhone: "", receiverAddress: ""
+  });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Simple pseudo location mock
+  // Simple pseudo location distance mock
   const distance = Math.floor(Math.random() * 50) + 10;
 
   useEffect(() => {
-    if (!localStorage.getItem("transly_token")) {
+    const token = localStorage.getItem("transly_token");
+    const user = JSON.parse(localStorage.getItem("transly_user") || "null");
+    if (!token) {
       router.push("/login");
+    } else if (!user?.phone || !user?.address) {
+      router.push("/onboarding");
     }
   }, [router]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const token = localStorage.getItem("transly_token");
     
+    
     try {
-      const res = await fetch("http://localhost:5000/api/shipments", {
+      const res = await fetch("http://localhost:9400/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ origin, destination, distance }),
+        body: JSON.stringify({ ...formData, distance }),
       });
       if (res.ok) {
         router.push("/dashboard");
       } else {
-        alert("Failed to create request");
+        const error = await res.json();
+        alert(error.error || "Failed to create request");
       }
     } catch (err) {
       alert(err);
@@ -64,18 +76,17 @@ export default function RequestPage() {
             <Card className="border-0 shadow-sm rounded-2xl glass">
               <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                 <CardTitle className="text-lg flex items-center">
-                  <MapPin className="h-5 w-5 mr-2 text-orange-600" /> Origin Details
+                  <MapPin className="h-5 w-5 mr-2 text-orange-600" /> Dispatch Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Pickup Address</label>
-                  <Input 
-                    placeholder="Enter full address or city" 
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    required
-                  />
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Pickup Location (Origin)</label>
+                  <Input name="origin" placeholder="Enter full pickup address" value={formData.origin} onChange={handleChange} required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Destination City</label>
+                  <Input name="destination" placeholder="Enter destination city/region" value={formData.destination} onChange={handleChange} required />
                 </div>
               </CardContent>
             </Card>
@@ -83,34 +94,55 @@ export default function RequestPage() {
             <Card className="border-0 shadow-sm rounded-2xl glass">
               <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                 <CardTitle className="text-lg flex items-center">
-                  <User className="h-5 w-5 mr-2 text-emerald-500" /> Destination Details
+                  <Package className="h-5 w-5 mr-2 text-blue-500" /> Package Info
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Delivery Address</label>
-                  <Input 
-                    placeholder="Enter full destination address" 
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    required
-                  />
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Product Type</label>
+                  <Input name="productType" placeholder="e.g. Electronics, Documents, Fragile" value={formData.productType} onChange={handleChange} required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Description</label>
+                  <Input name="description" placeholder="Brief details about the package" value={formData.description} onChange={handleChange} />
                 </div>
               </CardContent>
             </Card>
           </div>
 
           <div className="space-y-6">
-            <Card className="border-0 shadow-sm rounded-2xl glass lg:sticky lg:top-24">
+            <Card className="border-0 shadow-sm rounded-2xl glass">
               <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                 <CardTitle className="text-lg flex items-center">
-                  <Package className="h-5 w-5 mr-2 text-violet-500" /> Confirm & Post
+                  <User className="h-5 w-5 mr-2 text-emerald-500" /> Receiver Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-slate-500 text-sm mb-4">Pricing is automatically estimated based on the distance between the origin and destination using the platform's standardized rate.</p>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Receiver Name</label>
+                  <Input name="receiverName" placeholder="Full name of receiver" value={formData.receiverName} onChange={handleChange} required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Receiver Phone Number</label>
+                  <Input name="receiverPhone" placeholder="Contact number" value={formData.receiverPhone} onChange={handleChange} required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1">Precise Delivery Address</label>
+                  <Input name="receiverAddress" placeholder="Exact dropoff location" value={formData.receiverAddress} onChange={handleChange} required />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm rounded-2xl glass lg:sticky lg:top-24">
+              <CardHeader className="border-b border-slate-100 pb-4 mb-4">
+                <CardTitle className="text-lg flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-violet-500" /> Confirm & Post
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-slate-500 text-sm mb-4">Pricing is automatically calculated base on origin and destination coordinates.</p>
                 <div className="pt-4 mt-6 border-t border-slate-100">
-                  <Button className="w-full h-12 text-md rounded-xl" type="submit" disabled={loading}>
+                  <Button className="w-full h-12 text-md rounded-xl shadow-lg hover:-translate-y-0.5 transition-transform" type="submit" disabled={loading}>
                     {loading ? "Processing..." : "Create Request"}
                   </Button>
                 </div>

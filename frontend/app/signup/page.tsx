@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("customer");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -23,10 +23,10 @@ export default function SignupPage() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch("http://localhost:5000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, phone }),
       });
       const data = await res.json();
 
@@ -88,6 +88,18 @@ export default function SignupPage() {
                   required
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700" htmlFor="phone">Phone</label>
+                <Input 
+                  id="phone" 
+                  type="text"
+                  placeholder="09012345678"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
               
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>
@@ -100,7 +112,7 @@ export default function SignupPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700" htmlFor="role">I am a...</label>
                 <select 
                   id="role"
@@ -112,7 +124,7 @@ export default function SignupPage() {
                   <option value="driver">Driver</option>
                   <option value="admin">Admin</option>
                 </select>
-              </div>
+              </div> */}
 
               <div className="pt-2">
                 <Button className="w-full text-md h-12" type="submit" disabled={loading}>
