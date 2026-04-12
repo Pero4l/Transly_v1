@@ -136,7 +136,7 @@ export function Navbar() {
               </Button>
             </Link>
           ) : (
-             <Link href={user.role === 'admin' ? '/admin' : user.role === 'driver' ? '/driver' : '/dashboard'}>
+             <Link href={user.role === 'admin' ? '/admin' : user.role === 'driver' ? '/driver' : '/profile'}>
                <Button size="sm" className="hidden md:flex rounded-full bg-slate-800 hover:bg-slate-900 border-none px-4">
                  <User className="h-4 w-4 mr-2 text-orange-400" />
                  {user.name.split(' ')[0]}

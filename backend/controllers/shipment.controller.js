@@ -99,12 +99,28 @@ exports.updateShipmentStatus = async (req, res) => {
     shipment.status = status;
     await shipment.save();
 
+    const admin = await User.findAll({ where: { role: "admin" } });
+
     try {
+      // For Customer
       await sendEmail({
         email: shipment.customer.email,
         subject: `Shipment Update: ${status}`,
         message: `Your shipment ${shipment.trackingNumber} status is now: ${status}`,
       });
+      // For Admin
+      await sendEmail({
+        email: "translynigeria@gmail.com",
+        subject: `Shipment Update: ${status}`,
+        message: `A shipment ${shipment.trackingNumber} for ${shipment.customer.name} status is now: ${status}`
+      });
+        // For Admin Notifications
+      await Notification.create({
+        userId: "e961c3e0-1603-42dc-a670-f1efd6f58bf1",
+        message: `Shipment ${shipment.trackingNumber} status updated to ${status}.`,
+        type: 'info'
+      });
+    
       await Notification.create({
         userId: shipment.customer.id,
         message: `Shipment ${shipment.trackingNumber} status updated to ${status}.`,

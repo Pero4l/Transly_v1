@@ -33,6 +33,8 @@ export default function LoginPage() {
         localStorage.setItem("transly_user", JSON.stringify(data.user));
         if (data.user.role === 'admin') {
           router.push("/admin");
+        } else if (data.user.role === 'driver') {
+          router.push("/driver");
         } else {
           router.push("/dashboard");
         }
