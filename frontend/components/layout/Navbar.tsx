@@ -59,7 +59,7 @@ export function Navbar() {
             <Package className="h-6 w-6" />
             <span>Transly</span>
           </Link>
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {user?.role === 'driver' && (
               <Link href="/driver" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
                 Driver Portal
@@ -103,7 +103,7 @@ export function Navbar() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-50">
+                <div className="absolute -left-20 md:right-0 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-50">
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -144,7 +144,7 @@ export function Navbar() {
              </Link>
           )}
 
-          <Button variant="ghost" size="icon" className="md:hidden">
+          <Button variant="ghost" size="icon" className="lg:hidden">
              <Menu className="h-5 w-5" />
           </Button>
         </div>
