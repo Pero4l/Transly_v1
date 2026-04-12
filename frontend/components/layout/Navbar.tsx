@@ -18,6 +18,10 @@ export function Navbar() {
       setUser(savedUser);
     }
 
+    if(!notifications){
+      setNotifications(["Loading notifications..."]);
+    }
+
     if (token) {
       fetch("http://localhost:5000/notifications", {
         headers: { Authorization: `Bearer ${token}` }
