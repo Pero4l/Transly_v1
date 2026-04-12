@@ -28,8 +28,8 @@ export default function AdminDashboardPage() {
     const token = localStorage.getItem("transly_token");
     try {
       const [shipRes, userRes] = await Promise.all([
-        fetch("http://localhost:5000/api/admin/shipments", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://localhost:5000/api/admin/users", { headers: { Authorization: `Bearer ${token}` } })
+        fetch("http://localhost:9400/admin/shipments", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("http://localhost:9400/admin/users", { headers: { Authorization: `Bearer ${token}` } })
       ]);
       const shipData = await shipRes.json();
       const userData = await userRes.json();
@@ -56,7 +56,7 @@ export default function AdminDashboardPage() {
     if(!driverId) return;
     const token = localStorage.getItem("transly_token");
     try {
-      await fetch("http://localhost:5000/api/admin/assign-driver", {
+      await fetch("http://localhost:9400/admin/assign-driver", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ shipmentId, driverId })
@@ -68,7 +68,7 @@ export default function AdminDashboardPage() {
   const toggleSuspend = async (userId: string) => {
     const token = localStorage.getItem("transly_token");
     try {
-      await fetch(`http://localhost:5000/api/admin/users/${userId}/suspend`, {
+      await fetch(`http://localhost:9400/admin/users/${userId}/suspend`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:5000/api/admin/driver", {
+      const res = await fetch("http://localhost:9400/admin/driver", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(driverData)
