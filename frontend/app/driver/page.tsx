@@ -91,7 +91,7 @@ export default function DriverDashboardPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-lg">{s.trackingNumber}</CardTitle>
-                        <CardDescription className="font-medium text-orange-600">Earnings: ${s.price}</CardDescription>
+                        {/* <CardDescription className="font-medium text-orange-600">Earnings: ${s.price}</CardDescription> */}
                       </div>
                       <Badge className="uppercase tracking-wide" variant="default">
                         {s.status.replace("_", " ")}

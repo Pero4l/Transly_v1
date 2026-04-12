@@ -144,7 +144,7 @@ export function ChatWidget() {
             <div ref={messagesEndRef} />
           </CardContent>
           <CardFooter className="p-3 border-t bg-white">
-            <div className="flex w-full gap-2">
+            <div className="flex w-full gap-2 mt-3">
               <Input 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

@@ -1,6 +1,6 @@
 "use client"
 import { Sidebar } from "@/components/layout/Sidebar";
-import { User, Menu } from "lucide-react";
+import { User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import Link from "next/link";
@@ -25,14 +25,14 @@ export default function AdminLayout({
             <span className="mr-2">Transly Admin</span>
           </div>
           <Button onClick={isMenu} variant="ghost" size="icon">
-            <Menu className="h-5 w-5" />
+            {!menu ? <Menu className="h-5 w-5 text-orange-600" /> : <X className="h-5 w-5 text-orange-600" />}
           </Button>
         </header>
 
   
             {menu && (
               <div>
-                  <nav className="space-y-1 px-3 pt-5 pb-5 bg-orange-600/30">
+                  <nav className="space-y-2 px-3 pt-5 pb-5 bg-orange-600/30">
           <Link href="/admin" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
             <LayoutDashboard className="h-5 w-5 mr-3" />
             Overview
@@ -52,6 +52,10 @@ export default function AdminLayout({
           <Link href="/admin/drivers" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Truck className="h-5 w-5 mr-3 text-orange-600" />
             Drivers
+          </Link>
+          <Link href="/tracking" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+            <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
+            Track Product
           </Link>
           <Link href="/admin/settings" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Settings className="h-5 w-5 mr-3 text-orange-600" />
