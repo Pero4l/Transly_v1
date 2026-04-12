@@ -93,6 +93,19 @@ exports.updateSettings = async (req, res) => {
   }
 };
 
+exports.getSettings = async (req, res) => {
+  try {
+    const settings = await Setting.findAll();
+    const settingsMap = settings.reduce((acc, s) => {
+      acc[s.key] = s.value;
+      return acc;
+    }, {});
+    res.status(200).json({ success: true, settings: settingsMap });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 exports.createDriver = async (req, res) => {
   const { name, email, phone, address, vehicleType, licenseNumber, nin, guarantor_name, guarantor_phone, guarantor_address, guarantor_nin } = req.body;
   

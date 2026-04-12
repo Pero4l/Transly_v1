@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { MapPin, Package, User, Phone, Mail, Calendar, Navigation, DollarSign, Box, Truck } from "lucide-react";
+import { MapPin, Package, User, Phone, Mail, Calendar, Navigation, Banknote, Box, Truck } from "lucide-react";
 
 interface ShipmentDetailsProps {
   shipment: any;
@@ -43,8 +43,8 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
             <div className="flex justify-between items-center p-1">
               <span className="text-sm text-slate-500">Price</span>
               <span className="font-bold text-orange-600 flex items-center">
-                <DollarSign className="h-4 w-4" />
-                {shipment.price}
+                <span className="text-xs mr-0.5">₦</span>
+                {parseFloat(shipment.price).toLocaleString()}
               </span>
             </div>
             {shipment.description && (

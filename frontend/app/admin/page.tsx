@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowUpRight, Truck, Package, Activity, DollarSign, Ban, Loader2 } from "lucide-react";
+import { ArrowUpRight, Truck, Package, Activity, Ban, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AdminDashboardPage() {

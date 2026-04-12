@@ -3,7 +3,7 @@ const sendEmail = require('../utils/sendEmail');
 
 const calculatePrice = async (distance) => {
   let priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
-  let rate = priceSetting ? parseFloat(priceSetting.value) : 1.5; // default $1.5/mile
+  let rate = priceSetting ? parseFloat(priceSetting.value) : 500.0; // default ₦500/mile
   return (distance * rate).toFixed(2);
 };
 
@@ -43,14 +43,14 @@ exports.createShipment = async (req, res) => {
       await sendEmail({
         email: "translynigeria@gmail.com",
         subject:"New Shipment Created",
-        message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: $${price}`
+        message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: ₦${price}`
       });
 
       // Notify customer
       await sendEmail({
         email: req.user.email,
         subject: 'Shipment Created',
-        message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: $${price}`,
+        message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: ₦${price}`,
       });
       
       // In-app notification for customer
