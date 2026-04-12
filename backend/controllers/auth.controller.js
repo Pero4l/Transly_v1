@@ -106,19 +106,19 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.getMe = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: {
-      id: req.user.id,
-      name: req.user.name,
-      email: req.user.email,
-      role: req.user.role,
-      phone: req.user.phone,
-      address: req.user.address,
-    }
-  });
-};
+// exports.getMe = async (req, res) => {
+//   res.status(200).json({
+//     success: true,
+//     user: {
+//       id: req.user.id,
+//       name: req.user.name,
+//       email: req.user.email,
+//       role: req.user.role,
+//       phone: req.user.phone,
+//       address: req.user.address,
+//     }
+//   });
+// };
 
 exports.googleAuth = async (req, res) => {
   const { name, email } = req.body;
