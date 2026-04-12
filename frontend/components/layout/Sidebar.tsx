@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, PackageSearch, Users, Truck, Settings } from "lucide-react";
+import { LayoutDashboard, PackageSearch, Users, Truck, Settings, MessageCircle } from "lucide-react";
 
 export function Sidebar() {
   return (
@@ -23,6 +23,10 @@ export function Sidebar() {
           <Link href="/admin/customers" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Users className="h-5 w-5 mr-3 text-slate-400" />
             Customers
+          </Link>
+          <Link href="/admin/chat" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+            <MessageCircle className="h-5 w-5 mr-3 text-slate-400" />
+            Messages
           </Link>
           <Link href="/admin/drivers" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Truck className="h-5 w-5 mr-3 text-slate-400" />

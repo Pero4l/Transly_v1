@@ -2,10 +2,23 @@ const { Conversation, Message, User } = require('../models');
 const { Op } = require('sequelize');
 
 exports.startOrGetConversation = async (req, res) => {
-  const { user2Id } = req.body;
+  let { user2Id } = req.body;
   const user1Id = req.user.id;
 
   try {
+    // If no recipient provided and current user is a customer, find an admin to chat with
+    if (!user2Id && req.user.role === 'customer') {
+      const admin = await User.findOne({ where: { role: 'admin' } });
+      if (!admin) {
+        return res.status(404).json({ success: false, error: 'No support agent available' });
+      }
+      user2Id = admin.id;
+    }
+
+    if (!user2Id) {
+      return res.status(400).json({ success: false, error: 'Recipient ID required' });
+    }
+
     let conversation = await Conversation.findOne({
       where: {
         [Op.or]: [

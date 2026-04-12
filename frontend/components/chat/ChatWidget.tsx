@@ -1,0 +1,164 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { MessageCircle, X, Send, User } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { getSocket } from "@/lib/socket";
+
+export function ChatWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const [conversation, setConversation] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const socket = getSocket();
+
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem("transly_user") || "null");
+    setUser(savedUser);
+
+    if (savedUser && isOpen) {
+      startChat(savedUser);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (conversation) {
+      socket.emit("join_conversation", conversation.id);
+
+      socket.on("receive_message", (msg) => {
+        if (msg.conversationId === conversation.id) {
+          setMessages((prev) => [...prev, msg]);
+        }
+      });
+
+      return () => {
+        socket.off("receive_message");
+      };
+    }
+  }, [conversation]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const startChat = async (currentUser: any) => {
+    const token = localStorage.getItem("transly_token");
+    try {
+      // Start or get conversation - backend will find an admin if we don't provide user2Id
+      const convRes = await fetch("http://localhost:9400/chat/conversation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}), // Let backend pick an admin
+      });
+      const convData = await convRes.json();
+      if (convData.success && convData.conversation) {
+        setConversation(convData.conversation);
+        fetchMessages(convData.conversation.id, token);
+      } else {
+        console.error("Failed to start conversation:", convData.error);
+      }
+    } catch (err) {
+      console.error("Failed to start chat:", err);
+    }
+  };
+
+  const fetchMessages = async (convId: string, token: string | null) => {
+    try {
+      const res = await fetch(`http://localhost:9400/chat/${convId}/messages`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessages(data.messages);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSend = () => {
+    if (!input.trim() || !conversation || !user) return;
+
+    const msgData = {
+      conversationId: conversation.id,
+      senderId: user.id,
+      text: input,
+    };
+
+    socket.emit("send_message", msgData);
+    setInput("");
+  };
+
+  if (!user || user.role === 'admin') return null;
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      {!isOpen ? (
+        <Button 
+          onClick={() => setIsOpen(true)}
+          className="h-14 w-14 rounded-full shadow-2xl bg-orange-600 hover:bg-orange-700 p-0 flex items-center justify-center animate-bounce-subtle"
+        >
+          <MessageCircle className="h-7 w-7 text-white" />
+        </Button>
+      ) : (
+        <Card className="w-80 sm:w-96 border-0 shadow-2xl rounded-2xl overflow-hidden glass flex flex-col h-[500px]">
+          <CardHeader className="bg-orange-600 text-white py-4 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+              <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse" />
+              Transly Support
+            </CardTitle>
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-orange-700 h-8 w-8">
+              <X className="h-5 w-5" />
+            </Button>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+            {messages.length === 0 && (
+              <div className="text-center py-10">
+                <div className="bg-orange-100 h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <User className="h-6 w-6 text-orange-600" />
+                </div>
+                <p className="text-sm text-slate-500">Welcome! How can we help you today?</p>
+              </div>
+            )}
+            {messages.map((msg, i) => (
+              <div 
+                key={i} 
+                className={`flex ${msg.senderId === user.id ? 'justify-end pt-5' : 'justify-start'}`}
+              >
+                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                  msg.senderId === user.id 
+                    ? 'bg-orange-600 text-white rounded-tr-none shadow-orange-100 shadow-lg' 
+                    : 'bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-sm'
+                }`}>
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </CardContent>
+          <CardFooter className="p-3 border-t bg-white">
+            <div className="flex w-full gap-2">
+              <Input 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="Type a message..."
+                className="rounded-full bg-slate-100 border-none focus-visible:ring-orange-600"
+              />
+              <Button onClick={handleSend} size="icon" className="rounded-full bg-orange-600 hover:bg-orange-700 flex-shrink-0">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      )}
+    </div>
+  );
+}
