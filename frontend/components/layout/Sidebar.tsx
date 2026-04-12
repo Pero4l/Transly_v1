@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, PackageSearch, Users, Truck, Settings, MessageCircle } from "lucide-react";
+import { LayoutDashboard, PackageSearch, Users, Truck, Settings, MessageCircle, LogOut } from "lucide-react";
 
 export function Sidebar() {
   return (
@@ -38,16 +38,27 @@ export function Sidebar() {
           </Link>
         </nav>
       </div>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-4">
         <div className="flex items-center space-x-3">
           <div className="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">
             AD
           </div>
-          <div>
-            <p className="text-sm font-medium text-slate-900">Admin User</p>
-            <p className="text-xs text-slate-500">System Admin</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-slate-900 truncate">Admin User</p>
+            <p className="text-xs text-slate-500 truncate">System Admin</p>
           </div>
         </div>
+        <button 
+          onClick={() => {
+            localStorage.removeItem("transly_token");
+            localStorage.removeItem("transly_user");
+            window.location.href = "/login";
+          }}
+          className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-600 hover:bg-red-50 transition-colors"
+        >
+          <LogOut className="h-5 w-5 mr-3" />
+          Logout
+        </button>
       </div>
     </aside>
   );

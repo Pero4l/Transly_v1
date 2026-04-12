@@ -23,6 +23,19 @@ exports.getAllCustomers = async (req, res) => {
   }
 };
 
+exports.getAllDrivers = async (req, res) => {
+  try {
+    const drivers = await User.findAll({ 
+      where: { role: 'driver' },
+      attributes: { exclude: ['password'] },
+      include: [{ model: DriverProfile, as: 'driverProfile' }]
+    });
+    res.status(200).json({ success: true, drivers });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 exports.getAllShipments = async (req, res) => {
   try {
     const shipments = await Shipment.findAll();

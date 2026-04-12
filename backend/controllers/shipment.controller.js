@@ -37,32 +37,39 @@ exports.createShipment = async (req, res) => {
     });
 
     try {
+      const admins = await User.findAll({ where: { role: 'admin' } });
       
+      // Notify admins via email (general address)
       await sendEmail({
         email: "translynigeria@gmail.com",
         subject:"New Shipment Created",
         message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: $${price}`
-      })
+      });
 
+      // Notify customer
       await sendEmail({
         email: req.user.email,
         subject: 'Shipment Created',
         message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: $${price}`,
       });
       
+      // In-app notification for customer
       await Notification.create({
         userId: req.user.id,
         message: `Shipment ${trackingNumber} created successfully.`,
         type: 'success'
       });
 
+      // In-app notifications for ALL admins
+      for (const admin of admins) {
         await Notification.create({
-        userId: "e961c3e0-1603-42dc-a670-f1efd6f58bf1",
-        message: `A new Shipment with tracking number: ${trackingNumber} created successfully by ${req.user.name}.`,
-        type: 'success'
-      });
+          userId: admin.id,
+          message: `A new Shipment with tracking number: ${trackingNumber} created by ${req.user.name}.`,
+          type: 'success'
+        });
+      }
       
-    } catch(err) { console.error('Failed to send email:', err); }
+    } catch(err) { console.error('Failed to send notifications:', err); }
 
     res.status(201).json({ success: true, shipment });
   } catch (error) {
@@ -108,25 +115,30 @@ exports.updateShipmentStatus = async (req, res) => {
         subject: `Shipment Update: ${status}`,
         message: `Your shipment ${shipment.trackingNumber} status is now: ${status}`,
       });
-      // For Admin
+      // For Admins (Email)
       await sendEmail({
         email: "translynigeria@gmail.com",
         subject: `Shipment Update: ${status}`,
         message: `A shipment ${shipment.trackingNumber} for ${shipment.customer.name} status is now: ${status}`
       });
-        // For Admin Notifications
-      await Notification.create({
-        userId: "e961c3e0-1603-42dc-a670-f1efd6f58bf1",
-        message: `Shipment ${shipment.trackingNumber} status updated to ${status}.`,
-        type: 'info'
-      });
-    
+
+      // Notify customer (In-app)
       await Notification.create({
         userId: shipment.customer.id,
         message: `Shipment ${shipment.trackingNumber} status updated to ${status}.`,
         type: 'info'
       });
-    } catch(err) { console.error('Failed to send email:', err); }
+
+      // Notify all Admins (In-app)
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      for (const admin of admins) {
+        await Notification.create({
+          userId: admin.id,
+          message: `Shipment ${shipment.trackingNumber} status updated to ${status}.`,
+          type: 'info'
+        });
+      }
+    } catch(err) { console.error('Failed to send notifications:', err); }
 
     res.status(200).json({ success: true, shipment });
   } catch (error) {

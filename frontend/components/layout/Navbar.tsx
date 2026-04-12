@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Package, Search, User, Menu, Bell, Check } from "lucide-react";
+import { Package, Search, User, Menu, Bell, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send } from "lucide-react";
 
 export function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -50,6 +51,12 @@ export function Navbar() {
       }
     } catch(err) { console.error(err); }
   };
+
+
+  const [menu, setMenu] = useState(false)
+  function isMenu(){
+    setMenu(!menu)
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
@@ -103,7 +110,7 @@ export function Navbar() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute -left-20 md:right-0 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-50">
+                <div className="absolute -left-30 md:right-0 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-50">
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -118,8 +125,8 @@ export function Navbar() {
                     ) : (
                       notifications.slice(0, 10).map((n: any) => (
                         <div key={n.id} className={`p-3 border-b border-slate-50 text-sm ${n.read ? 'opacity-60 bg-white' : 'bg-orange-50/50'}`}>
-                          <p className="text-slate-800">{n.message}</p>
-                          <span className="text-xs text-slate-400 mt-1 block">{new Date(n.createdAt).toLocaleTimeString()}</span>
+                          <p className="text-slate-800 font-medium">{n.message}</p>
+                          <span className="text-xs text-slate-500 mt-1 block">{new Date(n.createdAt).toLocaleTimeString()}</span>
                         </div>
                       ))
                     )}
@@ -136,19 +143,43 @@ export function Navbar() {
               </Button>
             </Link>
           ) : (
-             <Link href={user.role === 'admin' ? '/admin' : user.role === 'driver' ? '/driver' : '/profile'}>
+             <Link href={user.role === 'driver' ? '/driver' : '/profile'}>
                <Button size="sm" className="hidden md:flex rounded-full bg-slate-800 hover:bg-slate-900 border-none px-4">
-                 <User className="h-4 w-4 mr-2 text-orange-400" />
-                 {user.name.split(' ')[0]}
+                 <User className="h-4 w-4 mr-2 text-white" />
+                 Profile
                </Button>
              </Link>
           )}
 
-          <Button variant="ghost" size="icon" className="lg:hidden">
-             <Menu className="h-5 w-5" />
+          <Button onClick={isMenu} variant="ghost" size="icon" className="lg:hidden">
+            {!menu ? <Menu className="h-5 w-5 text-black" /> : <X className="h-5 w-5 text-orange-700" />}
           </Button>
+          
+          
         </div>
       </div>
+
+      {menu && (
+              <div>
+                  <nav className="space-y-2 px-3 pt-5 pb-5 bg-orange-600/30">
+          <Link href="/dashboard" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
+            <LayoutDashboard className="h-5 w-5 mr-3" />
+            dashboard
+          </Link>
+        
+        
+          <Link href="/request" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+            <Send className="h-5 w-5 mr-3 text-orange-600" />
+            Send Product
+          </Link>
+
+            <Link href="/tracking" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+            <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
+            Track Product
+          </Link>
+        </nav>
+              </div>
+            )}
     </nav>
   );
 }
