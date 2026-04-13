@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { User, Mail, Phone, MapPin, Shield, Camera, Save, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
+import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
 
 export default function ProfilePage() {
@@ -49,13 +50,13 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ type: "success", content: "Profile updated successfully!" });
+        toast.success("Profile updated successfully!");
         await refreshSession();
       } else {
-        setMessage({ type: "error", content: data.error || "Failed to update profile" });
+        toast.error(data.error || "Failed to update profile");
       }
     } catch (err) {
-      setMessage({ type: "error", content: "Network error. Please try again." });
+      toast.error("Network error. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -119,11 +120,6 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdate} className="space-y-6">
-              {message.content && (
-                <div className={`p-4 rounded-xl text-sm font-medium ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                  {message.content}
-                </div>
-              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">

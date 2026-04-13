@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Search, MapPin, CheckCircle2, Clock, Truck, Package, AlertCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TrackingPage() {
   const [trackingNumber, setTrackingNumber] = useState("");
@@ -28,10 +29,14 @@ export default function TrackingPage() {
       if (data.success) {
         setShipment(data.shipment);
       } else {
-        setError(data.error || "Tracking number not found");
+        const errorMsg = data.error || "Tracking number not found";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      setError("Failed to fetch tracking information. Please try again.");
+      const errorMsg = "Failed to fetch tracking information. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -58,12 +63,6 @@ export default function TrackingPage() {
           </form>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3 mb-6 animate-in fade-in slide-in-from-top-2">
-            <AlertCircle className="h-5 w-5" />
-            <p>{error}</p>
-          </div>
-        )}
 
         {shipment && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

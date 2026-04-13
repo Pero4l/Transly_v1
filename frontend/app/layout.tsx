@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { SessionProvider } from "@/lib/sessionContext";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <SessionProvider>
+          <Toaster richColors position="top-center" />
           <main className="flex-1 flex flex-col">{children}</main>
           <ChatWidget />
         </SessionProvider>

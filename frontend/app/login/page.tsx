@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Package, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -41,11 +42,16 @@ export default function LoginPage() {
         } else {
           router.push("/dashboard");
         }
+        toast.success("Welcome back!");
       } else {
-        setError(data.error || "Login failed");
+        const errorMsg = data.error || "Login failed";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      const errorMsg = "Network error. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

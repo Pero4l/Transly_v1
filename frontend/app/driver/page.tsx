@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { MapPin, Navigation, PackageCheck, Phone, CheckCircle, Package, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/sessionContext";
 
@@ -58,12 +59,14 @@ export default function DriverDashboardPage() {
         body: JSON.stringify({ status })
       });
       if (res.ok) {
+        toast.success(`Shipment status updated to ${status.replace("_", " ")}`);
         fetchDriverShipments();
       } else {
         const err = await res.json();
-        alert(err.error || "Update failed");
+        toast.error(err.error || "Update failed");
       }
     } catch (err) {
+      toast.error("An error occurred while updating status");
       console.error(err);
     } finally {
       setActionLoading(false);

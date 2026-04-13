@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { MapPin, User, Package, CreditCard, Loader2, Navigation, Target, MousePointer2 } from "lucide-react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSession } from "@/lib/sessionContext";
@@ -99,7 +100,7 @@ export default function RequestPage() {
   const [detecting, setDetecting] = useState(false);
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser");
+        toast.error("Geolocation is not supported by your browser");
         return;
     }
 
@@ -125,7 +126,7 @@ export default function RequestPage() {
         },
         (error) => {
             console.error(error);
-            alert("Unable to retrieve your location");
+            toast.error("Unable to retrieve your location. Please check your permissions.");
             setDetecting(false);
         }
     );
@@ -134,7 +135,7 @@ export default function RequestPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!coords.origin || !coords.destination) {
-        alert("Please set both Pickup and Destination on the map.");
+        toast.error("Please set both Pickup and Destination on the map.");
         return;
     }
 
@@ -155,13 +156,14 @@ export default function RequestPage() {
         }),
       });
       if (res.ok) {
+        toast.success("Shipment request created successfully!");
         router.push("/dashboard");
       } else {
         const error = await res.json();
-        alert(error.error || "Failed to create request");
+        toast.error(error.error || "Failed to create request");
       }
     } catch (err) {
-      alert(err);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -171,13 +173,13 @@ export default function RequestPage() {
     <div className="min-h-screen bg-slate-50 pb-12">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <main className="container mx-auto px-4 py-4 md:py-8 max-w-5xl">
+        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="max-w-xl">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2 font-display">New Delivery Request</h1>
-            <p className="text-slate-500">Pick locations on the map for precision dispatch.</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1 font-display">New Delivery Request</h1>
+            <p className="text-sm text-slate-500">Pick locations on the map for precision dispatch.</p>
           </div>
-          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit items-center gap-2">
+          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit items-center gap-1 md:gap-2">
             <button
                 type="button"
                 onClick={handleDetectLocation}
@@ -191,14 +193,14 @@ export default function RequestPage() {
             <button 
                 type="button"
                 onClick={() => setActiveType('origin')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeType === 'origin' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all ${activeType === 'origin' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
             >
                 Set Pickup
             </button>
             <button 
                 type="button"
                 onClick={() => setActiveType('destination')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeType === 'destination' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all ${activeType === 'destination' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
             >
                 Set Destination
             </button>
@@ -208,7 +210,7 @@ export default function RequestPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Map Section */}
             <div className="lg:col-span-12">
-                <Card className="border-0 shadow-xl rounded-3xl overflow-hidden glass">
+                <Card className="border border-slate-200 shadow-sm rounded-xl overflow-hidden bg-white">
                    <CardContent className="p-0">
                       <MapPicker 
                         onLocationSelect={handleLocationSelect} 
@@ -222,9 +224,9 @@ export default function RequestPage() {
             </div>
 
             {/* Form Section */}
-          <form onSubmit={handleSubmit} className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
-            <div className="space-y-6">
-                <Card className="border-0 shadow-sm rounded-2xl glass">
+          <form onSubmit={handleSubmit} className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-4">
+            <div className="space-y-4 md:space-y-6">
+                <Card className="border border-slate-200 shadow-sm rounded-xl bg-white">
                 <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                     <CardTitle className="text-lg flex items-center justify-between">
                         <div className="flex items-center">
@@ -257,7 +259,7 @@ export default function RequestPage() {
                 </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-sm rounded-2xl glass">
+                <Card className="border border-slate-200 shadow-sm rounded-xl bg-white">
                 <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                     <CardTitle className="text-lg flex items-center">
                     <Package className="h-5 w-5 mr-2 text-emerald-500" /> Package Info
@@ -276,8 +278,8 @@ export default function RequestPage() {
                 </Card>
             </div>
 
-            <div className="space-y-6">
-                <Card className="border-0 shadow-sm rounded-2xl glass">
+            <div className="space-y-4 md:space-y-6">
+                <Card className="border border-slate-200 shadow-sm rounded-xl bg-white">
                 <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                     <CardTitle className="text-lg flex items-center">
                     <User className="h-5 w-5 mr-2 text-indigo-500" /> Receiver Details
@@ -288,15 +290,15 @@ export default function RequestPage() {
                     <label className="text-sm font-medium text-slate-700 block mb-1">Full Name</label>
                     <Input name="receiverName" placeholder="Full name of receiver" value={formData.receiverName} onChange={handleChange} required />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="">
                         <div>
                         <label className="text-sm font-medium text-slate-700 block mb-1">Phone Number</label>
                         <Input name="receiverPhone" placeholder="Contact number" value={formData.receiverPhone} onChange={handleChange} required />
                         </div>
-                        <div>
-                        {/* <label className="text-sm font-medium text-slate-700 block mb-1">Delivery Instructions</label>
-                        <Input placeholder="Optional gateway/apt" /> */}
-                        </div>
+                        {/* <div>
+                        <label className="text-sm font-medium text-slate-700 block mb-1">Delivery Instructions</label>
+                        <Input placeholder="Optional gateway/apt" />
+                        </div> */}
                     </div>
                     <div>
                     <label className="text-sm font-medium text-slate-700 block mb-1">Verified Delivery Address</label>
@@ -305,8 +307,8 @@ export default function RequestPage() {
                 </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-2xl rounded-3xl bg-slate-900 text-white lg:sticky lg:top-24 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <Card className="border border-slate-200 shadow-lg rounded-xl bg-slate-900 text-white lg:sticky lg:top-24 overflow-hidden mb-6 lg:mb-0">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                 <CardHeader className="border-b border-white/10 pb-4 mb-4 relative z-10">
                     <CardTitle className="text-lg flex items-center">
                     <CreditCard className="h-5 w-5 mr-2 text-orange-500" /> Booking Invoice

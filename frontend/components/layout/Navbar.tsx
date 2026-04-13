@@ -12,6 +12,7 @@ export function Navbar() {
   const { user, token, logout } = useSession();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -99,10 +100,9 @@ export function Navbar() {
   };
 
 
-  const [menu, setMenu] = useState(false)
-  function isMenu() {
-    setMenu(!menu)
-  }
+  const toggleMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
@@ -156,7 +156,7 @@ export function Navbar() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute -left-30 md:right-0 mt-2 w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-50">
+                <div className="absolute left-[-150px] md:left-auto md:right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -202,40 +202,46 @@ export function Navbar() {
             </div>
           )}
 
-          <Button onClick={isMenu} variant="ghost" size="icon" className="lg:hidden">
-            {!menu ? <Menu className="h-5 w-5 text-black" /> : <X className="h-5 w-5 text-orange-700" />}
+          <Button onClick={toggleMenu} variant="ghost" size="icon" className="lg:hidden">
+            {!mobileMenuOpen ? <Menu className="h-5 w-5 text-black" /> : <X className="h-5 w-5 text-orange-700" />}
           </Button>
 
 
         </div>
       </div>
 
-      {menu && (
-        <div>
-          <nav className="space-y-2 px-3 pt-5 pb-5 bg-orange-600/30">
-            <Link href="/dashboard" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
-              <LayoutDashboard className="h-5 w-5 mr-3" />
-              dashboard
+      {mobileMenuOpen && (
+        <div className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav className="space-y-1 px-4 pt-4 pb-6">
+            <Link href="/dashboard" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <LayoutDashboard className="h-5 w-5 mr-3 text-slate-400" />
+              Dashboard
             </Link>
 
-
-            <Link href="/request" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
-              <Send className="h-5 w-5 mr-3 text-orange-600" />
-              Send Product
+            <Link href={user?.role === 'driver' ? '/driver' : '/profile'} onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <User className="h-5 w-5 mr-3 text-slate-400" />
+              {user?.role === 'driver' ? 'Driver Portal' : 'Profile Settings'}
             </Link>
 
-            <Link href="/tracking" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
-              <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
-              Track Product
+            <Link href="/request" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <Send className="h-5 w-5 mr-3 text-slate-400" />
+              Send Package
+            </Link>
+
+            <Link href="/tracking" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
+              Track Package
             </Link>
             
-            <button 
-              onClick={() => { logout(); isMenu(); }}
-              className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-red-600/10 text-red-600 hover:bg-red-50 mt-4"
-            >
-              <X className="h-5 w-5 mr-3" />
-              Logout
-            </button>
+            <div className="pt-4 mt-4 border-t border-slate-100">
+              <button 
+                onClick={() => { logout(); toggleMenu(); }}
+                className="w-full flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+              >
+                <X className="h-5 w-5 mr-3" />
+                Logout
+              </button>
+            </div>
           </nav>
         </div>
       )}

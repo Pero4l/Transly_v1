@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Package, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -36,12 +37,17 @@ export default function SignupPage() {
 
       if (data.success) {
         await refreshSession();
+        toast.success("Account created successfully!");
         router.push("/dashboard");
       } else {
-        setError(data.error || "Signup failed");
+        const errorMsg = data.error || "Signup failed";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      const errorMsg = "Network error. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

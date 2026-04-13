@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Download, Filter, Search, X, Eye, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { toast } from "sonner";
 import { ShipmentDetails } from "@/components/shipments/ShipmentDetails";
 import { useSession } from "@/lib/sessionContext";
 
@@ -27,8 +28,11 @@ export default function AdminShipmentsPage() {
       const data = await res.json();
       if (data.success) {
         setShipments(data.shipments);
+      } else {
+        toast.error(data.error || "Failed to fetch shipments");
       }
     } catch (err) {
+      toast.error("Network error while fetching shipments");
       console.error(err);
     } finally {
       setLoading(false);
@@ -51,8 +55,11 @@ export default function AdminShipmentsPage() {
       const data = await res.json();
       if (data.success) {
         setSelectedShipment(data.shipment);
+      } else {
+        toast.error(data.error || "Failed to load shipment details");
       }
     } catch (err) {
+      toast.error("An error occurred while loading details");
       console.error(err);
     } finally {
       setActionLoading(false);

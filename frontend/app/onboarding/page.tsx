@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
 
 export default function OnboardingPage() {
@@ -37,12 +38,14 @@ export default function OnboardingPage() {
       });
       const data = await res.json();
       if(data.success) {
+        toast.success("Profile updated successfully!");
         await refreshSession();
         window.location.href = "/request";
       } else {
-        alert(data.error);
+        toast.error(data.error || "Failed to update profile");
       }
     } catch(err) {
+      toast.error("An error occurred. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
