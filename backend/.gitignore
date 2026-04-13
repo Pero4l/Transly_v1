@@ -10,4 +10,5 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*  
 /test_flow.js
+.txt
 

@@ -8,7 +8,14 @@ const init = (server) => {
   io = new Server(server, {
     cors: {
       origin: function (origin, callback) {
-        const allowed = [process.env.FRONTEND_URL, 'https://transly-kappa.vercel.app', 'http://localhost:3000'];
+        const allowed = [
+          process.env.FRONTEND_URL, 
+          'https://transly-kappa.vercel.app', 
+          'http://localhost:3000', 
+          'https://localhost:3000',
+          'http://127.0.0.1:3000',
+          'https://127.0.0.1:3000'
+        ];
         if (!origin || allowed.indexOf(origin) !== -1) {
           callback(null, true);
         } else {

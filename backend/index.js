@@ -31,18 +31,26 @@ app.use(session({
   saveUninitialized: true // Force saving to Redis for debugging
 }));
 
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser(process.env.SESSION_SECRET || 'transly_secret_key_2026'));
 app.use(cors({
-  origin: function (origin, callback) {
-    const allowed = [process.env.FRONTEND_URL, 'https://transly-kappa.vercel.app', 'https://localhost:3000'];
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+      origin: function (origin, callback) {
+        const allowed = [
+          process.env.FRONTEND_URL, 
+          'https://transly-kappa.vercel.app', 
+          'http://localhost:3000', 
+          'https://localhost:3000',
+          'http://127.0.0.1:3000',
+          'https://127.0.0.1:3000'
+        ];
+        if (!origin || allowed.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
