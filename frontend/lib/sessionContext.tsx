@@ -34,16 +34,31 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const refreshSession = async () => {
     try {
+      // 1. Try Session sync first
       const res = await fetch("https://transly-wr1m.onrender.com/auth/session", {
         credentials: "include",
       });
-      const data = await res.json();
+      let data = await res.json();
+      
+      // 2. Fallback to LocalStorage JWT if session fails
+      if (!data.success) {
+        const localToken = localStorage.getItem("transly_token");
+        if (localToken) {
+          const meRes = await fetch("https://transly-wr1m.onrender.com/auth/me", {
+            headers: { Authorization: `Bearer ${localToken}` },
+          });
+          data = await meRes.json();
+        }
+      }
+
       if (data.success) {
         setUser(data.user);
         setToken(data.token);
+        if (data.token) localStorage.setItem("transly_token", data.token);
       } else {
         setUser(null);
         setToken(null);
+        localStorage.removeItem("transly_token");
       }
     } catch (err) {
       console.error("Session sync failed:", err);
@@ -53,6 +68,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    localStorage.removeItem("transly_token");
     try {
       await fetch("https://transly-wr1m.onrender.com/auth/logout", {
         method: "POST",
@@ -63,6 +79,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       window.location.href = "/login";
     } catch (err) {
       console.error("Logout failed:", err);
+      // Even if server logout fails, clear local state
+      setUser(null);
+      setToken(null);
+      window.location.href = "/login";
     }
   };
 

@@ -76,8 +76,7 @@ exports.register = async (req, res) => {
       }
       res.status(201).json({
         success: true,
-        // ...req.session.sessionData
-        message: "Account created successfully"
+        ...req.session.sessionData
       });
     });
   } catch (error) {
@@ -138,7 +137,8 @@ exports.getMe = async (req, res) => {
       role: req.user.role,
       phone: req.user.phone,
       address: req.user.address,
-    }
+    },
+    token: req.headers.authorization ? req.headers.authorization.split(' ')[1] : (req.session?.sessionData?.token)
   });
 };
 

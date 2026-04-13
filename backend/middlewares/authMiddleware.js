@@ -5,6 +5,8 @@ const protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.session && req.session.sessionData) {
+    token = req.session.sessionData.token;
   }
 
   if (!token) {
