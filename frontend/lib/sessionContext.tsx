@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext } from "react";
+import { apiFetch } from "./api";
 
 interface User {
   id: string;
@@ -35,18 +36,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const refreshSession = async () => {
     try {
       // 1. Try Session sync first
-      const res = await fetch("https://transly-wr1m.onrender.com/auth/session", {
-        credentials: "include",
-      });
+      const res = await apiFetch("/auth/session");
       let data = await res.json();
       
       // 2. Fallback to LocalStorage JWT if session fails
       if (!data.success) {
         const localToken = localStorage.getItem("transly_token");
         if (localToken) {
-          const meRes = await fetch("https://transly-wr1m.onrender.com/auth/me", {
-            headers: { Authorization: `Bearer ${localToken}` },
-          });
+          const meRes = await apiFetch("/auth/me", {}, localToken);
           data = await meRes.json();
         }
       }
@@ -70,10 +67,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     localStorage.removeItem("transly_token");
     try {
-      await fetch("https://transly-wr1m.onrender.com/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await apiFetch("/auth/logout", { method: "POST" });
       setUser(null);
       setToken(null);
       window.location.href = "/login";

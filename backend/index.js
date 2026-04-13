@@ -33,7 +33,14 @@ app.use(session({
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: true,
+  origin: function (origin, callback) {
+    const allowed = [process.env.FRONTEND_URL, 'https://transly-kappa.vercel.app', 'https://localhost:3000'];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
