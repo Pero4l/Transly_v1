@@ -46,7 +46,7 @@ export default function LoginPage() {
           if (window.location.pathname !== target) {
             window.location.href = target;
           }
-        }, 300);
+        }, 10000);
         
         toast.success("Welcome back!");
       } else {

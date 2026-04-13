@@ -39,7 +39,7 @@ export default function DashboardPage() {
     } else if (user.role === "driver") {
         router.push("/driver");
     }
-    }, 4000);
+    }, 10000);
 
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
