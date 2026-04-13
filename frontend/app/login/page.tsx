@@ -35,13 +35,18 @@ export default function LoginPage() {
 
       if (data.success) {
         await refreshSession();
-        if (data.user.role === 'admin') {
-          router.push("/admin");
-        } else if (data.user.role === 'driver') {
-          router.push("/driver");
-        } else {
-          router.push("/dashboard");
-        }
+        let target = "/dashboard";
+        if (data.user.role === 'admin') target = "/admin";
+        else if (data.user.role === 'driver') target = "/driver";
+
+        // Fallback for mobile routing issues
+        router.push(target);
+        setTimeout(() => {
+          if (window.location.pathname !== target) {
+            window.location.href = target;
+          }
+        }, 300);
+        
         toast.success("Welcome back!");
       } else {
         const errorMsg = data.error || "Login failed";

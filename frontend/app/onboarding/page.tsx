@@ -17,10 +17,17 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (user) {
+        setPhone(user.phone || "");
+        setAddress(user.address || "");
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (!sessionLoading) {
       if (!user) {
         router.push("/login");
-      } else if (user.phone && user.address) {
+      } else if (user.phone && user.address && user.phone !== "" && user.address !== "") {
         router.push("/dashboard");
       }
     }
@@ -64,26 +71,30 @@ export default function OnboardingPage() {
         </CardHeader>
         <CardContent className="px-8 pb-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="text-sm font-semibold text-slate-700 block mb-2">Phone Number</label>
-              <Input 
-                placeholder="+1 234 567 8900" 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)} 
-                required 
-                className="h-12 bg-slate-50 border-slate-200"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-slate-700 block mb-2">Primary Address</label>
-              <Input 
-                placeholder="Full Home or Business Address" 
-                value={address} 
-                onChange={(e) => setAddress(e.target.value)} 
-                required 
-                className="h-12 bg-slate-50 border-slate-200"
-              />
-            </div>
+            {(!user?.phone || user.phone === "") && (
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Phone Number</label>
+                <Input 
+                  placeholder="+1 234 567 8900" 
+                  value={phone} 
+                  onChange={(e) => setPhone(e.target.value)} 
+                  required 
+                  className="h-12 bg-slate-50 border-slate-200"
+                />
+              </div>
+            )}
+            {(!user?.address || user.address === "") && (
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Primary Address</label>
+                <Input 
+                  placeholder="Full Home or Business Address" 
+                  value={address} 
+                  onChange={(e) => setAddress(e.target.value)} 
+                  required 
+                  className="h-12 bg-slate-50 border-slate-200"
+                />
+              </div>
+            )}
             <Button type="submit" className="w-full h-12 shadow-lg mt-4 shadow-orange-500/20 hover:-translate-y-0.5 transition-transform" disabled={loading}>
               {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
               {loading ? "Completing Profile..." : "Complete Profile"}

@@ -13,10 +13,20 @@ const sendEmail = async (options) => {
     tls: {
       rejectUnauthorized: false
     },
-    pool: true, // Use pooling for better performance on serverless/hosting
+    pool: true,
     maxConnections: 5,
-    maxMessages: 100
+    maxMessages: 100,
+    debug: true, // Show debug logs
+    logger: true // Enable internal logger
   });
+
+  // Verify connection configuration
+  try {
+     await transporter.verify();
+     console.log('✅ [EMAIL] Transporter verified and ready to send');
+  } catch (err) {
+     console.error('❌ [EMAIL] Transporter verification failed:', err.message);
+  }
 
   const message = {
     from: `${process.env.SMTP_FROM_NAME || 'Transly'} <${process.env.SMTP_FROM_EMAIL || 'noreply@transly.com'}>`,

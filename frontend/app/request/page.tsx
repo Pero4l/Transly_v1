@@ -39,7 +39,7 @@ export default function RequestPage() {
     if (!sessionLoading) {
       if (!user) {
         router.push("/login");
-      } else if (!user?.phone || !user?.address) {
+      } else if (!user?.phone || !user?.address || user.phone === "" || user.address === "") {
         router.push("/onboarding");
       }
       fetchRates();
