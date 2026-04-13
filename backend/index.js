@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const redisClient = require('./config/redis');
@@ -32,6 +33,7 @@ app.use(session({
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser(process.env.SESSION_SECRET || 'transly_secret_key_2026'));
 app.use(cors({
   origin: function (origin, callback) {
     const allowed = [process.env.FRONTEND_URL, 'https://transly-kappa.vercel.app', 'https://localhost:3000'];

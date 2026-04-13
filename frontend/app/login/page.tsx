@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export default function LoginPage() {
   const { refreshSession } = useSession();
@@ -25,10 +26,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/auth/login", {
+      const res = await apiFetch("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
@@ -44,9 +43,9 @@ export default function LoginPage() {
         router.push(target);
         setTimeout(() => {
           if (window.location.pathname !== target) {
-            window.location.href = target;
+            window.location.replace(target);
           }
-        }, 10000);
+        }, 3000);
         
         toast.success("Welcome back!");
       } else {

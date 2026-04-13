@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShipmentDetails } from "@/components/shipments/ShipmentDetails";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export default function DashboardPage() {
   const { user, token, loading: sessionLoading } = useSession();
@@ -42,10 +43,7 @@ export default function DashboardPage() {
     }, 10000);
 
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include"
-      });
+      const res = await apiFetch("/shipments", {}, token);
       const data = await res.json();
       if (data.success) {
         setShipments(data.shipments);
@@ -66,10 +64,7 @@ export default function DashboardPage() {
   const handleViewDetails = async (id: string) => {
     setActionLoading(true);
     try {
-      const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include"
-      });
+      const res = await apiFetch(`/shipments/${id}`, {}, token);
       const data = await res.json();
       if (data.success) {
         setSelectedShipment(data.shipment);
@@ -84,15 +79,10 @@ export default function DashboardPage() {
   const updateStatus = async (id: number, status: string) => {
     setActionLoading(true);
     try {
-      const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}/status`, {
+      const res = await apiFetch(`/shipments/${id}/status`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
         body: JSON.stringify({ status }),
-      });
+      }, token);
       if (res.ok) {
         setShipments(
           shipments.map((s: any) => (s.id === id ? { ...s, status } : s)),
