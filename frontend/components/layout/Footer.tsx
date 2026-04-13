@@ -59,15 +59,15 @@ export function Footer() {
             <ul className="space-y-4 text-sm">
               <li className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-orange-500 shrink-0" />
-                <span>123 Logistics Way, Ikeja, Lagos, Nigeria</span>
+                <span>Jos Nigeria</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-orange-500 shrink-0" />
-                <span>+234 (0) 800-TRANSLY</span>
+                <span>+234 907923637</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-orange-500 shrink-0" />
-                <span>hello@transly-logistics.com</span>
+                <span>translynigeria@gmail.com</span>
               </li>
             </ul>
           </div>

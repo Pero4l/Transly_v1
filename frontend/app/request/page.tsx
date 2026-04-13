@@ -2,17 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { MapPin, User, Package, CreditCard, Loader2, Navigation } from "lucide-react";
+import { MapPin, User, Package, CreditCard, Loader2, Navigation, Target, MousePointer2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const MapPicker = dynamic(() => import("@/components/shipments/MapPicker"), { 
     ssr: false,
-    loading: () => <div className="h-[300px] w-full bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-slate-400">Loading Map...</div>
+    loading: () => <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-2xl flex items-center justify-center text-slate-400">Loading Interactive Map...</div>
 });
 
 export default function RequestPage() {
@@ -20,12 +19,16 @@ export default function RequestPage() {
     origin: "", destination: "", description: "", productType: "", 
     receiverName: "", receiverPhone: "", receiverAddress: ""
   });
+  const [coords, setCoords] = useState<{ origin: [number, number] | null, destination: [number, number] | null }>({
+    origin: null,
+    destination: null
+  });
+  const [activeType, setActiveType] = useState<'origin' | 'destination'>('origin');
   const [loading, setLoading] = useState(false);
   const [rates, setRates] = useState({ BASE_FARE: 1500, PRICE_PER_MILE: 500 });
   const router = useRouter();
 
-  // Simple pseudo location distance mock
-  const [distance] = useState(Math.floor(Math.random() * 50) + 10);
+  const [distance, setDistance] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("transly_token");
@@ -38,6 +41,24 @@ export default function RequestPage() {
 
     fetchRates();
   }, [router]);
+
+  // Calculate distance when coords change
+  useEffect(() => {
+    if (coords.origin && coords.destination) {
+        // Haversine formula (approximate)
+        const R = 6371; // km
+        const dLat = (coords.destination[0] - coords.origin[0]) * Math.PI / 180;
+        const dLon = (coords.destination[1] - coords.origin[1]) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(coords.origin[0] * Math.PI / 180) * Math.cos(coords.destination[0] * Math.PI / 180) * 
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const d = R * c;
+        setDistance(Math.ceil(d));
+    } else {
+        setDistance(0);
+    }
+  }, [coords]);
 
   const fetchRates = async () => {
     try {
@@ -62,8 +83,24 @@ export default function RequestPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleLocationSelect = (lat: number, lng: number, type: 'origin' | 'destination') => {
+    setCoords(prev => ({ ...prev, [type]: [lat, lng] }));
+    
+    // Auto-fill address field with coordinates as fallback if no geocoding
+    if (type === 'origin') {
+        setFormData(prev => ({ ...prev, origin: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` }));
+    } else {
+        setFormData(prev => ({ ...prev, destination: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`, receiverAddress: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!coords.origin || !coords.destination) {
+        alert("Please set both Pickup and Destination on the map.");
+        return;
+    }
+
     setLoading(true);
     const token = localStorage.getItem("transly_token");
     
@@ -74,7 +111,12 @@ export default function RequestPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...formData, distance }),
+        body: JSON.stringify({ 
+            ...formData, 
+            distance,
+            originCoords: coords.origin,
+            destCoords: coords.destination
+        }),
       });
       if (res.ok) {
         router.push("/dashboard");
@@ -93,117 +135,183 @@ export default function RequestPage() {
     <div className="min-h-screen bg-slate-50 pb-12">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8 text-center max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2 font-display">Create New Shipment</h1>
-          <p className="text-slate-500">Fast, reliable logistics directly to your dashboard.</p>
+      <main className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2 font-display">New Delivery Request</h1>
+            <p className="text-slate-500">Pick locations on the map for precision dispatch.</p>
+          </div>
+          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit">
+            <button 
+                type="button"
+                onClick={() => setActiveType('origin')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeType === 'origin' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+                Set Pickup
+            </button>
+            <button 
+                type="button"
+                onClick={() => setActiveType('destination')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeType === 'destination' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+                Set Destination
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <Card className="border-0 shadow-sm rounded-2xl glass">
-              <CardHeader className="border-b border-slate-100 pb-4 mb-4">
-                <CardTitle className="text-lg flex items-center">
-                  <MapPin className="h-5 w-5 mr-2 text-orange-600" /> Dispatch Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Pickup Location (Origin)</label>
-                  <Input name="origin" placeholder="Enter full pickup address" value={formData.origin} onChange={handleChange} required />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Destination City</label>
-                  <Input name="destination" placeholder="Enter destination city/region" value={formData.destination} onChange={handleChange} required />
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Map Section */}
+            <div className="lg:col-span-12">
+                <Card className="border-0 shadow-xl rounded-3xl overflow-hidden glass">
+                   <CardContent className="p-0">
+                      <MapPicker 
+                        onLocationSelect={handleLocationSelect} 
+                        origin={coords.origin} 
+                        destination={coords.destination} 
+                        activeType={activeType}
+                      />
+                   </CardContent>
+                </Card>
+            </div>
 
-            <Card className="border-0 shadow-sm rounded-2xl glass">
-              <CardHeader className="border-b border-slate-100 pb-4 mb-4">
-                <CardTitle className="text-lg flex items-center">
-                  <Package className="h-5 w-5 mr-2 text-blue-500" /> Package Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Product Type</label>
-                  <Input name="productType" placeholder="e.g. Electronics, Documents, Fragile" value={formData.productType} onChange={handleChange} required />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Description</label>
-                  <Input name="description" placeholder="Brief details about the package" value={formData.description} onChange={handleChange} />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-0 shadow-sm rounded-2xl glass">
-              <CardHeader className="border-b border-slate-100 pb-4 mb-4">
-                <CardTitle className="text-lg flex items-center">
-                  <Navigation className="h-5 w-5 mr-2 text-orange-600" /> Route Mapping
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700 block">Select Delivery Point</label>
-                    <MapPicker onLocationSelect={(lat, lng) => console.log(lat, lng)} />
-                 </div>
-              </CardContent>
-            </Card>
-          </div>
+            {/* Form Section */}
+          <form onSubmit={handleSubmit} className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
+            <div className="space-y-6">
+                <Card className="border-0 shadow-sm rounded-2xl glass">
+                <CardHeader className="border-b border-slate-100 pb-4 mb-4">
+                    <CardTitle className="text-lg flex items-center justify-between">
+                        <div className="flex items-center">
+                            <MapPin className="h-5 w-5 mr-2 text-orange-600" /> Dispatch Route
+                        </div>
+                        {distance > 0 && <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-black">{distance} KM</span>}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="group">
+                        <label className="text-sm font-medium text-slate-700 block mb-1 flex items-center">
+                            Pickup Address (Origin) 
+                            {coords.origin && <CheckCircle2 className="h-3 w-3 ml-2 text-orange-500" />}
+                        </label>
+                        <div className="relative">
+                            <Input name="origin" placeholder="Search or click map for pickup..." value={formData.origin} onChange={handleChange} required className={`pr-10 ${activeType === 'origin' ? 'ring-2 ring-orange-400' : ''}`} />
+                            <MousePointer2 className={`absolute right-3 top-3 h-4 w-4 ${activeType === 'origin' ? 'text-orange-500 animate-pulse' : 'text-slate-300'}`} />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-slate-700 block mb-1 flex items-center">
+                            Delivery Destination 
+                            {coords.destination && <CheckCircle2 className="h-3 w-3 ml-2 text-blue-500" />}
+                        </label>
+                        <div className="relative">
+                            <Input name="destination" placeholder="Search or click map for destination..." value={formData.destination} onChange={handleChange} required className={`pr-10 ${activeType === 'destination' ? 'ring-2 ring-blue-400' : ''}`} />
+                            <MousePointer2 className={`absolute right-3 top-3 h-4 w-4 ${activeType === 'destination' ? 'text-blue-500 animate-pulse' : 'text-slate-300'}`} />
+                        </div>
+                    </div>
+                </CardContent>
+                </Card>
 
-          <div className="space-y-6">
-            <Card className="border-0 shadow-sm rounded-2xl glass">
-              <CardHeader className="border-b border-slate-100 pb-4 mb-4">
-                <CardTitle className="text-lg flex items-center">
-                  <User className="h-5 w-5 mr-2 text-emerald-500" /> Receiver Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Receiver Name</label>
-                  <Input name="receiverName" placeholder="Full name of receiver" value={formData.receiverName} onChange={handleChange} required />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Receiver Phone Number</label>
-                  <Input name="receiverPhone" placeholder="Contact number" value={formData.receiverPhone} onChange={handleChange} required />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Precise Delivery Address</label>
-                  <Input name="receiverAddress" placeholder="Exact dropoff location" value={formData.receiverAddress} onChange={handleChange} required />
-                </div>
-              </CardContent>
-            </Card>
+                <Card className="border-0 shadow-sm rounded-2xl glass">
+                <CardHeader className="border-b border-slate-100 pb-4 mb-4">
+                    <CardTitle className="text-lg flex items-center">
+                    <Package className="h-5 w-5 mr-2 text-emerald-500" /> Package Info
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div>
+                    <label className="text-sm font-medium text-slate-700 block mb-1">Product Category</label>
+                    <Input name="productType" placeholder="e.g. Health, Industrial, Food" value={formData.productType} onChange={handleChange} required />
+                    </div>
+                    <div>
+                    <label className="text-sm font-medium text-slate-700 block mb-1">Items Description</label>
+                    <Input name="description" placeholder="Brief details about the package" value={formData.description} onChange={handleChange} />
+                    </div>
+                </CardContent>
+                </Card>
+            </div>
 
-            <Card className="border-0 shadow-sm rounded-2xl bg-slate-900 text-white lg:sticky lg:top-24 overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-              <CardHeader className="border-b border-white/10 pb-4 mb-4 relative z-10">
-                <CardTitle className="text-lg flex items-center">
-                  <CreditCard className="h-5 w-5 mr-2 text-orange-500" /> Payment Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 relative z-10">
-                <div className="flex justify-between items-center text-slate-300 text-sm">
-                    <span>Estimated Distance:</span>
-                    <span className="font-bold text-white">{distance} Mi</span>
-                </div>
-                <div className="flex justify-between items-center pt-2">
-                    <span className="text-slate-300 text-sm">Total Delivery Fee:</span>
-                    <span className="text-2xl font-black text-orange-500">₦{calculatedPrice.toLocaleString()}</span>
-                </div>
-                <p className="text-slate-400 text-[10px] mt-2 italic leading-tight">Base rate and mileage fees apply. Final price may vary slightly based on actual dispatch logistics.</p>
-                <div className="pt-4 mt-6 border-t border-white/10">
-                  <Button className="w-full h-12 text-md rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-950/20 hover:-translate-y-0.5 transition-transform font-bold border-0" type="submit" disabled={loading}>
-                    {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                    {loading ? "Processing..." : "Confirm & Create Request"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </form>
+            <div className="space-y-6">
+                <Card className="border-0 shadow-sm rounded-2xl glass">
+                <CardHeader className="border-b border-slate-100 pb-4 mb-4">
+                    <CardTitle className="text-lg flex items-center">
+                    <User className="h-5 w-5 mr-2 text-indigo-500" /> Receiver Details
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div>
+                    <label className="text-sm font-medium text-slate-700 block mb-1">Full Name</label>
+                    <Input name="receiverName" placeholder="Full name of receiver" value={formData.receiverName} onChange={handleChange} required />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                        <label className="text-sm font-medium text-slate-700 block mb-1">Phone Number</label>
+                        <Input name="receiverPhone" placeholder="Contact number" value={formData.receiverPhone} onChange={handleChange} required />
+                        </div>
+                        <div>
+                        {/* <label className="text-sm font-medium text-slate-700 block mb-1">Delivery Instructions</label>
+                        <Input placeholder="Optional gateway/apt" /> */}
+                        </div>
+                    </div>
+                    <div>
+                    <label className="text-sm font-medium text-slate-700 block mb-1">Verified Delivery Address</label>
+                    <Input name="receiverAddress" placeholder="Synced from map selection" value={formData.receiverAddress} onChange={handleChange} required readOnly className="bg-slate-50" />
+                    </div>
+                </CardContent>
+                </Card>
+
+                <Card className="border-0 shadow-2xl rounded-3xl bg-slate-900 text-white lg:sticky lg:top-24 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <CardHeader className="border-b border-white/10 pb-4 mb-4 relative z-10">
+                    <CardTitle className="text-lg flex items-center">
+                    <CreditCard className="h-5 w-5 mr-2 text-orange-500" /> Booking Invoice
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 relative z-10">
+                    <div className="flex justify-between items-center text-slate-300 text-sm">
+                        <span>Base Handling Fee:</span>
+                        <span className="font-bold text-white">₦{rates.BASE_FARE.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-300 text-sm">
+                        <span>Mileage ({distance} KM):</span>
+                        <span className="font-bold text-white">₦{(distance * rates.PRICE_PER_MILE).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                        <span className="text-slate-300 text-md">Total Payable:</span>
+                        <span className="text-3xl font-black text-orange-500">₦{calculatedPrice > rates.BASE_FARE ? calculatedPrice.toLocaleString() : rates.BASE_FARE.toLocaleString()}</span>
+                    </div>
+                    <p className="text-slate-400 text-[10px] mt-2 italic leading-tight">*Calculated based on real-time map distance. Taxes included.</p>
+                    <div className="pt-6">
+                    <Button className="w-full h-14 text-lg rounded-2xl bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-950/40 hover:-translate-y-1 transition-all font-black border-0 uppercase tracking-tighter" type="submit" disabled={loading || !coords.origin || !coords.destination}>
+                        {loading ? <Loader2 className="h-6 w-6 animate-spin mr-3" /> : null}
+                        {loading ? "Initializing..." : "Proceed to Payment"}
+                    </Button>
+                    </div>
+                </CardContent>
+                </Card>
+            </div>
+          </form>
+        </div>
       </main>
-      <Footer />
     </div>
   );
+}
+
+// Reuse checkcircle (missing from lucide set in previously)
+function CheckCircle2(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  )
 }
