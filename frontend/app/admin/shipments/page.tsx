@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/Button";
 import { Download, Filter, Search, X, Eye, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { ShipmentDetails } from "@/components/shipments/ShipmentDetails";
+import { useSession } from "@/lib/sessionContext";
 
 export default function AdminShipmentsPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [shipments, setShipments] = useState([]);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -16,10 +18,11 @@ export default function AdminShipmentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchShipments = async () => {
-    const token = localStorage.getItem("transly_token");
+    if (!token) return;
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/admin/shipments", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       const data = await res.json();
       if (data.success) {
@@ -33,15 +36,17 @@ export default function AdminShipmentsPage() {
   };
 
   useEffect(() => {
-    fetchShipments();
-  }, []);
+    if (!sessionLoading && token) {
+        fetchShipments();
+    }
+  }, [sessionLoading, token]);
 
   const handleViewDetails = async (id: string) => {
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       const data = await res.json();
       if (data.success) {

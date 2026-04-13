@@ -6,57 +6,77 @@ import { Package, Search, User, Menu, Bell, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send, Loader2 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
+import { useSession } from "@/lib/sessionContext";
 
 export function Navbar() {
+  const { user, token, logout } = useSession();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("transly_token");
-    const savedUser = JSON.parse(localStorage.getItem("transly_user") || "null");
-    
-    if (savedUser) {
-      setUser(savedUser);
-    }
-
-    if(!notifications){
-      setNotifications(["Loading notifications..."]);
-    }
-
-    if (token) {
+    if (user) {
       fetch("https://transly-wr1m.onrender.com/notifications", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setNotifications(data.notifications);
-        }
-      })
-      .catch(console.error);
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setNotifications(data.notifications);
+          }
+        })
+        .catch(console.error);
 
       // Socket for real-time notifications
-      if (savedUser) {
+      if (user) {
         const socket = getSocket();
-        socket.emit("join_personal_room", savedUser.id);
-        
+        socket.emit("join_personal_room", user.id);
+
         socket.on("new_message_notification", (data) => {
-            // Check if we already have this notification (basic check)
+          setNotifications(prev => [
+            {
+              id: `chat-${Date.now()}`,
+              message: `New message: ${data.text.substring(0, 30)}...`,
+              read: false,
+              createdAt: new Date().toISOString(),
+              type: 'info'
+            },
+            ...prev
+          ]);
+        });
+
+        socket.on("notification", (data) => {
+          setNotifications(prev => [
+            {
+              id: `notif-${Date.now()}`,
+              message: data.message,
+              read: false,
+              createdAt: data.createdAt || new Date().toISOString(),
+              type: data.type || 'info'
+            },
+            ...prev
+          ]);
+        });
+
+        socket.on("admin_notification", (data) => {
+          if (user.role === 'admin') {
             setNotifications(prev => [
-                {
-                    id: `chat-${Date.now()}`,
-                    message: `New message: ${data.text.substring(0, 30)}...`,
-                    read: false,
-                    createdAt: new Date().toISOString(),
-                    type: 'info'
-                },
-                ...prev
+              {
+                id: `admin-${Date.now()}`,
+                message: `[ADMIN] ${data.message}`,
+                read: false,
+                createdAt: new Date().toISOString(),
+                type: 'warning'
+              },
+              ...prev
             ]);
+          }
         });
 
         return () => {
-            socket.off("new_message_notification");
+          socket.off("new_message_notification");
+          socket.off("notification");
+          socket.off("admin_notification");
         };
       }
     }
@@ -69,17 +89,18 @@ export function Navbar() {
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/notifications/read-all", {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       if (res.ok) {
         setNotifications(notifications.map(n => ({ ...n, read: true })));
       }
-    } catch(err) { console.error(err); }
+    } catch (err) { console.error(err); }
   };
 
 
   const [menu, setMenu] = useState(false)
-  function isMenu(){
+  function isMenu() {
     setMenu(!menu)
   }
 
@@ -112,7 +133,7 @@ export function Navbar() {
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <div className="hidden md:flex relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
@@ -122,7 +143,7 @@ export function Navbar() {
               className="h-9 w-64 rounded-full border border-slate-300 bg-white pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-transparent transition-all"
             />
           </div>
-          
+
           {user && (
             <div className="relative">
               <Button variant="ghost" size="icon" className="relative" onClick={() => setShowNotifications(!showNotifications)}>
@@ -168,43 +189,56 @@ export function Navbar() {
               </Button>
             </Link>
           ) : (
-             <Link href={user.role === 'driver' ? '/driver' : '/profile'}>
-               <Button size="sm" className="hidden md:flex rounded-full bg-slate-800 hover:bg-slate-900 border-none px-4">
-                 <User className="h-4 w-4 mr-2 text-white" />
-                 Profile
-               </Button>
-             </Link>
+            <div className="hidden md:flex items-center space-x-2">
+              <Link href={user.role === 'driver' ? '/driver' : '/profile'}>
+                <Button size="sm" className="rounded-full bg-slate-800 hover:bg-slate-900 border-none px-4">
+                  <User className="h-4 w-4 mr-2 text-white" />
+                  Profile
+                </Button>
+              </Link>
+              <Button size="sm" variant="outline" onClick={logout} className="rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 px-4">
+                Logout
+              </Button>
+            </div>
           )}
 
           <Button onClick={isMenu} variant="ghost" size="icon" className="lg:hidden">
             {!menu ? <Menu className="h-5 w-5 text-black" /> : <X className="h-5 w-5 text-orange-700" />}
           </Button>
-          
-          
+
+
         </div>
       </div>
 
       {menu && (
-              <div>
-                  <nav className="space-y-2 px-3 pt-5 pb-5 bg-orange-600/30">
-          <Link href="/dashboard" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
-            <LayoutDashboard className="h-5 w-5 mr-3" />
-            dashboard
-          </Link>
-        
-        
-          <Link href="/request" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
-            <Send className="h-5 w-5 mr-3 text-orange-600" />
-            Send Product
-          </Link>
+        <div>
+          <nav className="space-y-2 px-3 pt-5 pb-5 bg-orange-600/30">
+            <Link href="/dashboard" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
+              <LayoutDashboard className="h-5 w-5 mr-3" />
+              dashboard
+            </Link>
+
+
+            <Link href="/request" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+              <Send className="h-5 w-5 mr-3 text-orange-600" />
+              Send Product
+            </Link>
 
             <Link href="/tracking" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
-            <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
-            Track Product
-          </Link>
-        </nav>
-              </div>
-            )}
+              <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
+              Track Product
+            </Link>
+            
+            <button 
+              onClick={() => { logout(); isMenu(); }}
+              className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-red-600/10 text-red-600 hover:bg-red-50 mt-4"
+            >
+              <X className="h-5 w-5 mr-3" />
+              Logout
+            </button>
+          </nav>
+        </div>
+      )}
     </nav>
   );
 }

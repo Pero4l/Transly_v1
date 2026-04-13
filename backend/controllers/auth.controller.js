@@ -13,23 +13,23 @@ const generateToken = (id) => {
 exports.register = async (req, res) => {
   const { name, email, password, phone } = req.body;
 
-  if(!name || !email || !password || !phone) {
+  if (!name || !email || !password || !phone) {
     return res.status(400).json({ success: false, error: 'All fields are required' });
   }
 
   if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
-    } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
-      return res.status(400).json({ message: "Password must contain both uppercase and lowercase letters" });
-    } else if (!/[0-9]/.test(password)) {
-      return res.status(400).json({ message: "Password must contain a number" });
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ message: "Invalid email format" });
-    } else if (name.length < 5) {
-      return res.status(400).json({ message: "Name must be at least 5 characters" });
-    } else if (phone.length < 10) {
-      return res.status(400).json({ message: "Phone number must be at least 10 digits long" });
-    }
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+    return res.status(400).json({ message: "Password must contain both uppercase and lowercase letters" });
+  } else if (!/[0-9]/.test(password)) {
+    return res.status(400).json({ message: "Password must contain a number" });
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  } else if (name.length < 5) {
+    return res.status(400).json({ message: "Name must be at least 5 characters" });
+  } else if (phone.length < 10) {
+    return res.status(400).json({ message: "Phone number must be at least 10 digits long" });
+  }
 
   try {
     const userExists = await User.findOne({ where: { email } });
@@ -58,8 +58,8 @@ exports.register = async (req, res) => {
       console.error('Email not sent:', err);
     }
 
-    res.status(201).json({
-      success: true,
+    // Store everything in Redis session (replacing localStorage)
+    req.session.sessionData = {
       token: generateToken(user.id),
       user: {
         id: user.id,
@@ -69,6 +69,17 @@ exports.register = async (req, res) => {
         phone: user.phone,
         address: user.address,
       }
+    };
+
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ success: false, error: "Failed to create session" });
+      }
+      res.status(201).json({
+        success: true,
+        ...req.session.sessionData
+      });
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -89,8 +100,8 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
-    res.status(200).json({
-      success: true,
+    // Store everything in Redis session (replacing localStorage)
+    req.session.sessionData = {
       token: generateToken(user.id),
       user: {
         id: user.id,
@@ -100,6 +111,17 @@ exports.login = async (req, res) => {
         phone: user.phone,
         address: user.address,
       }
+    };
+
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ success: false, error: "Failed to persist session" });
+      }
+      res.status(200).json({
+        success: true,
+        ...req.session.sessionData
+      });
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -135,11 +157,21 @@ exports.googleAuth = async (req, res) => {
         role: 'customer'
       });
     }
-    
-    res.status(200).json({
-      success: true,
+
+    // Store in session for Redis persistence
+    req.session.sessionData = {
       token: generateToken(user.id),
       user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, address: user.address }
+    };
+ 
+    req.session.save((err) => {
+      if (err) {
+        console.error("Google Auth Session Error:", err);
+      }
+      res.status(200).json({
+        success: true,
+        ...req.session.sessionData
+      });
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -202,9 +234,25 @@ exports.updateProfile = async (req, res) => {
     user.phone = phone || user.phone;
     user.address = address || user.address;
     await user.save();
-    
-    res.status(200).json({ success: true, user: { phone: user.phone, address: user.address }});
+
+    res.status(200).json({ success: true, user: { phone: user.phone, address: user.address } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+};
+
+exports.getSession = async (req, res) => {
+  if (req.session && req.session.sessionData) {
+    res.status(200).json({ success: true, ...req.session.sessionData });
+  } else {
+    res.status(401).json({ success: false, error: 'No active session in Redis' });
+  }
+};
+
+exports.logout = async (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ success: false, error: 'Logout failed' });
+    res.clearCookie('connect.sid');
+    res.status(200).json({ success: true, message: 'Logged out from Redis session' });
+  });
 };

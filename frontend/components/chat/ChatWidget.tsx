@@ -6,31 +6,29 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { getSocket } from "@/lib/socket";
+import { useSession } from "@/lib/sessionContext";
 
 export function ChatWidget() {
+  const { user, token } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [conversation, setConversation] = useState<any>(null);
-  const [user, setUser] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
 
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("transly_user") || "null");
-    setUser(savedUser);
-
-    if (savedUser && isOpen) {
-      startChat(savedUser);
+    if (user && isOpen) {
+      startChat(user);
       setUnreadCount(0);
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
 
   useEffect(() => {
     if (user) {
       socket.emit("join_personal_room", user.id);
-      
+
       socket.on("new_message_notification", (data) => {
         if (!isOpen) {
           setUnreadCount(prev => prev + 1);
@@ -46,16 +44,16 @@ export function ChatWidget() {
   useEffect(() => {
     if (conversation) {
       socket.emit("join_conversation", conversation.id);
-      
-      if (isOpen) {
-         socket.emit("mark_as_read", { conversationId: conversation.id, userId: user.id });
+
+      if (isOpen && user) {
+        socket.emit("mark_as_read", { conversationId: conversation.id, userId: user.id });
       }
 
       socket.on("receive_message", (msg) => {
         if (msg.conversationId === conversation.id) {
           setMessages((prev) => [...prev, msg]);
-          if (isOpen) {
-             socket.emit("mark_as_read", { conversationId: conversation.id, userId: user.id });
+          if (isOpen && user) {
+            socket.emit("mark_as_read", { conversationId: conversation.id, userId: user.id });
           }
         }
       });
@@ -71,7 +69,6 @@ export function ChatWidget() {
   }, [messages]);
 
   const startChat = async (currentUser: any) => {
-    const token = localStorage.getItem("transly_token");
     try {
       // Start or get conversation - backend will find an admin if we don't provide user2Id
       const convRes = await fetch("https://transly-wr1m.onrender.com/chat/conversation", {
@@ -80,7 +77,8 @@ export function ChatWidget() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({}), 
+        credentials: "include",
+        body: JSON.stringify({}),
       });
       const convData = await convRes.json();
       if (convData.success && convData.conversation) {
@@ -97,7 +95,8 @@ export function ChatWidget() {
   const fetchMessages = async (convId: string, token: string | null) => {
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/chat/${convId}/messages`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       const data = await res.json();
       if (data.success) {
@@ -126,7 +125,7 @@ export function ChatWidget() {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {!isOpen ? (
-        <Button 
+        <Button
           onClick={() => setIsOpen(true)}
           className="h-14 w-14 rounded-full shadow-2xl bg-orange-600 hover:bg-orange-700 p-0 flex items-center justify-center animate-bounce-subtle relative"
         >
@@ -158,15 +157,14 @@ export function ChatWidget() {
               </div>
             )}
             {messages.map((msg, i) => (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className={`flex ${msg.senderId === user.id ? 'justify-end pt-5' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
-                  msg.senderId === user.id 
-                    ? 'bg-orange-600 text-white rounded-tr-none shadow-orange-100 shadow-lg' 
+                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.senderId === user.id
+                    ? 'bg-orange-600 text-white rounded-tr-none shadow-orange-100 shadow-lg'
                     : 'bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-sm'
-                }`}>
+                  }`}>
                   {msg.text}
                 </div>
               </div>
@@ -175,7 +173,7 @@ export function ChatWidget() {
           </CardContent>
           <CardFooter className="p-3 border-t bg-white">
             <div className="flex w-full gap-2 mt-3">
-              <Input 
+              <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}

@@ -4,36 +4,45 @@ import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Settings, LogOut, Bell, Check, User, Menu, X } from "lucide-react";
+import { useSession } from "@/lib/sessionContext";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, token, loading: sessionLoading, logout: sessionLogout } = useSession();
+  const router = useRouter();
   const [menu, setMenu] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("transly_token");
-    if (token) {
-      fetch("https://transly-wr1m.onrender.com/notifications", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setNotifications(data.notifications);
+    if (!sessionLoading) {
+        if (!user || user.role !== 'admin') {
+            router.push("/dashboard");
+            return;
         }
-      })
-      .catch(console.error);
+        
+        if (token) {
+          fetch("https://transly-wr1m.onrender.com/notifications", {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              setNotifications(data.notifications);
+            }
+          })
+          .catch(console.error);
+        }
     }
-  }, []);
+  }, [sessionLoading, user, token, router]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAllAsRead = async () => {
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/notifications/read-all", {
         method: "PUT",
@@ -95,11 +104,7 @@ export default function AdminLayout({
             Settings
           </Link>
           <button 
-            onClick={() => {
-              localStorage.removeItem("transly_token");
-              localStorage.removeItem("transly_user");
-              window.location.href = "/login";
-            }}
+            onClick={sessionLogout}
             className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-red-600 text-white mt-4"
           >
             <LogOut className="h-5 w-5 mr-3" />

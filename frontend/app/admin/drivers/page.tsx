@@ -4,8 +4,10 @@ import { Truck, Search, Mail, Phone, UserX, UserCheck, Eye, EyeOff, Loader2 } fr
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
+import { useSession } from "@/lib/sessionContext";
 
 export default function AdminDriversPage() {
+    const { user, token, loading: sessionLoading } = useSession();
     // Driver Form
     const [showDriverForm, setShowDriverForm] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +23,7 @@ export default function AdminDriversPage() {
     const [query, setQuery] = useState("");
 
     const fetchData = async () => {
-      const token = localStorage.getItem("transly_token");
+    if (!token) return;
       try {
         const res = await fetch("https://transly-wr1m.onrender.com/admin/drivers", {
           headers: { Authorization: `Bearer ${token}` }
@@ -38,8 +40,10 @@ export default function AdminDriversPage() {
     };
 
     useEffect(() => {
-      fetchData();
-    }, []);
+        if (!sessionLoading && token) {
+            fetchData();
+        }
+    }, [sessionLoading, token]);
 
     const filteredDrivers = useMemo(() => {
       return drivers.filter((driver) => {
@@ -51,7 +55,6 @@ export default function AdminDriversPage() {
     const handleDriverRegister = async (e: React.FormEvent) => {
       e.preventDefault();
       setActionLoading(true);
-      const token = localStorage.getItem("transly_token");
       try {
         const res = await fetch("https://transly-wr1m.onrender.com/admin/driver", {
           method: "POST",
@@ -75,7 +78,6 @@ export default function AdminDriversPage() {
 
     const toggleStatus = async (id: string) => {
       setActionLoading(true);
-      const token = localStorage.getItem("transly_token");
       try {
         const res = await fetch(`https://transly-wr1m.onrender.com/admin/users/${id}/suspend`, {
           method: "PUT",

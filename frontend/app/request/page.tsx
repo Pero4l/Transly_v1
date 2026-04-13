@@ -8,10 +8,12 @@ import { Input } from "@/components/ui/Input";
 import { MapPin, User, Package, CreditCard, Loader2, Navigation, Target, MousePointer2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { useSession } from "@/lib/sessionContext";
+import type { MapPickerProps } from "@/components/shipments/MapPicker";
 
-const MapPicker = dynamic(() => import("@/components/shipments/MapPicker"), { 
-    ssr: false,
-    loading: () => <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-2xl flex items-center justify-center text-slate-400">Loading Interactive Map...</div>
+const MapPicker = dynamic<MapPickerProps>(() => import("@/components/shipments/MapPicker"), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-2xl flex items-center justify-center text-slate-400">Loading Interactive Map...</div>
 });
 
 export default function RequestPage() {
@@ -23,24 +25,25 @@ export default function RequestPage() {
     origin: null,
     destination: null
   });
+  const [mapCenter, setMapCenter] = useState<[number, number]>([6.5244, 3.3792]);
   const [activeType, setActiveType] = useState<'origin' | 'destination'>('origin');
   const [loading, setLoading] = useState(false);
   const [rates, setRates] = useState({ BASE_FARE: 1500, PRICE_PER_MILE: 500 });
+  const { user, token, loading: sessionLoading } = useSession();
   const router = useRouter();
 
   const [distance, setDistance] = useState(0);
 
   useEffect(() => {
-    const token = localStorage.getItem("transly_token");
-    const user = JSON.parse(localStorage.getItem("transly_user") || "null");
-    if (!token) {
-      router.push("/login");
-    } else if (!user?.phone || !user?.address) {
-      router.push("/onboarding");
+    if (!sessionLoading) {
+      if (!user) {
+        router.push("/login");
+      } else if (!user?.phone || !user?.address) {
+        router.push("/onboarding");
+      }
+      fetchRates();
     }
-
-    fetchRates();
-  }, [router]);
+  }, [user, sessionLoading, router]);
 
   // Calculate distance when coords change
   useEffect(() => {
@@ -63,7 +66,7 @@ export default function RequestPage() {
   const fetchRates = async () => {
     try {
         const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("transly_token")}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
         if (data.success && data.settings) {
@@ -83,15 +86,49 @@ export default function RequestPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLocationSelect = (lat: number, lng: number, type: 'origin' | 'destination') => {
+  const handleLocationSelect = (lat: number, lng: number, type: 'origin' | 'destination', address?: string) => {
     setCoords(prev => ({ ...prev, [type]: [lat, lng] }));
     
-    // Auto-fill address field with coordinates as fallback if no geocoding
     if (type === 'origin') {
-        setFormData(prev => ({ ...prev, origin: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` }));
+        setFormData(prev => ({ ...prev, origin: address || `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` }));
     } else {
-        setFormData(prev => ({ ...prev, destination: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`, receiverAddress: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` }));
+        setFormData(prev => ({ ...prev, destination: address || `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`, receiverAddress: address || `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` }));
     }
+  };
+
+  const [detecting, setDetecting] = useState(false);
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser");
+        return;
+    }
+
+    setDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const { latitude, longitude } = position.coords;
+            setMapCenter([latitude, longitude]);
+            setCoords(prev => ({ ...prev, origin: [latitude, longitude] }));
+            setFormData(prev => ({ ...prev, origin: `Current Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}` }));
+            
+            // Try reverse geocoding
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                const data = await res.json();
+                if (data.display_name) {
+                    setFormData(prev => ({ ...prev, origin: data.display_name }));
+                }
+            } catch (err) { console.error(err); }
+            
+            setActiveType('destination'); // Suggest setting destination next
+            setDetecting(false);
+        },
+        (error) => {
+            console.error(error);
+            alert("Unable to retrieve your location");
+            setDetecting(false);
+        }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,7 +139,6 @@ export default function RequestPage() {
     }
 
     setLoading(true);
-    const token = localStorage.getItem("transly_token");
     
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
@@ -141,7 +177,17 @@ export default function RequestPage() {
             <h1 className="text-3xl font-bold text-slate-900 mb-2 font-display">New Delivery Request</h1>
             <p className="text-slate-500">Pick locations on the map for precision dispatch.</p>
           </div>
-          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit">
+          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit items-center gap-2">
+            <button
+                type="button"
+                onClick={handleDetectLocation}
+                disabled={detecting}
+                className="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-white text-orange-600 hover:bg-orange-50 shadow-sm flex items-center gap-2"
+            >
+                {detecting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Target className="h-3 w-3" />}
+                {detecting ? "Locating..." : "My Location"}
+            </button>
+            <div className="w-px h-6 bg-slate-300 mx-1 hidden md:block" />
             <button 
                 type="button"
                 onClick={() => setActiveType('origin')}
@@ -169,6 +215,7 @@ export default function RequestPage() {
                         origin={coords.origin} 
                         destination={coords.destination} 
                         activeType={activeType}
+                        mapCenter={mapCenter}
                       />
                    </CardContent>
                 </Card>

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { SessionProvider } from "@/lib/sessionContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -19,8 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
-        <main className="flex-1 flex flex-col">{children}</main>
-        <ChatWidget />
+        <SessionProvider>
+          <main className="flex-1 flex flex-col">{children}</main>
+          <ChatWidget />
+        </SessionProvider>
       </body>
     </html>
   );

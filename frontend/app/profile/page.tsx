@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { User, Mail, Phone, MapPin, Shield, Camera, Save, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
+import { useSession } from "@/lib/sessionContext";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const { user, token, loading: sessionLoading, refreshSession } = useSession();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,40 +19,23 @@ export default function ProfilePage() {
   const [message, setMessage] = useState({ type: "", content: "" });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("transly_token");
-      if (!token) {
-        window.location.href = "/login";
-        return;
-      }
-
-      try {
-        const res = await fetch("https://transly-wr1m.onrender.com/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (data.success) {
-          setUser(data.user);
-          setFormData({
-            phone: data.user.phone || "",
-            address: data.user.address || ""
-          });
+    if (!sessionLoading) {
+        if (!user) {
+            window.location.href = "/login";
+            return;
         }
-      } catch (err) {
-        console.error(err);
-      } finally {
+        setFormData({
+            phone: user.phone || "",
+            address: user.address || ""
+        });
         setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
+    }
+  }, [sessionLoading, user]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setMessage({ type: "", content: "" });
-    const token = localStorage.getItem("transly_token");
 
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/auth/profile", {
@@ -60,12 +44,13 @@ export default function ProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        credentials: "include",
       });
       const data = await res.json();
       if (data.success) {
         setMessage({ type: "success", content: "Profile updated successfully!" });
-        setUser({ ...user, ...data.user });
+        await refreshSession();
       } else {
         setMessage({ type: "error", content: data.error || "Failed to update profile" });
       }

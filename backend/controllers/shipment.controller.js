@@ -1,5 +1,6 @@
 const { Shipment, User, DriverProfile, Setting, Notification } = require('../models');
 const sendEmail = require('../utils/sendEmail');
+const { getIO } = require('../config/socket');
 
 const calculatePrice = async (distance) => {
   let priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
@@ -53,21 +54,18 @@ exports.createShipment = async (req, res) => {
         message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: ₦${price}`,
       });
       
-      // In-app notification for customer
-      await Notification.create({
-        userId: req.user.id,
+      // Emit socket notification to customer
+      getIO().to(req.user.id).emit('notification', {
         message: `Shipment ${trackingNumber} created successfully.`,
-        type: 'success'
+        type: 'success',
+        createdAt: new Date()
       });
 
-      // In-app notifications for ALL admins
-      for (const admin of admins) {
-        await Notification.create({
-          userId: admin.id,
-          message: `A new Shipment with tracking number: ${trackingNumber} created by ${req.user.name}.`,
-          type: 'success'
-        });
-      }
+      // Emit socket notification to all admins
+      getIO().emit('admin_notification', {
+        message: `New shipment: ${trackingNumber} by ${req.user.name}`,
+        type: 'info'
+      });
       
     } catch(err) { console.error('Failed to send notifications:', err); }
 
@@ -129,6 +127,13 @@ exports.updateShipmentStatus = async (req, res) => {
         type: 'info'
       });
 
+      // Socket notification to customer
+      getIO().to(shipment.customer.id).emit('notification', {
+        message: `Your shipment ${shipment.trackingNumber} is now ${status}.`,
+        type: 'info',
+        createdAt: new Date()
+      });
+
       // Notify all Admins (In-app)
       const admins = await User.findAll({ where: { role: 'admin' } });
       for (const admin of admins) {
@@ -138,6 +143,12 @@ exports.updateShipmentStatus = async (req, res) => {
           type: 'info'
         });
       }
+
+      // Socket notification for Admins
+      getIO().emit('admin_notification', {
+        message: `Shipment ${shipment.trackingNumber} status updated to ${status}.`,
+        type: 'info'
+      });
     } catch(err) { console.error('Failed to send notifications:', err); }
 
     res.status(200).json({ success: true, shipment });

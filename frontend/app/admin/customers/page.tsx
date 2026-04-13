@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Download, Search, UserCheck, UserX, Mail, Phone, Loader2, MapPin, CheckCircle, Ban } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { useSession } from "@/lib/sessionContext";
 
 type Customer = {
   id: string;
@@ -40,6 +41,7 @@ function downloadCsv(customers: Customer[]) {
 }
 
 export default function AdminCustomersPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
@@ -49,7 +51,7 @@ export default function AdminCustomersPage() {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchCustomers = async () => {
-    const token = localStorage.getItem("transly_token");
+    if (!token) return;
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/admin/customers", {
         headers: { Authorization: `Bearer ${token}` }
@@ -66,8 +68,10 @@ export default function AdminCustomersPage() {
   };
 
   useEffect(() => {
-    fetchCustomers();
-  }, []);
+    if (!sessionLoading && token) {
+        fetchCustomers();
+    }
+  }, [sessionLoading, token]);
 
   const filteredCustomers = useMemo(() => {
     return customers.filter((customer) => {
@@ -87,7 +91,6 @@ export default function AdminCustomersPage() {
 
   const toggleStatus = async (id: string) => {
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/admin/users/${id}/suspend`, {
         method: "PUT",

@@ -18,30 +18,31 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShipmentDetails } from "@/components/shipments/ShipmentDetails";
+import { useSession } from "@/lib/sessionContext";
 
 export default function DashboardPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [shipments, setShipments] = useState<any[]>([]);
   const [selectedShipment, setSelectedShipment] = useState<any>(null);
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const router = useRouter();
 
   const fetchShipments = async () => {
-    const token = localStorage.getItem("transly_token");
-    const savedUser = JSON.parse(localStorage.getItem("transly_user") || "{}");
-    if (!token) {
+    if (sessionLoading) return;
+    if (!user || !token) {
       router.push("/login");
       return;
     }
-    setUser(savedUser);
-    if (savedUser.role === "admin") {
+
+    if (user.role === "admin") {
       router.push("/admin");
       return;
     }
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
         headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       const data = await res.json();
       if (data.success) {
@@ -55,15 +56,17 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchShipments();
-  }, [router]);
+    if (!sessionLoading) {
+      fetchShipments();
+    }
+  }, [router, sessionLoading, user]);
 
   const handleViewDetails = async (id: string) => {
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       const data = await res.json();
       if (data.success) {
@@ -78,7 +81,6 @@ export default function DashboardPage() {
 
   const updateStatus = async (id: number, status: string) => {
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}/status`, {
         method: "PUT",
@@ -86,6 +88,7 @@ export default function DashboardPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ status }),
       });
       if (res.ok) {

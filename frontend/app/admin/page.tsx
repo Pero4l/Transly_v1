@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { ArrowUpRight, Truck, Package, Activity, Ban, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/sessionContext";
 
 export default function AdminDashboardPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [shipments, setShipments] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,11 +28,11 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
   const fetchData = async () => {
-    const token = localStorage.getItem("transly_token");
+    if (!token) return;
     try {
       const [shipRes, userRes] = await Promise.all([
-        fetch("https://transly-wr1m.onrender.com/admin/shipments", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("https://transly-wr1m.onrender.com/admin/users", { headers: { Authorization: `Bearer ${token}` } })
+        fetch("https://transly-wr1m.onrender.com/admin/shipments", { headers: { Authorization: `Bearer ${token}` }, credentials: "include" }),
+        fetch("https://transly-wr1m.onrender.com/admin/users", { headers: { Authorization: `Bearer ${token}` }, credentials: "include" })
       ]);
       const shipData = await shipRes.json();
       const userData = await userRes.json();
@@ -44,23 +46,25 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem("transly_token")) {
-      router.push("/login");
-      return;
+    if (!sessionLoading) {
+        if (!user || user.role !== 'admin') {
+            router.push("/dashboard");
+            return;
+        }
+        fetchData();
     }
-    fetchData();
-  }, [router]);
+  }, [sessionLoading, user, router]);
 
   const drivers = users.filter(u => u.role === "driver");
 
   const assignDriver = async (shipmentId: number, driverId: string) => {
     if(!driverId) return;
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       await fetch("https://transly-wr1m.onrender.com/admin/assign-driver", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        credentials: "include",
         body: JSON.stringify({ shipmentId, driverId })
       });
       fetchData();
@@ -73,11 +77,11 @@ export default function AdminDashboardPage() {
 
   const toggleSuspend = async (userId: string) => {
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       await fetch(`https://transly-wr1m.onrender.com/admin/users/${userId}/suspend`, {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       fetchData();
     } catch(err) {
@@ -89,7 +93,6 @@ export default function AdminDashboardPage() {
 
   // const handleDriverRegister = async (e: React.FormEvent) => {
   //   e.preventDefault();
-  //   const token = localStorage.getItem("transly_token");
   //   try {
   //     const res = await fetch("https://transly-wr1m.onrender.com/admin/driver", {
   //       method: "POST",

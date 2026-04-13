@@ -7,16 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/Badge";
 import { MapPin, Navigation, PackageCheck, Phone, CheckCircle, Package, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/sessionContext";
 
 export default function DriverDashboardPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [shipments, setShipments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const router = useRouter();
 
   const fetchDriverShipments = async () => {
-    const token = localStorage.getItem("transly_token");
-    const user = JSON.parse(localStorage.getItem("transly_user") || "null");
+    if (sessionLoading) return;
     if (!token || user?.role !== "driver") {
       router.push("/login");
       return;
@@ -24,7 +25,8 @@ export default function DriverDashboardPage() {
     
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
       });
       const data = await res.json();
       if (data.success) {
@@ -38,12 +40,13 @@ export default function DriverDashboardPage() {
   };
 
   useEffect(() => {
-    fetchDriverShipments();
-  }, []);
+    if (!sessionLoading) {
+        fetchDriverShipments();
+    }
+  }, [sessionLoading, user]);
 
   const updateStatus = async (id: number, status: string) => {
     setActionLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}/status`, {
         method: "PUT",
@@ -51,6 +54,7 @@ export default function DriverDashboardPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
+        credentials: "include",
         body: JSON.stringify({ status })
       });
       if (res.ok) {

@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useState, useEffect } from "react";
 import { Loader2, Save } from "lucide-react";
+import { useSession } from "@/lib/sessionContext";
 
 export default function AdminSettingsPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [settings, setSettings] = useState({
@@ -14,11 +16,13 @@ export default function AdminSettingsPage() {
   });
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
+    if (!sessionLoading && token) {
+        fetchSettings();
+    }
+  }, [sessionLoading, token]);
 
   const fetchSettings = async () => {
-    const token = localStorage.getItem("transly_token");
+    if (!token) return;
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
         headers: { Authorization: `Bearer ${token}` }
@@ -39,7 +43,6 @@ export default function AdminSettingsPage() {
 
   const handleUpdate = async (key: string, value: string) => {
     setLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
         const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
             method: "POST",

@@ -6,36 +6,38 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
+import { useSession } from "@/lib/sessionContext";
 
 export default function OnboardingPage() {
+  const { user, token, loading: sessionLoading, refreshSession } = useSession();
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("transly_user") || "null");
-    if(!user) {
-      router.push("/login");
-    } else if (user.phone && user.address) {
-      router.push("/dashboard");
+    if (!sessionLoading) {
+      if (!user) {
+        router.push("/login");
+      } else if (user.phone && user.address) {
+        router.push("/dashboard");
+      }
     }
-  }, [router]);
+  }, [user, sessionLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const token = localStorage.getItem("transly_token");
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ phone, address })
+        body: JSON.stringify({ phone, address }),
+        credentials: "include",
       });
       const data = await res.json();
       if(data.success) {
-        const user = JSON.parse(localStorage.getItem("transly_user") || "{}");
-        localStorage.setItem("transly_user", JSON.stringify({...user, ...data.user}));
+        await refreshSession();
         window.location.href = "/request";
       } else {
         alert(data.error);

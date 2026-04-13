@@ -6,22 +6,23 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Send, User as UserIcon, Search, Check, MessageCircle } from "lucide-react";
 import { getSocket } from "@/lib/socket";
+import { useSession } from "@/lib/sessionContext";
 
 export default function AdminChatPage() {
+  const { user, token, loading: sessionLoading } = useSession();
   const [conversations, setConversations] = useState<any[]>([]);
   const [selectedConv, setSelectedConv] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
 
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("transly_user") || "null");
-    setUser(savedUser);
-    fetchConversations();
-  }, []);
+    if (!sessionLoading && token) {
+        fetchConversations();
+    }
+  }, [sessionLoading, token]);
 
   useEffect(() => {
     if (selectedConv) {
@@ -29,7 +30,9 @@ export default function AdminChatPage() {
       fetchMessages(selectedConv.id);
       
       // Mark as read on selection
-      socket.emit("mark_as_read", { conversationId: selectedConv.id, userId: user.id });
+      if (user) {
+        socket.emit("mark_as_read", { conversationId: selectedConv.id, userId: user.id });
+      }
       setConversations(prev => prev.map(c => 
         c.id === selectedConv.id ? { ...c, unreadCount: 0 } : c
       ));
@@ -38,7 +41,9 @@ export default function AdminChatPage() {
         if (msg.conversationId === selectedConv.id) {
           setMessages((prev) => [...prev, msg]);
           // Mark as read since we are looking at it
-          socket.emit("mark_as_read", { conversationId: selectedConv.id, userId: user.id });
+          if (user) {
+            socket.emit("mark_as_read", { conversationId: selectedConv.id, userId: user.id });
+          }
         }
         
         // Update last message and unread count if not selected
@@ -46,7 +51,7 @@ export default function AdminChatPage() {
           c.id === msg.conversationId ? { 
             ...c, 
             lastMessage: msg.text,
-            unreadCount: (selectedConv?.id === msg.conversationId || msg.senderId === user.id) ? 0 : (c.unreadCount || 0) + 1
+            unreadCount: (selectedConv?.id === msg.conversationId || msg.senderId === user?.id) ? 0 : (c.unreadCount || 0) + 1
           } : c
         ));
       });
@@ -71,7 +76,7 @@ export default function AdminChatPage() {
   }, [messages]);
 
   const fetchConversations = async () => {
-    const token = localStorage.getItem("transly_token");
+    if (!token) return;
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/chat/conversations", {
         headers: { Authorization: `Bearer ${token}` }
@@ -88,7 +93,7 @@ export default function AdminChatPage() {
   };
 
   const fetchMessages = async (convId: string) => {
-    const token = localStorage.getItem("transly_token");
+    if (!token) return;
     try {
       const res = await fetch(`https://transly-wr1m.onrender.com/chat/${convId}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
