@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Input } from "@/components/ui/Input";
 import { getSocket } from "@/lib/socket";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export function ChatWidget() {
   const { user, token } = useSession();
@@ -71,15 +72,10 @@ export function ChatWidget() {
   const startChat = async (currentUser: any) => {
     try {
       // Start or get conversation - backend will find an admin if we don't provide user2Id
-      const convRes = await fetch("https://transly-wr1m.onrender.com/chat/conversation", {
+      const convRes = await apiFetch("/chat/conversation", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
         body: JSON.stringify({}),
-      });
+      }, token);
       const convData = await convRes.json();
       if (convData.success && convData.conversation) {
         setConversation(convData.conversation);
@@ -94,10 +90,7 @@ export function ChatWidget() {
 
   const fetchMessages = async (convId: string, token: string | null) => {
     try {
-      const res = await fetch(`https://transly-wr1m.onrender.com/chat/${convId}/messages`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include"
-      });
+      const res = await apiFetch(`/chat/${convId}/messages`, {}, token);
       const data = await res.json();
       if (data.success) {
         setMessages(data.messages);

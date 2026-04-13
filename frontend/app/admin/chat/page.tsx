@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Send, User as UserIcon, Search, Check, MessageCircle } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export default function AdminChatPage() {
   const { user, token, loading: sessionLoading } = useSession();
@@ -79,9 +80,7 @@ export default function AdminChatPage() {
   const fetchConversations = async () => {
     if (!token) return;
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/chat/conversations", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await apiFetch("/chat/conversations", {}, token);
       const data = await res.json();
       if (data.success) {
         setConversations(data.conversations);
@@ -96,9 +95,7 @@ export default function AdminChatPage() {
   const fetchMessages = async (convId: string) => {
     if (!token) return;
     try {
-      const res = await fetch(`https://transly-wr1m.onrender.com/chat/${convId}/messages`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await apiFetch(`/chat/${convId}/messages`, {}, token);
       const data = await res.json();
       if (data.success) {
         setMessages(data.messages);

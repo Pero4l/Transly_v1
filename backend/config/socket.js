@@ -1,12 +1,20 @@
 const { Server } = require('socket.io');
 const { Message } = require('../models');
+const { Op } = require('sequelize');
 
 let io;
 
 const init = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      origin: function (origin, callback) {
+        const allowed = [process.env.FRONTEND_URL, 'https://transly-kappa.vercel.app', 'http://localhost:3000'];
+        if (!origin || allowed.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true
     },
@@ -15,6 +23,19 @@ const init = (server) => {
 
   io.on('connection', (socket) => {
     console.log('User connected to socket');
+
+    // Handle token-based auto-join
+    const token = socket.handshake.auth?.token;
+    if (token) {
+        try {
+            const jwt = require('jsonwebtoken');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            socket.join(decoded.id);
+            console.log(`Socket automatically joined personal room: ${decoded.id}`);
+        } catch (err) {
+            console.error('Socket Auth Error:', err.message);
+        }
+    }
 
     socket.on('join_personal_room', (userId) => {
        socket.join(userId);
