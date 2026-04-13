@@ -262,7 +262,7 @@ exports.getSession = async (req, res) => {
 exports.logout = async (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ success: false, error: 'Logout failed' });
-    res.clearCookie('connect.sid');
+    res.clearCookie('transly.sid');
     res.status(200).json({ success: true, message: 'Logged out from Redis session' });
   });
 };
