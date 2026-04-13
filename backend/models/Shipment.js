@@ -37,8 +37,11 @@ const Shipment = sequelize.define('Shipment', {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('pending', 'assigned', 'picked_up', 'in_transit', 'delivered'),
+    type: DataTypes.STRING,
     defaultValue: 'pending',
+    validate: {
+        isIn: [['pending', 'assigned', 'picked_up', 'in_transit', 'delivered']]
+    }
   },
   distance: {
     type: DataTypes.FLOAT,
@@ -49,8 +52,11 @@ const Shipment = sequelize.define('Shipment', {
     allowNull: true,
   },
   paymentStatus: {
-    type: DataTypes.ENUM('pending', 'paid'),
+    type: DataTypes.STRING,
     defaultValue: 'pending',
+    validate: {
+        isIn: [['pending', 'paid']]
+    }
   },
   description: {
     type: DataTypes.TEXT,

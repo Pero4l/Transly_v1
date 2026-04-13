@@ -21,8 +21,11 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('customer', 'driver', 'admin'),
+    type: DataTypes.STRING,
     defaultValue: 'customer',
+    validate: {
+      isIn: [['customer', 'driver', 'admin']]
+    }
   },
   phone: {
     type: DataTypes.STRING,
@@ -37,8 +40,11 @@ const User = sequelize.define('User', {
     defaultValue: false,
   },
   auth_provider: {
-    type: DataTypes.ENUM('local', 'google'),
+    type: DataTypes.STRING,
     defaultValue: 'local',
+    validate: {
+      isIn: [['local', 'google']]
+    }
   },
   resetPasswordToken: {
     type: DataTypes.STRING,

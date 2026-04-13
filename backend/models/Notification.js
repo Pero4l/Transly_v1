@@ -20,8 +20,11 @@ const Notification = sequelize.define('Notification', {
     allowNull: false,
   },
   type: {
-    type: DataTypes.ENUM('info', 'success', 'warning'),
+    type: DataTypes.STRING,
     defaultValue: 'info',
+    validate: {
+      isIn: [['info', 'success', 'warning']]
+    }
   },
   read: {
     type: DataTypes.BOOLEAN,

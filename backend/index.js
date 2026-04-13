@@ -21,11 +21,12 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'transly_secret_key_2026',
   resave: false,
   saveUninitialized: false,
+  name: 'transly.sid',
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // Always true for Render HTTPS
     httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: 'none'
   },
   proxy: true
 }));

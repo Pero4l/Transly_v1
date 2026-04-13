@@ -242,7 +242,7 @@ export default function RequestPage() {
                             {coords.origin && <CheckCircle2 className="h-3 w-3 ml-2 text-orange-500" />}
                         </label>
                         <div className="relative">
-                            <Input name="origin" placeholder="Search or click map for pickup..." value={formData.origin} onChange={handleChange} required className={`pr-10 ${activeType === 'origin' ? 'ring-2 ring-orange-400' : ''}`} />
+                            <Input name="origin" placeholder="Search or click map for pickup..." value={formData.origin} onChange={handleChange} required className={`pr-10 ${activeType === 'origin' ? 'border-orange-400' : ''}`} />
                             <MousePointer2 className={`absolute right-3 top-3 h-4 w-4 ${activeType === 'origin' ? 'text-orange-500 animate-pulse' : 'text-slate-300'}`} />
                         </div>
                     </div>
@@ -252,7 +252,7 @@ export default function RequestPage() {
                             {coords.destination && <CheckCircle2 className="h-3 w-3 ml-2 text-blue-500" />}
                         </label>
                         <div className="relative">
-                            <Input name="destination" placeholder="Search or click map for destination..." value={formData.destination} onChange={handleChange} required className={`pr-10 ${activeType === 'destination' ? 'ring-2 ring-blue-400' : ''}`} />
+                            <Input name="destination" placeholder="Search or click map for destination..." value={formData.destination} onChange={handleChange} required className={`pr-10 ${activeType === 'destination' ? 'border-blue-400' : ''}`} />
                             <MousePointer2 className={`absolute right-3 top-3 h-4 w-4 ${activeType === 'destination' ? 'text-blue-500 animate-pulse' : 'text-slate-300'}`} />
                         </div>
                     </div>

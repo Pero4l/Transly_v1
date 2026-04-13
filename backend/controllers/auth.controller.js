@@ -17,6 +17,7 @@ exports.register = async (req, res) => {
     return res.status(400).json({ success: false, error: 'All fields are required' });
   }
 
+  
   if (password.length < 6) {
     return res.status(400).json({ message: "Password must be at least 6 characters" });
   } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
@@ -248,9 +249,12 @@ exports.updateProfile = async (req, res) => {
 };
 
 exports.getSession = async (req, res) => {
+  console.log(`[AUTH] Checking session for ID: ${req.sessionID}`);
   if (req.session && req.session.sessionData) {
+    console.log(`[AUTH] Session found for user: ${req.session.sessionData.user.email}`);
     res.status(200).json({ success: true, ...req.session.sessionData });
   } else {
+    console.log(`[AUTH] No session found in Redis. Session object exists: ${!!req.session}`);
     res.status(401).json({ success: false, error: 'No active session in Redis' });
   }
 };
