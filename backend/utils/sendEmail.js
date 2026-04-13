@@ -2,10 +2,10 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
-    service: process.env.SMTP_HOST?.includes('gmail') ? 'gmail' : undefined,
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT == 465, 
+    service: 'gmail', // Force gmail service for better production compatibility
+    host: 'smtp.gmail.com',
+    port: 587, 
+    secure: false, 
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -14,10 +14,11 @@ const sendEmail = async (options) => {
       rejectUnauthorized: false
     },
     pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-    debug: true, // Show debug logs
-    logger: true // Enable internal logger
+    maxConnections: 10,
+    maxMessages: Infinity,
+    connectionTimeout: 10000, // 10s timeout
+    debug: true,
+    logger: true 
   });
 
   // Verify connection configuration

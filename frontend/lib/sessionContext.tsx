@@ -38,6 +38,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       // 1. Try Session sync first
       const res = await apiFetch("/auth/session");
       let data = await res.json();
+
+      console.log(data);
       
       // 2. Fallback to LocalStorage JWT if session fails
       if (!data.success) {

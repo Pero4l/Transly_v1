@@ -54,6 +54,13 @@ exports.createShipment = async (req, res) => {
         message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: ₦${price}`,
       }).catch(err => console.error('Background Email Error [Customer Notify]:', err.message));
       
+      // Create in-app notification
+      await Notification.create({
+        userId: req.user.id,
+        message: `Shipment ${trackingNumber} created successfully.`,
+        type: 'success'
+      });
+ 
       // Emit socket notification to customer
       getIO().to(req.user.id).emit('notification', {
         message: `Shipment ${trackingNumber} created successfully.`,

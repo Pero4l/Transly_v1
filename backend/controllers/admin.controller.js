@@ -136,6 +136,12 @@ exports.createDriver = async (req, res) => {
         subject: 'Welcome to Transly Driver Team!',
         message: `You have been added. Password: ${generatedPassword}. Login to start.`
       }).catch(err => console.error('Background Email Error [Driver Created]:', err.message));
+ 
+      await Notification.create({
+        userId: user.id,
+        message: `Welcome to the team! Your driver account is active.`,
+        type: 'info'
+      });
     } catch(err) {}
 
     res.status(201).json({ success: true, message: 'Driver created', driverId: user.id });

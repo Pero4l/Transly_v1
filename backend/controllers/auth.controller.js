@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { User } = require('../models');
+const { User, Notification } = require('../models');
 const sendEmail = require('../utils/sendEmail');
 
 const generateToken = (id) => {
@@ -49,12 +49,18 @@ exports.register = async (req, res) => {
       phone,
     });
 
-    // Send email in background (non-blocking)
     sendEmail({
       email: user.email,
       subject: 'Welcome to Transly!',
       message: `Hello ${user.name},\n\nWelcome to Transly platform! Your account has been created successfully.\n\nBest,\nTransly Team`,
     }).catch(err => console.error('Background Email Error [Register]:', err.message));
+ 
+    // Create in-app notification
+    Notification.create({
+      userId: user.id,
+      message: `Welcome to Transly, ${user.name}! We are glad to have you here.`,
+      type: 'success'
+    }).catch(err => console.error('Background Notification Error [Register]:', err.message));
 
     // Store everything in Redis session (replacing localStorage)
     req.session.sessionData = {

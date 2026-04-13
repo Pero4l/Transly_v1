@@ -20,10 +20,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+ 
+  
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+     console.log("Refresh session: ",refreshSession);
 
     try {
       const res = await apiFetch("/auth/login", {
@@ -33,19 +38,20 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (data.success) {
+        if (data.token) localStorage.setItem("transly_token", data.token);
         await refreshSession();
         toast.info("Initializing session...");
         let target = "/dashboard";
         if (data.user.role === 'admin') target = "/admin";
         else if (data.user.role === 'driver') target = "/driver";
 
-        // Fallback for mobile routing issues
+        // Reliable routing for iOS/Mobile
         router.push(target);
         setTimeout(() => {
           if (window.location.pathname !== target) {
             window.location.replace(target);
           }
-        }, 3000);
+        }, 2000);
         
         toast.success("Welcome back!");
       } else {

@@ -38,7 +38,7 @@ export default function SignupPage() {
       if (data.success) {
         await refreshSession();
         toast.success("Account created successfully!");
-        router.push("/dashboard");
+        router.push("/login");
       } else {
         const errorMsg = data.error || "Signup failed";
         setError(errorMsg);

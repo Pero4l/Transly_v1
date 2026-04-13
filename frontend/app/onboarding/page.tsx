@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export default function OnboardingPage() {
   const { user, token, loading: sessionLoading, refreshSession } = useSession();
@@ -37,12 +38,10 @@ export default function OnboardingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/auth/profile", {
+      const res = await apiFetch("/auth/profile", {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ phone, address }),
-        credentials: "include",
-      });
+      }, token);
       const data = await res.json();
       if(data.success) {
         toast.success("Profile updated successfully!");
