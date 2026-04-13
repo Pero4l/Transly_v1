@@ -30,15 +30,17 @@ export default function DashboardPage() {
 
   const fetchShipments = async () => {
     if (sessionLoading) return;
-    if (!user || !token) {
-      router.push("/login");
-      return;
-    }
 
-    if (user.role === "admin") {
-      router.push("/admin");
-      return;
+    setTimeout(() => {
+      if (!user) {
+        router.push("/login");
+      } else if (user.role === "admin") {
+        router.push("/admin");
+    } else if (user.role === "driver") {
+        router.push("/driver");
     }
+    }, 4000);
+
     try {
       const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
         headers: { Authorization: `Bearer ${token}` },
