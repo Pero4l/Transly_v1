@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: "A professional and user-friendly platform sending deliveries.",
 };
 
+import { GoogleAuthProvider } from "@/components/auth/GoogleAuthProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,11 +23,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
-        <SessionProvider>
-          <Toaster richColors position="top-center" />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <ChatWidget />
-        </SessionProvider>
+        <GoogleAuthProvider>
+          <SessionProvider>
+            <Toaster richColors position="top-center" />
+            <main className="flex-1 flex flex-col">{children}</main>
+            <ChatWidget />
+          </SessionProvider>
+        </GoogleAuthProvider>
       </body>
     </html>
   );

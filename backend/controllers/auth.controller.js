@@ -144,8 +144,15 @@ exports.getMe = async (req, res) => {
 };
 
 exports.googleAuth = async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, googleId, image } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({ success: false, error: 'Google authentication failed to provide email' });
+  }
+
   try {
+    // NOTE: In a strictly secure production app, you should also verify the 
+    // ID token (JWT) from Google using the 'google-auth-library' to prevent spoofing.
     let user = await User.findOne({ where: { email } });
     if (!user) {
       const generatedPassword = crypto.randomBytes(16).toString('hex');

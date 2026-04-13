@@ -57,36 +57,46 @@ export default function LoginPage() {
     }
   };
   
-  const handleGoogleAuth = async () => {
-    // In a production environment, this would use a Google OAuth library
-    // For this demonstration, we'll simulate the profile data
-    const mockGoogleProfile = {
-        name: "Google User",
-        email: "google.user@example.com"
-    };
-
-    setLoading(true);
-    try {
-        const res = await fetch("https://transly-wr1m.onrender.com/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(mockGoogleProfile),
-        });
-        const data = await res.json();
-        if (data.success) {
-            await refreshSession();
-            toast.success("Signed in with Google!");
-            router.push("/dashboard");
-        } else {
-            toast.error(data.error || "Google Sign-In failed");
+  const { useGoogleLogin } = require("@react-oauth/google");
+  
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse: any) => {
+        setLoading(true);
+        try {
+            // Usually we'd get profile info using the access_token or send a code/id_token to backend
+            // For @react-oauth/google, we can get user info using the access_token
+            const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+            });
+            const profile = await profileRes.json();
+            
+            const res = await fetch("https://transly-wr1m.onrender.com/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ 
+                    name: profile.name, 
+                    email: profile.email,
+                    googleId: profile.sub,
+                    image: profile.picture
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                await refreshSession();
+                toast.success("Signed in with Google!");
+                router.push("/dashboard");
+            } else {
+                toast.error(data.error || "Google Sign-In failed");
+            }
+        } catch (err) {
+            toast.error("Network error during Google Sign-In");
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        toast.error("Network error during Google Sign-In");
-    } finally {
-        setLoading(false);
-    }
-  };
+    },
+    onError: () => toast.error("Google Login Failed")
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
@@ -160,7 +170,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full h-12" type="button" onClick={handleGoogleAuth} disabled={loading}>
+            <Button variant="outline" className="w-full h-12" type="button" onClick={() => (googleLogin as any)()} disabled={loading}>
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />

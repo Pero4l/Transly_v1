@@ -2,16 +2,20 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
+    service: process.env.SMTP_HOST?.includes('gmail') ? 'gmail' : undefined,
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
+    secure: process.env.SMTP_PORT == 465, 
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
     tls: {
       rejectUnauthorized: false
-    }
+    },
+    pool: true, // Use pooling for better performance on serverless/hosting
+    maxConnections: 5,
+    maxMessages: 100
   });
 
   const message = {
@@ -22,9 +26,19 @@ const sendEmail = async (options) => {
     html: options.html,
   };
 
-  const info = await transporter.sendMail(message);
-  console.log('Message sent: %s', info.messageId);
-  return info;
+  try {
+    const info = await transporter.sendMail(message);
+    console.log('✅ [EMAIL] Message sent successfully: %s', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('❌ [EMAIL] Critical sending error:', {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        response: error.response
+    });
+    throw error;
+  }
 };
 
 module.exports = sendEmail;
