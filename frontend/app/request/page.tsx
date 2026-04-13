@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { MapPin, User, Package, CreditCard, Loader2 } from "lucide-react";
+import { MapPin, User, Package, CreditCard, Loader2, Navigation } from "lucide-react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(() => import("@/components/shipments/MapPicker"), { 
+    ssr: false,
+    loading: () => <div className="h-[300px] w-full bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-slate-400">Loading Map...</div>
+});
 
 export default function RequestPage() {
   const [formData, setFormData] = useState({
@@ -34,7 +41,7 @@ export default function RequestPage() {
 
   const fetchRates = async () => {
     try {
-        const res = await fetch("http://localhost:9400/admin/settings", {
+        const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
             headers: { Authorization: `Bearer ${localStorage.getItem("transly_token")}` }
         });
         const data = await res.json();
@@ -61,7 +68,7 @@ export default function RequestPage() {
     const token = localStorage.getItem("transly_token");
     
     try {
-      const res = await fetch("http://localhost:9400/shipments", {
+      const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,6 +136,20 @@ export default function RequestPage() {
                 </div>
               </CardContent>
             </Card>
+            
+            <Card className="border-0 shadow-sm rounded-2xl glass">
+              <CardHeader className="border-b border-slate-100 pb-4 mb-4">
+                <CardTitle className="text-lg flex items-center">
+                  <Navigation className="h-5 w-5 mr-2 text-orange-600" /> Route Mapping
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700 block">Select Delivery Point</label>
+                    <MapPicker onLocationSelect={(lat, lng) => console.log(lat, lng)} />
+                 </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="space-y-6">
@@ -182,6 +203,7 @@ export default function RequestPage() {
           </div>
         </form>
       </main>
+      <Footer />
     </div>
   );
 }

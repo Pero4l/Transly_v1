@@ -17,7 +17,7 @@ export default function AdminLayout({
   useEffect(() => {
     const token = localStorage.getItem("transly_token");
     if (token) {
-      fetch("http://localhost:9400/notifications", {
+      fetch("https://transly-wr1m.onrender.com/notifications", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -35,7 +35,7 @@ export default function AdminLayout({
   const markAllAsRead = async () => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:9400/notifications/read-all", {
+      const res = await fetch("https://transly-wr1m.onrender.com/notifications/read-all", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });

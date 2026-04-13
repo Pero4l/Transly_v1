@@ -26,7 +26,7 @@ export default function ProfilePage() {
       }
 
       try {
-        const res = await fetch("http://localhost:9400/auth/me", {
+        const res = await fetch("https://transly-wr1m.onrender.com/auth/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -54,7 +54,7 @@ export default function ProfilePage() {
     const token = localStorage.getItem("transly_token");
 
     try {
-      const res = await fetch("http://localhost:9400/auth/profile", {
+      const res = await fetch("https://transly-wr1m.onrender.com/auth/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

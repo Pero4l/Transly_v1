@@ -18,7 +18,7 @@ export default function AdminShipmentsPage() {
   const fetchShipments = async () => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:9400/admin/shipments", {
+      const res = await fetch("https://transly-wr1m.onrender.com/admin/shipments", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -40,7 +40,7 @@ export default function AdminShipmentsPage() {
     setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:9400/shipments/${id}`, {
+      const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();

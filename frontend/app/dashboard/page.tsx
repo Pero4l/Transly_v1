@@ -40,7 +40,7 @@ export default function DashboardPage() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:9400/shipments", {
+      const res = await fetch("https://transly-wr1m.onrender.com/shipments", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -62,7 +62,7 @@ export default function DashboardPage() {
     setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:9400/shipments/${id}`, {
+      const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -80,7 +80,7 @@ export default function DashboardPage() {
     setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:9400/shipments/${id}/status`, {
+      const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${id}/status`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

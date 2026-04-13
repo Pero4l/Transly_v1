@@ -73,7 +73,7 @@ export default function AdminChatPage() {
   const fetchConversations = async () => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:9400/chat/conversations", {
+      const res = await fetch("https://transly-wr1m.onrender.com/chat/conversations", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -90,7 +90,7 @@ export default function AdminChatPage() {
   const fetchMessages = async (convId: string) => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:9400/chat/${convId}/messages`, {
+      const res = await fetch(`https://transly-wr1m.onrender.com/chat/${convId}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();

@@ -23,7 +23,7 @@ export default function TrackingPage() {
     setShipment(null);
 
     try {
-      const res = await fetch(`http://localhost:9400/shipments/track/${trackingNumber}`);
+      const res = await fetch(`https://transly-wr1m.onrender.com/shipments/track/${trackingNumber}`);
       const data = await res.json();
       if (data.success) {
         setShipment(data.shipment);

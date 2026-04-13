@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 export const getSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:9400");
+    socket = io("https://transly-wr1m.onrender.com");
   }
   return socket;
 };

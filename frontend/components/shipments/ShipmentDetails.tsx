@@ -2,7 +2,9 @@
 
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { MapPin, Package, User, Phone, Mail, Calendar, Navigation, Banknote, Box, Truck } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { MapPin, Package, User, Phone, Mail, Calendar, Navigation, Banknote, Box, Truck, CreditCard, CheckCircle2, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface ShipmentDetailsProps {
   shipment: any;
@@ -47,6 +49,15 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
                 {parseFloat(shipment.price).toLocaleString()}
               </span>
             </div>
+            <div className="flex justify-between items-center p-1">
+              <span className="text-sm text-slate-500">Payment Status</span>
+              <Badge 
+                variant={shipment.paymentStatus === 'paid' ? 'success' : 'outline'}
+                className="uppercase py-1"
+              >
+                {shipment.paymentStatus || 'pending'}
+              </Badge>
+            </div>
             {shipment.description && (
               <div className="pt-2">
                 <span className="text-sm text-slate-500 block mb-1">Description</span>
@@ -57,6 +68,25 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
             )}
           </CardContent>
         </Card>
+
+        {/* Payment Action for Customers */}
+        {(!shipment.paymentStatus || shipment.paymentStatus === 'pending') ? (
+             <Card className="border-0 shadow-lg bg-orange-600 text-white overflow-hidden relative md:col-span-2">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-white/20 p-3 rounded-2xl">
+                            <CreditCard className="h-8 w-8 text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-white">Secure Payment Required</h3>
+                            <p className="text-orange-100 text-sm">Amount Due: <span className="font-black">₦{parseFloat(shipment.price).toLocaleString()}</span></p>
+                        </div>
+                    </div>
+                    <PaystackPaymentDemo shipment={shipment} />
+                </CardContent>
+             </Card>
+        ) : null}
 
         {/* Parties Info */}
         <Card className="border-0 shadow-sm rounded-2xl">
@@ -188,5 +218,57 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export function PaystackPaymentDemo({ shipment }: { shipment: any }) {
+  const [loading, setLoading] = useState(false);
+  
+  // TOGGLE THIS FOR REAL INTEGRATION
+  const IS_DEMO = true; 
+
+  const handlePayment = () => {
+    setLoading(true);
+    
+    if (IS_DEMO) {
+        // MOCK PAYSTACK FLOW
+        setTimeout(async () => {
+            try {
+                const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${shipment.id}/status`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("transly_token")}`
+                    },
+                    body: JSON.stringify({ paymentStatus: 'paid' })
+                });
+                if (res.ok) {
+                    alert("DEMO PAYMENT SUCCESSFUL! Shipment is now paid.");
+                    window.location.reload();
+                }
+            } catch (err) {
+                alert("Payment processing error");
+            } finally {
+                setLoading(false);
+            }
+        }, 2000);
+    } else {
+        // REAL PAYSTACK LOGIC WOULD GO HERE
+        // import { usePaystackPayment } from 'react-paystack';
+        // initializePayment(onSuccess, onClose);
+        alert("Real Paystack integration enabled. Please provide API Keys.");
+        setLoading(false);
+    }
+  };
+
+  return (
+    <Button 
+        onClick={handlePayment} 
+        disabled={loading}
+        className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-8 h-12 rounded-xl border-0 shadow-lg shadow-orange-950/20"
+    >
+        {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CreditCard className="h-5 w-5 mr-2" />}
+        {loading ? "Authorizing..." : "Pay with Paystack"}
+    </Button>
   );
 }

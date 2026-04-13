@@ -29,8 +29,8 @@ export default function AdminDashboardPage() {
     const token = localStorage.getItem("transly_token");
     try {
       const [shipRes, userRes] = await Promise.all([
-        fetch("http://localhost:9400/admin/shipments", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://localhost:9400/admin/users", { headers: { Authorization: `Bearer ${token}` } })
+        fetch("https://transly-wr1m.onrender.com/admin/shipments", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("https://transly-wr1m.onrender.com/admin/users", { headers: { Authorization: `Bearer ${token}` } })
       ]);
       const shipData = await shipRes.json();
       const userData = await userRes.json();
@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
     setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      await fetch("http://localhost:9400/admin/assign-driver", {
+      await fetch("https://transly-wr1m.onrender.com/admin/assign-driver", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ shipmentId, driverId })
@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
     setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      await fetch(`http://localhost:9400/admin/users/${userId}/suspend`, {
+      await fetch(`https://transly-wr1m.onrender.com/admin/users/${userId}/suspend`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
   //   e.preventDefault();
   //   const token = localStorage.getItem("transly_token");
   //   try {
-  //     const res = await fetch("http://localhost:9400/admin/driver", {
+  //     const res = await fetch("https://transly-wr1m.onrender.com/admin/driver", {
   //       method: "POST",
   //       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   //       body: JSON.stringify(driverData)

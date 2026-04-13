@@ -51,7 +51,7 @@ export default function AdminCustomersPage() {
   const fetchCustomers = async () => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:9400/admin/customers", {
+      const res = await fetch("https://transly-wr1m.onrender.com/admin/customers", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -89,7 +89,7 @@ export default function AdminCustomersPage() {
     setActionLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch(`http://localhost:9400/admin/users/${id}/suspend`, {
+      const res = await fetch(`https://transly-wr1m.onrender.com/admin/users/${id}/suspend`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });

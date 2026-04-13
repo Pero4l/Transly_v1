@@ -74,7 +74,7 @@ export function ChatWidget() {
     const token = localStorage.getItem("transly_token");
     try {
       // Start or get conversation - backend will find an admin if we don't provide user2Id
-      const convRes = await fetch("http://localhost:9400/chat/conversation", {
+      const convRes = await fetch("https://transly-wr1m.onrender.com/chat/conversation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +96,7 @@ export function ChatWidget() {
 
   const fetchMessages = async (convId: string, token: string | null) => {
     try {
-      const res = await fetch(`http://localhost:9400/chat/${convId}/messages`, {
+      const res = await fetch(`https://transly-wr1m.onrender.com/chat/${convId}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();

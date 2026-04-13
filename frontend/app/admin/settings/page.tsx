@@ -20,7 +20,7 @@ export default function AdminSettingsPage() {
   const fetchSettings = async () => {
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:9400/admin/settings", {
+      const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -41,7 +41,7 @@ export default function AdminSettingsPage() {
     setLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-        const res = await fetch("http://localhost:9400/admin/settings", {
+        const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",

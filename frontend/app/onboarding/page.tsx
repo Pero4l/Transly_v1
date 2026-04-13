@@ -27,7 +27,7 @@ export default function OnboardingPage() {
     setLoading(true);
     const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("http://localhost:9400/auth/profile", {
+      const res = await fetch("https://transly-wr1m.onrender.com/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ phone, address })

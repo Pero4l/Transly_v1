@@ -23,7 +23,7 @@ export default function AdminDriversPage() {
     const fetchData = async () => {
       const token = localStorage.getItem("transly_token");
       try {
-        const res = await fetch("http://localhost:9400/admin/drivers", {
+        const res = await fetch("https://transly-wr1m.onrender.com/admin/drivers", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -53,7 +53,7 @@ export default function AdminDriversPage() {
       setActionLoading(true);
       const token = localStorage.getItem("transly_token");
       try {
-        const res = await fetch("http://localhost:9400/admin/driver", {
+        const res = await fetch("https://transly-wr1m.onrender.com/admin/driver", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify(driverData)
@@ -77,7 +77,7 @@ export default function AdminDriversPage() {
       setActionLoading(true);
       const token = localStorage.getItem("transly_token");
       try {
-        const res = await fetch(`http://localhost:9400/admin/users/${id}/suspend`, {
+        const res = await fetch(`https://transly-wr1m.onrender.com/admin/users/${id}/suspend`, {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` }
         });
