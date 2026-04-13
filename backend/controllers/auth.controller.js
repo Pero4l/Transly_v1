@@ -88,6 +88,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(`[AUTH] Login attempt: ${email}`);
 
   try {
     const user = await User.findOne({ where: { email } });
@@ -115,7 +116,7 @@ exports.login = async (req, res) => {
 
     req.session.save((err) => {
       if (err) {
-        console.error("Session save error:", err);
+        console.error("Session Save Error [Login]:", err);
         return res.status(500).json({ success: false, error: "Failed to persist session" });
       }
       res.status(200).json({
