@@ -48,15 +48,12 @@ exports.register = async (req, res) => {
       phone,
     });
 
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: 'Welcome to Transly!',
-        message: `Hello ${user.name},\n\nWelcome to Transly platform! Your account has been created successfully.\n\nBest,\nTransly Team`,
-      });
-    } catch (err) {
-      console.error('Email not sent:', err);
-    }
+    // Send email in background (non-blocking)
+    sendEmail({
+      email: user.email,
+      subject: 'Welcome to Transly!',
+      message: `Hello ${user.name},\n\nWelcome to Transly platform! Your account has been created successfully.\n\nBest,\nTransly Team`,
+    }).catch(err => console.error('Background Email Error [Register]:', err.message));
 
     // Store everything in Redis session (replacing localStorage)
     req.session.sessionData = {
@@ -198,11 +195,12 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    await sendEmail({
+    // Send email in background (non-blocking)
+    sendEmail({
       email: user.email,
       subject: 'Password Reset OTP',
       message: `Your password reset OTP is: ${resetToken}\nIt is valid for 10 minutes.`,
-    });
+    }).catch(err => console.error('Background Email Error [ForgotPass]:', err.message));
 
     res.status(200).json({ success: true, message: 'OTP sent to email' });
   } catch (error) {

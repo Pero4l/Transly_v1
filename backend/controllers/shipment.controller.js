@@ -41,18 +41,18 @@ exports.createShipment = async (req, res) => {
       const admins = await User.findAll({ where: { role: 'admin' } });
       
       // Notify admins via email (general address)
-      await sendEmail({
+      sendEmail({
         email: "translynigeria@gmail.com",
         subject:"New Shipment Created",
         message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: ₦${price}`
-      });
+      }).catch(err => console.error('Background Email Error [Admin Notify]:', err.message));
 
       // Notify customer
-      await sendEmail({
+      sendEmail({
         email: req.user.email,
         subject: 'Shipment Created',
         message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: ₦${price}`,
-      });
+      }).catch(err => console.error('Background Email Error [Customer Notify]:', err.message));
       
       // Emit socket notification to customer
       getIO().to(req.user.id).emit('notification', {
@@ -108,17 +108,18 @@ exports.updateShipmentStatus = async (req, res) => {
 
     try {
       // For Customer
-      await sendEmail({
+      sendEmail({
         email: shipment.customer.email,
         subject: `Shipment Update: ${status}`,
         message: `Your shipment ${shipment.trackingNumber} status is now: ${status}`,
-      });
+      }).catch(err => console.error('Background Email Error [Status update Customer]:', err.message));
+
       // For Admins (Email)
-      await sendEmail({
+      sendEmail({
         email: "translynigeria@gmail.com",
         subject: `Shipment Update: ${status}`,
         message: `A shipment ${shipment.trackingNumber} for ${shipment.customer.name} status is now: ${status}`
-      });
+      }).catch(err => console.error('Background Email Error [Status update Admin]:', err.message));
 
       // Notify customer (In-app)
       await Notification.create({

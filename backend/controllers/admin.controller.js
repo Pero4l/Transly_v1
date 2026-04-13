@@ -59,11 +59,11 @@ exports.assignDriver = async (req, res) => {
     await shipment.save();
 
     try {
-      await sendEmail({
+      sendEmail({
         email: driver.email,
         subject: 'New Shipment Assigned',
         message: `You have been assigned shipment ${shipment.trackingNumber}. Origin: ${shipment.origin}, Destination: ${shipment.destination}.`,
-      });
+      }).catch(err => console.error('Background Email Error [Driver Assign]:', err.message));
       await Notification.create({
         userId: driver.id,
         message: `You have been assigned shipment ${shipment.trackingNumber}.`,
@@ -131,11 +131,11 @@ exports.createDriver = async (req, res) => {
     });
 
     try {
-      await sendEmail({
+      sendEmail({
         email: user.email,
         subject: 'Welcome to Transly Driver Team!',
         message: `You have been added. Password: ${generatedPassword}. Login to start.`
-      });
+      }).catch(err => console.error('Background Email Error [Driver Created]:', err.message));
     } catch(err) {}
 
     res.status(201).json({ success: true, message: 'Driver created', driverId: user.id });

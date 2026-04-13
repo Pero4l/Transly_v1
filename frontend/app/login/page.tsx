@@ -35,6 +35,7 @@ export default function LoginPage() {
 
       if (data.success) {
         await refreshSession();
+        toast.info("Initializing session...");
         let target = "/dashboard";
         if (data.user.role === 'admin') target = "/admin";
         else if (data.user.role === 'driver') target = "/driver";

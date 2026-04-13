@@ -12,6 +12,9 @@ const app = express();
 const server = http.createServer(app);
 socketConfig.init(server);
 
+// Ensure proxy support for Render HTTPS
+app.set('trust proxy', 1);
+
 // Session configuration for Redis-based state management
 app.use(session({
   store: new RedisStore({ client: redisClient }),
