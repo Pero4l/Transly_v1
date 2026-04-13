@@ -76,7 +76,8 @@ exports.register = async (req, res) => {
       }
       res.status(201).json({
         success: true,
-        ...req.session.sessionData
+        // ...req.session.sessionData
+        message: "Account created successfully"
       });
     });
   } catch (error) {
