@@ -170,7 +170,7 @@ export default function RequestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12">
+    <div className="min-h-screen bg-slate-50 pb-12 overflow-x-hidden w-full">
       <Navbar />
       
       <main className="container mx-auto px-4 py-4 md:py-8 max-w-5xl">
@@ -179,7 +179,7 @@ export default function RequestPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-1 font-display">New Delivery Request</h1>
             <p className="text-sm text-slate-500">Pick locations on the map for precision dispatch.</p>
           </div>
-          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit items-center gap-1 md:gap-2">
+          <div className="flex bg-slate-200 p-1 rounded-xl shadow-inner h-fit items-center gap-1 md:gap-2 flex-wrap">
             <button
                 type="button"
                 onClick={handleDetectLocation}
@@ -224,7 +224,7 @@ export default function RequestPage() {
             </div>
 
             {/* Form Section */}
-          <form onSubmit={handleSubmit} className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-4">
+          <form onSubmit={handleSubmit} className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-4 relative">
             <div className="space-y-4 md:space-y-6">
                 <Card className="border border-slate-200 shadow-sm rounded-xl bg-white">
                 <CardHeader className="border-b border-slate-100 pb-4 mb-4">
@@ -307,7 +307,7 @@ export default function RequestPage() {
                 </CardContent>
                 </Card>
 
-                <Card className="border border-slate-200 shadow-lg rounded-xl bg-slate-900 text-white lg:sticky lg:top-24 overflow-hidden mb-6 lg:mb-0">
+                <Card className="border border-slate-200 shadow-lg rounded-xl bg-slate-900 text-white lg:sticky lg:top-24 overflow-hidden mb-6 lg:mb-0 w-full">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                 <CardHeader className="border-b border-white/10 pb-4 mb-4 relative z-10">
                     <CardTitle className="text-lg flex items-center">
@@ -328,7 +328,7 @@ export default function RequestPage() {
                         <span className="text-3xl font-black text-orange-500">₦{calculatedPrice > rates.BASE_FARE ? calculatedPrice.toLocaleString() : rates.BASE_FARE.toLocaleString()}</span>
                     </div>
                     <p className="text-slate-400 text-[10px] mt-2 italic leading-tight">*Calculated based on real-time map distance. Taxes included.</p>
-                    <div className="pt-6">
+                    <div className="pt-6 pb-2">
                     <Button className="w-full h-14 text-lg rounded-2xl bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-950/40 hover:-translate-y-1 transition-all font-black border-0 uppercase tracking-tighter" type="submit" disabled={loading || !coords.origin || !coords.destination}>
                         {loading ? <Loader2 className="h-6 w-6 animate-spin mr-3" /> : null}
                         {loading ? "Initializing..." : "Proceed to Payment"}

@@ -156,7 +156,7 @@ export function Navbar() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute left-[-150px] md:left-auto md:right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
+                <div className="absolute left-[-180px] md:left-auto md:right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -231,6 +231,11 @@ export function Navbar() {
             <Link href="/tracking" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
               Track Package
+            </Link>
+
+            <Link href="/chat" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <MessageCircle className="h-5 w-5 mr-3 text-slate-400" />
+              Support Chat
             </Link>
             
             <div className="pt-4 mt-4 border-t border-slate-100">

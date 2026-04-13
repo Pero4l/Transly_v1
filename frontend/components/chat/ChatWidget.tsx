@@ -123,13 +123,13 @@ export function ChatWidget() {
   if (!user || user.role === 'admin') return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
       {!isOpen ? (
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full shadow-2xl bg-orange-600 hover:bg-orange-700 p-0 flex items-center justify-center animate-bounce-subtle relative"
+          className="h-14 w-14 md:h-14 md:w-14 rounded-full shadow-2xl bg-orange-600 hover:bg-orange-700 p-0 flex items-center justify-center animate-bounce-subtle relative pointer-events-auto"
         >
-          <MessageCircle className="h-7 w-7 text-white" />
+          <MessageCircle className="h-6 w-6 md:h-7 md:w-7 text-white" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm animate-pulse">
               {unreadCount}
@@ -137,7 +137,7 @@ export function ChatWidget() {
           )}
         </Button>
       ) : (
-        <Card className="w-80 sm:w-96 border-0 shadow-2xl rounded-2xl overflow-hidden glass flex flex-col h-[500px]">
+        <Card className="w-[calc(100vw-2rem)] sm:w-96 border-0 shadow-2xl rounded-2xl overflow-hidden glass flex flex-col h-[500px] max-h-[80vh] pointer-events-auto translate-y-[-1rem] md:translate-y-0 shadow-orange-900/20">
           <CardHeader className="bg-orange-600 text-white py-4 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg font-bold flex items-center gap-2">
               <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse" />

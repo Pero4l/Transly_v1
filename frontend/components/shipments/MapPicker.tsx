@@ -90,20 +90,20 @@ export default function MapPicker({ onLocationSelect, origin, destination, activ
   return (
     <div className="h-[300px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-100 relative group z-0">
       {/* Search Overlay */}
-      <div className="absolute top-4 left-4 right-4 z-[1000] flex flex-col gap-2 pointer-events-none">
+      <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-[1000] flex flex-col gap-2 pointer-events-none">
         <form onSubmit={handleSearch} className="pointer-events-auto max-w-md w-full mx-auto md:mx-0">
             <div className="relative group">
-                <Search className={`absolute left-4 top-3.5 h-5 w-5 transition-colors ${isSearching ? 'text-orange-500 animate-pulse' : 'text-slate-400'}`} />
+                <Search className={`absolute left-3 top-2.5 md:left-4 md:top-3.5 h-4 w-4 md:h-5 md:w-5 transition-colors ${isSearching ? 'text-orange-500 animate-pulse' : 'text-slate-400'}`} />
                 <input 
                     type="text" 
                     placeholder={`Search for ${activeType}...`} 
-                    className="w-full h-12 pl-12 pr-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border-0 focus:ring-2 focus:ring-orange-500/50 text-slate-800 text-sm font-medium transition-all"
+                    className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-xl border-0 focus:ring-2 focus:ring-orange-500/50 text-slate-800 text-xs md:text-sm font-medium transition-all"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 {isSearching && (
-                    <div className="absolute right-4 top-3.5">
-                        <Loader2 className="h-5 w-5 animate-spin text-orange-600" />
+                    <div className="absolute right-3 top-2.5 md:right-4 md:top-3.5">
+                        <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin text-orange-600" />
                     </div>
                 )}
             </div>
@@ -153,9 +153,9 @@ export default function MapPicker({ onLocationSelect, origin, destination, activ
          </div>
       </div>
 
-      <div className="absolute bottom-4 left-4 z-[40] bg-slate-900/90 backdrop-blur-md text-white px-5 py-2.5 rounded-2xl text-[10px] font-bold shadow-2xl border border-white/10 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-orange-500 animate-ping"></div>
-        {activeType === 'origin' ? 'Click map to set Pickup location' : 'Click map to set Delivery location'}
+      <div className="absolute bottom-2 left-2 z-[40] bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-bold shadow-2xl border border-white/10 flex items-center gap-2 max-w-[200px] md:max-w-none">
+        <div className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-orange-500 animate-ping"></div>
+        <span className="truncate">{activeType === 'origin' ? 'Set Pickup' : 'Set Delivery'}</span>
       </div>
     </div>
   );

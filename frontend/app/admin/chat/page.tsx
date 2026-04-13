@@ -12,6 +12,7 @@ export default function AdminChatPage() {
   const { user, token, loading: sessionLoading } = useSession();
   const [conversations, setConversations] = useState<any[]>([]);
   const [selectedConv, setSelectedConv] = useState<any>(null);
+  const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
@@ -120,15 +121,23 @@ export default function AdminChatPage() {
     setInput("");
   };
 
+  const handleSelectConv = (conv: any) => {
+    setSelectedConv(conv);
+    setMobileView('chat');
+  };
+
   const getOtherUser = (conv: any) => {
     return conv.user1Id === user?.id ? conv.user2 : conv.user1;
   };
 
   return (
-    <div className="flex h-[calc(100vh-140px)] gap-6 animate-in fade-in duration-500">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-100px)] md:h-[calc(100vh-140px)] gap-0 md:gap-6 animate-in fade-in duration-500 overflow-hidden">
       {/* Sidebar List */}
-      <Card className="w-80 flex flex-col border-0 shadow-sm overflow-hidden">
+      <Card className={`${mobileView === 'chat' ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-col border-0 md:border shadow-sm overflow-hidden h-full`}>
         <CardHeader className="border-b bg-slate-50/50 py-4">
+          <div className="flex items-center justify-between mb-2 md:hidden">
+             <h2 className="font-bold text-lg text-slate-800">Support Chats</h2>
+          </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
             <Input className="pl-9 h-9 text-sm" placeholder="Search chats..." />
@@ -145,7 +154,7 @@ export default function AdminChatPage() {
               return (
                 <div 
                   key={conv.id} 
-                  onClick={() => setSelectedConv(conv)}
+                  onClick={() => handleSelectConv(conv)}
                   className={`p-4 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors relative group ${selectedConv?.id === conv.id ? 'bg-orange-50/50 border-l-4 border-l-orange-600' : ''}`}
                 >
                   <div className="flex justify-between items-start mb-1">
@@ -168,27 +177,30 @@ export default function AdminChatPage() {
       </Card>
 
       {/* Main Chat Area */}
-      <Card className="flex-1 flex flex-col border-0 shadow-sm overflow-hidden bg-white">
+      <Card className={`${mobileView === 'list' ? 'hidden md:flex' : 'flex'} flex-1 flex-col border-0 md:border shadow-sm overflow-hidden bg-white h-full`}>
         {selectedConv ? (
           <>
-            <CardHeader className="border-b py-3 px-6 bg-slate-50/30">
+            <CardHeader className="border-b py-3 px-4 md:px-6 bg-slate-50/30">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-                  <UserIcon className="h-5 w-5" />
+                <Button variant="ghost" size="icon" onClick={() => setMobileView('list')} className="md:hidden -ml-2">
+                   <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                  <UserIcon className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-md font-bold text-slate-900">{getOtherUser(selectedConv)?.name}</CardTitle>
+                  <CardTitle className="text-sm md:text-md font-bold text-slate-900">{getOtherUser(selectedConv)?.name}</CardTitle>
                   <div className="flex items-center gap-1.5">
                     <div className="h-1.5 w-1.5 bg-green-500 rounded-full" />
-                    <span className="text-xs text-slate-500 font-medium tracking-tight">Active chatting</span>
+                    <span className="text-[10px] md:text-xs text-slate-500 font-medium tracking-tight">Active chatting</span>
                   </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/20">
+            <CardContent className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-slate-50/20">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.senderId === user?.id ? 'justify-end pt-5' : 'justify-start pt-5'}`}>
-                  <div className={`max-w-[70%] p-3 rounded-2xl text-sm shadow-sm ${
+                <div key={i} className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] md:max-w-[70%] p-3 mt-5 rounded-2xl text-sm shadow-sm ${
                     msg.senderId === user?.id 
                       ? 'bg-orange-600 text-white rounded-tr-none' 
                       : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
@@ -203,16 +215,16 @@ export default function AdminChatPage() {
               ))}
               <div ref={messagesEndRef} />
             </CardContent>
-            <CardFooter className="p-4 border-t border-slate-100">
-              <div className="flex w-full gap-3">
+            <CardFooter className="p-3 md:p-4 border-t border-slate-100">
+              <div className="flex w-full gap-2 md:gap-3">
                 <Input 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Respond to client..."
-                  className="rounded-xl border-slate-200 focus-visible:ring-orange-600 h-11"
+                  className="rounded-xl border-slate-200 focus-visible:ring-orange-600 h-10 md:h-11 text-sm"
                 />
-                <Button onClick={handleSend} size="icon" className="rounded-xl bg-orange-600 hover:bg-orange-700 h-11 w-11 flex-shrink-0 shadow-lg shadow-orange-100">
+                <Button onClick={handleSend} size="icon" className="rounded-xl bg-orange-600 hover:bg-orange-700 h-10 w-10 md:h-11 md:w-11 flex-shrink-0 shadow-lg shadow-orange-100">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
@@ -220,8 +232,8 @@ export default function AdminChatPage() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-10 bg-slate-50/30">
-             <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-lg shadow-slate-200/50 mb-6">
-               <MessageCircle className="h-10 w-10 text-slate-300" />
+             <div className="h-16 w-16 md:h-20 md:w-20 bg-white rounded-full flex items-center justify-center shadow-lg shadow-slate-200/50 mb-6">
+               <MessageCircle className="h-8 w-8 md:h-10 md:w-10 text-slate-300" />
              </div>
              <h3 className="text-lg font-bold text-slate-900 mb-2">Select a chat to start responding</h3>
              <p className="text-sm text-slate-500 max-w-xs">Communicate with customers and drivers in real-time to provide support.</p>
@@ -231,3 +243,6 @@ export default function AdminChatPage() {
     </div>
   );
 }
+
+// Add ArrowLeft to imports if missing
+import { ArrowLeft } from "lucide-react";
