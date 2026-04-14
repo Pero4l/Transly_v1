@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const dns = require('dns');
 
 let transporter;
