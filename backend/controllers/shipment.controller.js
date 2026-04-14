@@ -2,10 +2,18 @@ const { Shipment, User, DriverProfile, Setting, Notification } = require('../mod
 const sendEmail = require('../utils/sendEmail');
 const { getIO } = require('../config/socket');
 
+const DEFAULT_PRICE_PER_MILE = 500.0;
+
 const calculatePrice = async (distance) => {
-  let priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
-  let rate = priceSetting ? parseFloat(priceSetting.value) : 500.0; // default ₦500/mile
-  return (distance * rate).toFixed(2);
+  try {
+    let priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
+    let rate = priceSetting ? parseFloat(priceSetting.value) : DEFAULT_PRICE_PER_MILE;
+    if (isNaN(rate)) rate = DEFAULT_PRICE_PER_MILE;
+    return (distance * rate).toFixed(2);
+  } catch (err) {
+    console.error('Price calculation error:', err);
+    return (distance * DEFAULT_PRICE_PER_MILE).toFixed(2);
+  }
 };
 
 exports.createShipment = async (req, res) => {

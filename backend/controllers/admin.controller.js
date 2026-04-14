@@ -64,12 +64,23 @@ exports.assignDriver = async (req, res) => {
         subject: 'New Shipment Assigned',
         message: `You have been assigned shipment ${shipment.trackingNumber}. Origin: ${shipment.origin}, Destination: ${shipment.destination}.`,
       }).catch(err => console.error('Background Email Error [Driver Assign]:', err.message));
+      
       await Notification.create({
         userId: driver.id,
         message: `You have been assigned shipment ${shipment.trackingNumber}.`,
         type: 'info'
       });
-    } catch(err) {}
+
+      // Notify all admins of the assignment
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      for (const admin of admins) {
+          await Notification.create({
+              userId: admin.id,
+              message: `Shipment ${shipment.trackingNumber} has been assigned to driver ${driver.name}`,
+              type: 'info'
+          });
+      }
+    } catch(err) { console.error('Assignment Notification Error:', err.message); }
 
     res.status(200).json({ success: true, shipment });
   } catch (error) {

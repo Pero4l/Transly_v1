@@ -37,29 +37,30 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const refreshSession = async () => {
     try {
-      // 1. Try Session sync first
+      // 1. Try Session sync first (Cookie-based)
       const res = await apiFetch("/auth/session");
       let data = await res.json();
 
-      console.log(data);
-      
-      // 2. Fallback to LocalStorage JWT if session fails
+      // 2. Aggressive fallback for mobile/iPhones with blocked cookies
       if (!data.success) {
+        console.log("[SESSION] Cookie session failed, trying localStorage fallback...");
         const localToken = localStorage.getItem("transly_token");
         if (localToken) {
-          const meRes = await apiFetch("/auth/me", {}, localToken);
-          data = await meRes.json();
+           const meRes = await apiFetch("/auth/me", {}, localToken);
+           data = await meRes.json();
         }
       }
 
       if (data.success) {
         setUser(data.user);
-        setToken(data.token);
-        if (data.token) localStorage.setItem("transly_token", data.token);
+        if (data.token) {
+            setToken(data.token);
+            localStorage.setItem("transly_token", data.token);
+        }
       } else {
         setUser(null);
         setToken(null);
-        localStorage.removeItem("transly_token");
+        // Note: Don't clear localStorage here, it might be a temporary network issue
       }
     } catch (err) {
       console.error("Session sync failed:", err);
