@@ -28,6 +28,7 @@ const createTransporter = () => {
 };
 
 const sendEmail = async (options) => {
+  console.log(`📧 [EMAIL] Attempting to send email to: ${options.email} | Subject: ${options.subject}`);
   const mailTransporter = createTransporter();
 
   const message = {

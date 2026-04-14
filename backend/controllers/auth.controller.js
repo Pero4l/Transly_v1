@@ -19,17 +19,17 @@ exports.register = async (req, res) => {
 
   
   if (password.length < 6) {
-    return res.status(400).json({ message: "Password must be at least 6 characters" });
+    return res.status(400).json({ success: false, error: "Password must be at least 6 characters" });
   } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
-    return res.status(400).json({ message: "Password must contain both uppercase and lowercase letters" });
+    return res.status(400).json({ success: false, error: "Password must contain both uppercase and lowercase letters" });
   } else if (!/[0-9]/.test(password)) {
-    return res.status(400).json({ message: "Password must contain a number" });
+    return res.status(400).json({ success: false, error: "Password must contain a number" });
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ message: "Invalid email format" });
+    return res.status(400).json({ success: false, error: "Invalid email format" });
   } else if (name.length < 5) {
-    return res.status(400).json({ message: "Name must be at least 5 characters" });
+    return res.status(400).json({ success: false, error: "Name must be at least 5 characters" });
   } else if (phone.length < 10) {
-    return res.status(400).json({ message: "Phone number must be at least 10 digits long" });
+    return res.status(400).json({ success: false, error: "Phone number must be at least 10 digits long" });
   }
 
   try {
