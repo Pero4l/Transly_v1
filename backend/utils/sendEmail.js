@@ -20,11 +20,13 @@ const createTransporter = () => {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    // CRITICAL: Force IPv4 as Render has issues with IPv6 routing to Google
+    family: 4, 
     tls: {
-      // do not fail on invalid certs
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
+      family: 4
     },
-    connectionTimeout: 20000, // 20 seconds
+    connectionTimeout: 20000, 
     greetingTimeout: 20000,
     socketTimeout: 20000,
   });
