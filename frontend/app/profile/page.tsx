@@ -8,9 +8,10 @@ import { User, Mail, Phone, MapPin, Shield, Camera, Save, Loader2 } from "lucide
 import { Navbar } from "@/components/layout/Navbar";
 import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export default function ProfilePage() {
-  const { user, token, loading: sessionLoading, refreshSession } = useSession();
+  const { user, token, loading: sessionLoading, refreshSession, setUserData } = useSession();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
