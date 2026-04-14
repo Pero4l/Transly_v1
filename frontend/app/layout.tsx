@@ -23,6 +23,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+        {/* Suppression of console logs in production */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                console.log = () => {};
+                console.debug = () => {};
+                console.info = () => {};
+                // console.warn = () => {};
+                // console.error = () => {};
+              }
+            `,
+          }}
+        />
         <GoogleAuthProvider>
           <SessionProvider>
             <Toaster richColors position="top-center" />

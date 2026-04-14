@@ -39,20 +39,23 @@ export default function ProfilePage() {
     setMessage({ type: "", content: "" });
 
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/auth/profile", {
+      // Optimistic Update
+      const oldData = { ...user };
+      setUserData(formData);
+
+      const res = await apiFetch("/auth/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
         body: JSON.stringify(formData),
-        credentials: "include",
-      });
+      }, token);
+      
       const data = await res.json();
       if (data.success) {
         toast.success("Profile updated successfully!");
+        // Final sync
         await refreshSession();
       } else {
+        // Rollback on failure
+        if (oldData) setUserData(oldData);
         toast.error(data.error || "Failed to update profile");
       }
     } catch (err) {

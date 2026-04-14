@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, User } from "lucide-react";
+import { MessageCircle, X, Send, User, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -16,6 +16,7 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [conversation, setConversation] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
 
@@ -89,6 +90,7 @@ export function ChatWidget() {
   };
 
   const fetchMessages = async (convId: string, token: string | null) => {
+    setMessagesLoading(true);
     try {
       const res = await apiFetch(`/chat/${convId}/messages`, {}, token);
       const data = await res.json();
@@ -97,6 +99,8 @@ export function ChatWidget() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setMessagesLoading(false);
     }
   };
 
@@ -141,28 +145,41 @@ export function ChatWidget() {
             </Button>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
-            {messages.length === 0 && (
-              <div className="text-center py-10">
-                <div className="bg-orange-100 h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <User className="h-6 w-6 text-orange-600" />
-                </div>
-                <p className="text-sm text-slate-500">Welcome! How can we help you today?</p>
-              </div>
+            {messagesLoading ? (
+               <div className="flex flex-col items-center justify-center py-10">
+                  <Loader2 className="h-8 w-8 animate-spin text-orange-600 mb-2" />
+                  <p className="text-xs text-slate-500">Loading messages...</p>
+               </div>
+            ) : (
+              <>
+                {messages.length === 0 && (
+                  <div className="text-center py-10">
+                    <div className="bg-orange-100 h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <User className="h-6 w-6 text-orange-600" />
+                    </div>
+                    <p className="text-sm text-slate-500">Welcome! How can we help you today?</p>
+                  </div>
+                )}
+                {messages.map((msg, i) => (
+                  <div
+                    key={i}
+                    className={`flex ${msg.senderId === user.id ? 'justify-end pt-5' : 'justify-start'}`}
+                  >
+                      <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.senderId === user.id
+                          ? 'bg-orange-600 text-white rounded-tr-none shadow-orange-100 shadow-lg'
+                          : 'bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-sm'
+                        }`}>
+                        {msg.text}
+                        <div className={`text-[9px] mt-1 flex items-center justify-end gap-1 ${msg.senderId === user.id ? 'text-orange-200' : 'text-slate-400'}`}>
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {msg.senderId === user.id && <Check className="h-2.5 w-2.5" />}
+                        </div>
+                      </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </>
             )}
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${msg.senderId === user.id ? 'justify-end pt-5' : 'justify-start'}`}
-              >
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.senderId === user.id
-                    ? 'bg-orange-600 text-white rounded-tr-none shadow-orange-100 shadow-lg'
-                    : 'bg-white text-slate-800 rounded-tl-none border border-slate-100 shadow-sm'
-                  }`}>
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
           </CardContent>
           <CardFooter className="p-3 border-t bg-white">
             <div className="flex w-full gap-2 mt-3">

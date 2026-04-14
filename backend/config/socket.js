@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const { Message } = require('../models');
+const { Message, Notification } = require('../models');
 const { Op } = require('sequelize');
 
 let io;
@@ -76,6 +76,14 @@ const init = (server) => {
               conversationId: data.conversationId,
               text: data.text,
               senderId: data.senderId
+           });
+
+           // Persist notification in DB for history
+           await Notification.create({
+             userId: recipientId,
+             message: `New message from ${data.senderId.substring(0, 8)}: ${data.text.substring(0, 50)}...`,
+             type: 'info',
+             read: false
            });
         }
       } catch (err) {

@@ -18,6 +18,7 @@ interface SessionContextType {
   loading: boolean;
   refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
+  setUserData: (data: Partial<User>) => void;
 }
 
 const SessionContext = createContext<SessionContextType>({
@@ -26,6 +27,7 @@ const SessionContext = createContext<SessionContextType>({
   loading: true,
   refreshSession: async () => {},
   logout: async () => {},
+  setUserData: () => {},
 });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
@@ -66,6 +68,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setUserData = (data: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...data } : null);
+  };
+
   const logout = async () => {
     localStorage.removeItem("transly_token");
     try {
@@ -87,7 +93,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SessionContext.Provider value={{ user, token, loading, refreshSession, logout }}>
+    <SessionContext.Provider value={{ user, token, loading, refreshSession, logout, setUserData }}>
       {children}
     </SessionContext.Provider>
   );

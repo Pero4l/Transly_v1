@@ -11,7 +11,7 @@ import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
 
 export default function OnboardingPage() {
-  const { user, token, loading: sessionLoading, refreshSession } = useSession();
+  const { user, token, loading: sessionLoading, refreshSession, setUserData } = useSession();
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,11 @@ export default function OnboardingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const oldData = { ...user };
     try {
+      // Optimistic Update
+      setUserData({ phone, address });
+
       const res = await apiFetch("/auth/profile", {
         method: "PUT",
         body: JSON.stringify({ phone, address }),
@@ -48,9 +52,13 @@ export default function OnboardingPage() {
         await refreshSession();
         window.location.href = "/request";
       } else {
+        // Rollback
+        if (oldData) setUserData(oldData);
         toast.error(data.error || "Failed to update profile");
       }
     } catch(err) {
+      // Rollback
+      if (oldData) setUserData(oldData);
       toast.error("An error occurred. Please try again.");
       console.error(err);
     } finally {

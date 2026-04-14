@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Send, User as UserIcon, Search, Check, MessageCircle } from "lucide-react";
+import { Send, User as UserIcon, Search, Check, MessageCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
@@ -17,6 +17,7 @@ export default function AdminChatPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socket = getSocket();
 
@@ -94,6 +95,7 @@ export default function AdminChatPage() {
 
   const fetchMessages = async (convId: string) => {
     if (!token) return;
+    setMessagesLoading(true);
     try {
       const res = await apiFetch(`/chat/${convId}/messages`, {}, token);
       const data = await res.json();
@@ -102,6 +104,8 @@ export default function AdminChatPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setMessagesLoading(false);
     }
   };
 
@@ -132,8 +136,13 @@ export default function AdminChatPage() {
       {/* Sidebar List */}
       <Card className={`${mobileView === 'chat' ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-col border-0 md:border shadow-sm overflow-hidden h-full`}>
         <CardHeader className="border-b bg-slate-50/50 py-4">
-          <div className="flex items-center justify-between mb-2 md:hidden">
+          <div className="flex items-center justify-between mb-2">
              <h2 className="font-bold text-lg text-slate-800">Support Chats</h2>
+             {conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0) > 0 && (
+               <span className="bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                 {conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0)} UNREAD
+               </span>
+             )}
           </div>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
@@ -195,22 +204,31 @@ export default function AdminChatPage() {
               </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-slate-50/20">
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] md:max-w-[70%] p-3 mt-5 rounded-2xl text-sm shadow-sm ${
-                    msg.senderId === user?.id 
-                      ? 'bg-orange-600 text-white rounded-tr-none' 
-                      : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
-                  }`}>
-                    {msg.text}
-                    <div className={`text-[9px] mt-1 flex items-center justify-end gap-1 ${msg.senderId === user?.id ? 'text-orange-200' : 'text-slate-400'}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      {msg.senderId === user?.id && <Check className="h-2.5 w-2.5" />}
-                    </div>
-                  </div>
+              {messagesLoading ? (
+                <div className="flex flex-col items-center justify-center h-full space-y-3">
+                   <Loader2 className="h-10 w-10 animate-spin text-orange-600" />
+                   <p className="text-sm text-slate-500 animate-pulse">Fetching messages...</p>
                 </div>
-              ))}
-              <div ref={messagesEndRef} />
+              ) : (
+                <>
+                  {messages.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] md:max-w-[70%] p-3 mt-5 rounded-2xl text-sm shadow-sm ${
+                        msg.senderId === user?.id 
+                          ? 'bg-orange-600 text-white rounded-tr-none' 
+                          : 'bg-white text-slate-800 rounded-tl-none border border-slate-100'
+                      }`}>
+                        {msg.text}
+                        <div className={`text-[9px] mt-1 flex items-center justify-end gap-1 ${msg.senderId === user?.id ? 'text-orange-200' : 'text-slate-400'}`}>
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {msg.senderId === user?.id && <Check className="h-2.5 w-2.5" />}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
             </CardContent>
             <CardFooter className="p-3 md:p-4 border-t border-slate-100">
               <div className="flex w-full gap-2 md:gap-3">
@@ -240,6 +258,3 @@ export default function AdminChatPage() {
     </div>
   );
 }
-
-// Add ArrowLeft to imports if missing
-import { ArrowLeft } from "lucide-react";

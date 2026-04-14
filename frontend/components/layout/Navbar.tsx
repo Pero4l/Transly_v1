@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send, Loader2 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useSession } from "@/lib/sessionContext";
+import { apiFetch } from "@/lib/api";
 
 export function Navbar() {
   const { user, token, logout } = useSession();
@@ -16,10 +17,7 @@ export function Navbar() {
 
   useEffect(() => {
     if (user) {
-      fetch("https://transly-wr1m.onrender.com/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include"
-      })
+      apiFetch("/notifications", {}, token)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -86,13 +84,10 @@ export function Navbar() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAllAsRead = async () => {
-    const token = localStorage.getItem("transly_token");
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/notifications/read-all", {
+      const res = await apiFetch("/notifications/read-all", {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: "include"
-      });
+      }, token);
       if (res.ok) {
         setNotifications(notifications.map(n => ({ ...n, read: true })));
       }
@@ -176,6 +171,11 @@ export function Navbar() {
                         </div>
                       ))
                     )}
+                  </div>
+                  <div className="p-2 border-t border-slate-100 bg-slate-50">
+                    <Link href={user.role === 'admin' ? "/admin/notifications" : "/notifications"} onClick={() => setShowNotifications(false)} className="block text-center text-xs text-orange-600 font-bold hover:underline py-1">
+                      View all notifications
+                    </Link>
                   </div>
                 </div>
               )}

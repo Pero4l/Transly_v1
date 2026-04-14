@@ -97,7 +97,7 @@ export default function MapPicker({ onLocationSelect, origin, destination, activ
                 <input 
                     type="text" 
                     placeholder={`Search for ${activeType}...`} 
-                    className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-xl border-0 focus:ring-2 focus:ring-orange-500/50 text-slate-800 text-xs md:text-sm font-medium transition-all"
+                    className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-xl border-0 focus:ring-2 focus:ring-orange-500/50 text-slate-800 text-base font-medium transition-all"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
