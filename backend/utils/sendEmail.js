@@ -1,32 +1,27 @@
 const nodemailer = require('nodemailer');
 
-let transporter;
-
-const createTransporter = () => {
-  if (transporter) return transporter;
+const sendEmail = async (options) => {
+  console.log(`📧 [EMAIL] Attempting to send to: ${options.email}`);
   
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.error('❌ [EMAIL] Missing SMTP credentials! SMTP_USER or SMTP_PASS is empty.');
-  }
-
-  // Ultra-minimal Gmail config - nodemailer handles all ports and hosts internally
-  transporter = nodemailer.createTransport({
+  // Matching idu-group-backend logic 1:1
+  const transporter = nodemailer.createTransport({
     service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
-    }
+    },
+    tls: {
+      rejectUnauthorized: false
+    },
+    debug: true, // Enable debug logs in Render console
+    logger: true // Enable internal logger
   });
-  
-  return transporter;
-};
 
-const sendEmail = async (options) => {
-  console.log(`📧 [EMAIL] Attempting to send email to: ${options.email} | Subject: ${options.subject}`);
-  const mailTransporter = createTransporter();
-
-  const message = {
-    from: `${process.env.SMTP_FROM_NAME || 'Transly'} <${process.env.SMTP_FROM_EMAIL || 'noreply@transly.com'}>`,
+  const mailOptions = {
+    from: `"${process.env.SMTP_FROM_NAME || 'Transly'}" <${process.env.SMTP_FROM_EMAIL || 'noreply@transly.com'}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
@@ -34,14 +29,11 @@ const sendEmail = async (options) => {
   };
 
   try {
-    const info = await mailTransporter.sendMail(message);
-    console.log('✅ [EMAIL] Message sent: %s', info.messageId);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ [EMAIL] Message sent: %s", info.messageId);
     return info;
   } catch (error) {
-    console.error('❌ [EMAIL] Critical sending error:', {
-        message: error.message,
-        code: error.code
-    });
+    console.error("❌ [EMAIL] Critical error:", error.message);
     throw error;
   }
 };
