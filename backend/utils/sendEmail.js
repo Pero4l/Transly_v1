@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 
+let transporter;
+
 const createTransporter = () => {
   if (transporter) return transporter;
   
