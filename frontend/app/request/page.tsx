@@ -315,16 +315,16 @@ export default function RequestPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 relative z-10">
-                    <div className="flex justify-between items-center text-slate-300 text-sm">
+                    <div className="flex justify-between items-center text-slate-500 text-sm">
                         <span>Base Handling Fee:</span>
                         <span className="font-bold text-white">₦{rates.BASE_FARE.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-center text-slate-300 text-sm">
+                    <div className="flex justify-between items-center text-slate-500 text-sm">
                         <span>Mileage ({distance} KM):</span>
                         <span className="font-bold text-white">₦{(distance * rates.PRICE_PER_MILE).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                        <span className="text-slate-300 text-md">Total Payable:</span>
+                        <span className="text-slate-500 text-md">Total Payable:</span>
                         <span className="text-3xl font-black text-orange-500">₦{calculatedPrice > rates.BASE_FARE ? calculatedPrice.toLocaleString() : rates.BASE_FARE.toLocaleString()}</span>
                     </div>
                     <p className="text-slate-400 text-[10px] mt-2 italic leading-tight">*Calculated based on real-time map distance. Taxes included.</p>
