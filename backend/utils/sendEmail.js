@@ -1,48 +1,30 @@
 const nodemailer = require('nodemailer');
-const dns = require('dns');
-
-let transporter;
 
 const createTransporter = () => {
   if (transporter) return transporter;
   
-  // Sticking to Port 587 as it's the cloud standard for STARTTLS
-  const host = 'smtp.gmail.com';
-  const port = 587;
-  const isSecure = false;
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT) || 587;
+  const isGmail = host.includes('gmail');
 
-  console.log(`📡 [EMAIL] Initializing transporter: ${host}:${port}`);
+  console.log(`📡 [EMAIL] Initializing transporter: ${host}:${port} (Gmail Service: ${isGmail})`);
 
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.error('❌ [EMAIL] Missing SMTP credentials! SMTP_USER or SMTP_PASS is empty.');
   }
 
   transporter = nodemailer.createTransport({
+    service: isGmail ? 'gmail' : undefined,
     host: host,
     port: port,
-    secure: isSecure,
+    secure: port === 465, 
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    // CRITICAL: Hard-force IPv4 using resolve4 to bypass Render's IPv6 issues
-    lookup: (hostname, options, callback) => {
-      dns.resolve4(hostname, (err, addresses) => {
-        if (err || !addresses || addresses.length === 0) {
-          console.warn(`⚠️ [DNS] resolve4 failed for ${hostname}, falling back to lookup:`, err?.message);
-          return dns.lookup(hostname, { family: 4 }, callback);
-        }
-        const addr = addresses[0];
-        console.log(`🔍 [DNS] Resolved ${hostname} to ${addr} (IPv4 resolve4)`);
-        callback(null, addr, 4);
-      });
-    },
     tls: {
       rejectUnauthorized: false
-    },
-    connectionTimeout: 30000, 
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
+    }
   });
   
   return transporter;
