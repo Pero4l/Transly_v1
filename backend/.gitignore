@@ -11,4 +11,5 @@ yarn-error.log*
 .pnpm-debug.log*  
 /test_flow.js
 .txt
-
+test-email.js
+test-lilpero.js

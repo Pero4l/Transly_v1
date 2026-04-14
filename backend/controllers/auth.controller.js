@@ -198,7 +198,7 @@ exports.googleAuth = async (req, res) => {
         // Welcome notification
         Notification.create({
             userId: user.id,
-            message: `Welcome to Transly, ${user.name}! Your account was created via Google.`,
+            message: `Welcome to Transly, ${user.name}! Your account was created via Google and we're happy to have you onboard.`,
             type: 'success'
         }).catch(err => console.error('BG Notif Error [Google Signup]:', err.message));
 

@@ -44,9 +44,16 @@ export default function SignupPage() {
             });
             const data = await res.json();
             if (data.success) {
+                if (data.token) localStorage.setItem("transly_token", data.token);
                 await refreshSession();
                 toast.success("Account created via Google!");
-                router.push("/dashboard");
+                
+                // Determine target
+                let target = "/dashboard";
+                if (data.user?.role === 'admin') target = "/admin";
+                else if (data.user?.role === 'driver') target = "/driver";
+                
+                router.push(target);
             } else {
                 toast.error(data.error || "Google Sign-Up failed");
             }
