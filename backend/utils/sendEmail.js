@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const dns = require('dns');
 
 let transporter;
 
@@ -11,20 +11,21 @@ const createTransporter = () => {
     console.log('✅ [EMAIL] SMTP credentials present for:', process.env.SMTP_USER);
   }
 
-  // Forcing IPv4 and Port 587 often bypasses cloud provider blocks on Port 465
+  // Force IPv4 and Port 587 to bypass cloud provider blocks and IPv6 errors
   transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: false, // true for 465, false for 587
+    secure: false, // true for 465, false for 587 (STARTTLS)
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    // CRITICAL: Force IPv4 as Render has issues with IPv6 routing to Google
-    family: 4, 
+    // CRITICAL: Force DNS to only return IPv4 addresses
+    lookup: (hostname, options, callback) => {
+      return dns.lookup(hostname, { family: 4 }, callback);
+    },
     tls: {
-      rejectUnauthorized: false,
-      family: 4
+      rejectUnauthorized: false
     },
     connectionTimeout: 20000, 
     greetingTimeout: 20000,
