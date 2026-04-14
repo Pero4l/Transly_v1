@@ -38,11 +38,12 @@ exports.createShipment = async (req, res) => {
     });
 
     try {
-      const admins = await User.findAll({ where: { role: 'admin' } });
+      let admin = await User.findOne({ where: { role: 'admin' } });
+      const adminEmail = admin ? admin.email : "translynigeria@gmail.com";
       
       // Notify admins via email (general address)
       sendEmail({
-        email: "translynigeria@gmail.com",
+        email: adminEmail,
         subject:"New Shipment Created",
         message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: ₦${price}`
       }).catch(err => console.error('Background Email Error [Admin Notify]:', err.message));

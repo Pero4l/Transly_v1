@@ -41,6 +41,11 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    let admin = await User.findOne({ where: { role: 'admin' } });
+    if (!admin) {
+      admin = { email: "translynigeria@gmail.com", name: "System Admin", id: null };
+    }
+
     const user = await User.create({
       name,
       email,
@@ -55,6 +60,12 @@ exports.register = async (req, res) => {
       message: `Hello ${user.name},\n\nWelcome to Transly platform! Your account has been created successfully.\n\nBest,\nTransly Team`,
     }).catch(err => console.error('Background Email Error [Register]:', err.message));
  
+    sendEmail({
+      email: admin.email || "translynigeria@gmail.com",
+      subject: 'New User Registration',
+      message: `Hello ${admin.name},\n\nNew user ${user.name} has registered on Transly platform.\n\nBest,\nTransly Team`,
+    }).catch(err => console.error('Background Email Error [Register]:', err.message));
+
     // Create in-app notification
     Notification.create({
       userId: user.id,
@@ -62,6 +73,13 @@ exports.register = async (req, res) => {
       type: 'success'
     }).catch(err => console.error('Background Notification Error [Register]:', err.message));
 
+    if (admin && admin.id) {
+        Notification.create({
+          userId: admin.id,
+          message: `New user ${user.name} has registered on Transly platform.`,
+          type: 'success'
+        }).catch(err => console.error('Background Notification Error [Register]:', err.message));
+    }
     // Store everything in Redis session (replacing localStorage)
     req.session.sessionData = {
       token: generateToken(user.id),
@@ -159,7 +177,9 @@ exports.googleAuth = async (req, res) => {
     // NOTE: In a strictly secure production app, you should also verify the 
     // ID token (JWT) from Google using the 'google-auth-library' to prevent spoofing.
     let user = await User.findOne({ where: { email } });
+    let isNewUser = false;
     if (!user) {
+      isNewUser = true;
       const generatedPassword = crypto.randomBytes(16).toString('hex');
       const hashedPassword = await bcrypt.hash(generatedPassword, 10);
       user = await User.create({
@@ -167,8 +187,41 @@ exports.googleAuth = async (req, res) => {
         email,
         password: hashedPassword,
         auth_provider: 'google',
-        role: 'customer'
+        role: 'customer',
+        image: image // Save google profile pic if model supports it
       });
+    }
+
+    if (isNewUser) {
+        let admin = await User.findOne({ where: { role: 'admin' } });
+        
+        // Welcome notification
+        Notification.create({
+            userId: user.id,
+            message: `Welcome to Transly, ${user.name}! Your account was created via Google.`,
+            type: 'success'
+        }).catch(err => console.error('BG Notif Error [Google Signup]:', err.message));
+
+        // Admin notification
+        if (admin) {
+            Notification.create({
+                userId: admin?.id,
+                message: `New user ${user.name} registered via Google.`,
+                type: 'success'
+            }).catch(err => console.error('BG Notif Error [Google Admin]:', err.message));
+            
+            sendEmail({
+                email: admin.email || "translynigeria@gmail.com",
+                subject: 'New Google Registration',
+                message: `Hello ${admin.name},\n\nNew user ${user.name} has registered via Google.\n\nBest,\nTransly Team`,
+            }).catch(e => console.error('BG Email Error [Google Admin]:', e.message));
+        }
+
+        sendEmail({
+            email: user.email,
+            subject: 'Welcome to Transly!',
+            message: `Hello ${user.name},\n\nWelcome to Transly! Your account was created successfully via Google.\n\nBest,\nTransly Team`,
+        }).catch(e => console.error('BG Email Error [Google Welcome]:', e.message));
     }
 
     // Store in session for Redis persistence
@@ -180,6 +233,7 @@ exports.googleAuth = async (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error("Google Auth Session Error:", err);
+        return res.status(500).json({ success: false, error: "Failed to persist Google session" });
       }
       res.status(200).json({
         success: true,

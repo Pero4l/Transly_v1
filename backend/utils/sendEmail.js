@@ -1,8 +1,12 @@
 const nodemailer = require('nodemailer');
 
-const sendEmail = async (options) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // Force gmail service for better production compatibility
+let transporter;
+
+const createTransporter = () => {
+  if (transporter) return transporter;
+  
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
     host: 'smtp.gmail.com',
     port: 587, 
     secure: false, 
@@ -14,20 +18,16 @@ const sendEmail = async (options) => {
       rejectUnauthorized: false
     },
     pool: true,
-    maxConnections: 10,
-    maxMessages: Infinity,
-    connectionTimeout: 10000, // 10s timeout
-    debug: true,
-    logger: true 
+    maxConnections: 5,
+    maxMessages: 100,
+    connectionTimeout: 10000,
   });
+  
+  return transporter;
+};
 
-  // Verify connection configuration
-  try {
-     await transporter.verify();
-     console.log('✅ [EMAIL] Transporter verified and ready to send');
-  } catch (err) {
-     console.error('❌ [EMAIL] Transporter verification failed:', err.message);
-  }
+const sendEmail = async (options) => {
+  const mailTransporter = createTransporter();
 
   const message = {
     from: `${process.env.SMTP_FROM_NAME || 'Transly'} <${process.env.SMTP_FROM_EMAIL || 'noreply@transly.com'}>`,
@@ -38,15 +38,13 @@ const sendEmail = async (options) => {
   };
 
   try {
-    const info = await transporter.sendMail(message);
-    console.log('✅ [EMAIL] Message sent successfully: %s', info.messageId);
+    const info = await mailTransporter.sendMail(message);
+    console.log('✅ [EMAIL] Message sent: %s', info.messageId);
     return info;
   } catch (error) {
     console.error('❌ [EMAIL] Critical sending error:', {
         message: error.message,
-        code: error.code,
-        command: error.command,
-        response: error.response
+        code: error.code
     });
     throw error;
   }

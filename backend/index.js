@@ -20,7 +20,8 @@ app.set('trust proxy', 1);
 app.use(session({
   store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET || 'transly_secret_key_2026',
-  resave: false,
+  resave: true, // Force session to be saved back to the session store
+  rolling: true, // Force a session identifier cookie to be set on every response
   cookie: {
     secure: true, 
     httpOnly: true,
@@ -28,7 +29,7 @@ app.use(session({
     sameSite: 'none'
   },
   proxy: true,
-  saveUninitialized: true // Force saving to Redis for debugging
+  saveUninitialized: false 
 }));
 
 

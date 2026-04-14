@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { MessageCircle, X, Send, User, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
@@ -18,6 +19,7 @@ export function ChatWidget() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
   const socket = getSocket();
 
   useEffect(() => {
@@ -118,6 +120,7 @@ export function ChatWidget() {
   };
 
   if (!user || user.role === 'admin') return null;
+  if (pathname === '/chat' || pathname === '/admin/chat') return null;
 
   return (
     <div className="fixed bottom-6 right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
