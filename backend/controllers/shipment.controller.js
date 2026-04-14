@@ -69,6 +69,16 @@ exports.createShipment = async (req, res) => {
         createdAt: new Date()
       });
 
+      // Notify all Admins (In-app)
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      for (const admin of admins) {
+          await Notification.create({
+              userId: admin.id,
+              message: `New shipment ${trackingNumber} created by ${req.user.name}`,
+              type: 'info'
+          });
+      }
+
       // Emit socket notification to all admins
       getIO().emit('admin_notification', {
         message: `New shipment: ${trackingNumber} by ${req.user.name}`,

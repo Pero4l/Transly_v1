@@ -5,22 +5,23 @@ let transporter;
 const createTransporter = () => {
   if (transporter) return transporter;
   
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.error('❌ [EMAIL] Missing SMTP credentials! SMTP_USER or SMTP_PASS is empty.');
+  } else {
+    console.log('✅ [EMAIL] SMTP credentials present for:', process.env.SMTP_USER);
+  }
+
+  // Simplified Gmail config - service: 'gmail' is often more reliable than host/port manually
   transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465, 
-    secure: true, 
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    tls: {
-      rejectUnauthorized: false
-    },
     pool: true,
     maxConnections: 5,
     maxMessages: 100,
-    connectionTimeout: 10000,
+    connectionTimeout: 10000, 
   });
   
   return transporter;

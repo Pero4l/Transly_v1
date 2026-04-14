@@ -35,7 +35,7 @@ export function Navbar() {
           setNotifications(prev => [
             {
               id: `chat-${Date.now()}`,
-              message: `New message: ${data.text.substring(0, 30)}...`,
+              message: `New message from ${data.senderName || 'Support'}: ${data.text.substring(0, 30)}...`,
               read: false,
               createdAt: new Date().toISOString(),
               type: 'info'

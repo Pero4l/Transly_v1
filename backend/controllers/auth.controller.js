@@ -73,13 +73,16 @@ exports.register = async (req, res) => {
       type: 'success'
     }).catch(err => console.error('Background Notification Error [Register]:', err.message));
 
-    if (admin && admin.id) {
-        Notification.create({
-          userId: admin.id,
-          message: `New user ${user.name} has registered on Transly platform.`,
-          type: 'success'
-        }).catch(err => console.error('Background Notification Error [Register]:', err.message));
-    }
+    // Notify all Admins
+    User.findAll({ where: { role: 'admin' } }).then(admins => {
+        admins.forEach(admin => {
+            Notification.create({
+                userId: admin.id,
+                message: `New user ${user.name} has registered on Transly platform.`,
+                type: 'info'
+            }).catch(err => console.error('Background Notification Error [Register Admin]:', err.message));
+        });
+    });
     // Store everything in Redis session (replacing localStorage)
     req.session.sessionData = {
       token: generateToken(user.id),
@@ -294,14 +297,21 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-  const { phone, address } = req.body;
   try {
+    const { phone, address } = req.body;
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ success: false, error: 'User not found' });
 
-    user.phone = phone || user.phone;
-    user.address = address || user.address;
+    user.phone = phone !== undefined ? phone : user.phone;
+    user.address = address !== undefined ? address : user.address;
     await user.save();
+
+    // CRITICAL: Update session data to ensure persistence after refresh
+    if (req.session && req.session.sessionData) {
+        req.session.sessionData.user.phone = user.phone;
+        req.session.sessionData.user.address = user.address;
+        req.session.save();
+    }
 
     res.status(200).json({ success: true, user: { phone: user.phone, address: user.address } });
   } catch (err) {

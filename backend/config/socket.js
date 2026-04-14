@@ -63,25 +63,30 @@ const init = (server) => {
         });
         
         // Find the other user in the conversation
-        const { Conversation } = require('../models');
+        const { Conversation, User } = require('../models');
         const conversation = await Conversation.findByPk(data.conversationId);
-        if (conversation) {
+        const sender = await User.findByPk(data.senderId);
+
+        if (conversation && sender) {
            const recipientId = conversation.user1Id === data.senderId ? conversation.user2Id : conversation.user1Id;
            
            // Emit to the conversation room
            io.to(data.conversationId).emit('receive_message', msg);
            
+           const senderDisplay = sender.role === 'admin' ? 'Transly Admin' : sender.name;
+
            // Emit notification to the recipient specifically
            io.to(recipientId).emit('new_message_notification', {
               conversationId: data.conversationId,
               text: data.text,
-              senderId: data.senderId
+              senderId: data.senderId,
+              senderName: senderDisplay
            });
 
            // Persist notification in DB for history
            await Notification.create({
              userId: recipientId,
-             message: `New message from ${data.senderId.substring(0, 8)}: ${data.text.substring(0, 50)}...`,
+             message: `New message from ${senderDisplay}: ${data.text.substring(0, 50)}...`,
              type: 'info',
              read: false
            });
