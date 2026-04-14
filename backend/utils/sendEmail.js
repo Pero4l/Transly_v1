@@ -11,17 +11,22 @@ const createTransporter = () => {
     console.log('✅ [EMAIL] SMTP credentials present for:', process.env.SMTP_USER);
   }
 
-  // Simplified Gmail config - service: 'gmail' is often more reliable than host/port manually
+  // Forcing IPv4 and Port 587 often bypasses cloud provider blocks on Port 465
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for 587
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-    connectionTimeout: 10000, 
+    tls: {
+      // do not fail on invalid certs
+      rejectUnauthorized: false
+    },
+    connectionTimeout: 20000, // 20 seconds
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
   });
   
   return transporter;
