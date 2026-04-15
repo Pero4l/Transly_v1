@@ -7,7 +7,9 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 
-export default function VerificationPage() {
+import { Suspense } from "react";
+
+function VerificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference");
@@ -100,5 +102,18 @@ export default function VerificationPage() {
          </Card>
       </main>
     </div>
+  );
+}
+
+export default function VerificationPage() {
+  return (
+    <Suspense fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+            <Loader2 className="h-8 w-8 text-orange-600 animate-spin mb-4" />
+            <p className="text-slate-500 font-medium">Preparing verification portal...</p>
+        </div>
+    }>
+        <VerificationContent />
+    </Suspense>
   );
 }

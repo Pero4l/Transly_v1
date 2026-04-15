@@ -213,9 +213,9 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="space-y-1 px-4 pt-4 pb-6">
-            <Link href="/dashboard" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <Link href={user?.role === 'admin' ? "/admin" : "/dashboard"} onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <LayoutDashboard className="h-5 w-5 mr-3 text-slate-400" />
-              Dashboard
+              {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
             </Link>
 
             <Link href={user?.role === 'driver' ? '/driver' : '/profile'} onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
@@ -223,19 +223,32 @@ export function Navbar() {
               {user?.role === 'driver' ? 'Driver Portal' : 'Profile Settings'}
             </Link>
 
-            <Link href="/request" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
-              <Send className="h-5 w-5 mr-3 text-slate-400" />
-              Send Package
-            </Link>
+            {user?.role !== 'admin' && user?.role !== 'driver' && (
+              <Link href="/request" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+                <Send className="h-5 w-5 mr-3 text-slate-400" />
+                Send Package
+              </Link>
+            )}
 
             <Link href="/tracking" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
               Track Package
             </Link>
 
-            <Link href="/chat" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
-              <MessageCircle className="h-5 w-5 mr-3 text-slate-400" />
-              Support Chat
+            <Link href="/chat" onClick={toggleMenu} className="flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <div className="flex items-center">
+                <MessageCircle className="h-5 w-5 mr-3 text-slate-400" />
+                Support Chat
+              </div>
+              {/* Optional message counter logic could be injected here */}
+            </Link>
+
+            <Link href={user?.role === 'admin' ? '/admin/notifications' : '/notifications'} onClick={toggleMenu} className="flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <div className="flex items-center">
+                <Bell className="h-5 w-5 mr-3 text-slate-400" />
+                Notifications
+              </div>
+              {unreadCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
             </Link>
             
             <div className="pt-4 mt-4 border-t border-slate-100">
