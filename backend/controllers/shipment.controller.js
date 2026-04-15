@@ -240,3 +240,20 @@ exports.trackShipment = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+exports.getPricingSettings = async (req, res) => {
+  try {
+    const baseSetting = await Setting.findOne({ where: { key: 'BASE_FARE' } });
+    const priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
+    
+    res.status(200).json({ 
+      success: true, 
+      settings: {
+        BASE_FARE: baseSetting ? baseSetting.value : req.app.locals.DEFAULT_BASE_FARE || 0,
+        PRICE_PER_MILE: priceSetting ? priceSetting.value : req.app.locals.DEFAULT_PRICE_PER_MILE || 0
+      } 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

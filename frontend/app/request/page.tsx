@@ -29,7 +29,7 @@ export default function RequestPage() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([6.5244, 3.3792]);
   const [activeType, setActiveType] = useState<'origin' | 'destination'>('origin');
   const [loading, setLoading] = useState(false);
-  const [rates, setRates] = useState({ BASE_FARE: 1500, PRICE_PER_MILE: 500 });
+  const [rates, setRates] = useState({ BASE_FARE: 100, PRICE_PER_MILE: 0 });
   const { user, token, loading: sessionLoading } = useSession();
   const router = useRouter();
 
@@ -66,14 +66,14 @@ export default function RequestPage() {
 
   const fetchRates = async () => {
     try {
-        const res = await fetch("https://transly-wr1m.onrender.com/admin/settings", {
+        const res = await fetch("https://transly-wr1m.onrender.com/shipments/settings/pricing", {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
         if (data.success && data.settings) {
             setRates({
-                BASE_FARE: parseInt(data.settings.BASE_FARE || "1500"),
-                PRICE_PER_MILE: parseInt(data.settings.PRICE_PER_MILE || "500")
+                BASE_FARE: parseInt(data.settings.BASE_FARE || "100"),
+                PRICE_PER_MILE: parseInt(data.settings.PRICE_PER_MILE || "220")
             });
         }
     } catch (err) {
