@@ -87,9 +87,18 @@ export default function AdminLayout({
             <Users className="h-5 w-5 mr-3 text-orange-600" />
             Customers
           </Link>
-          <Link href="/admin/chat" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
-            <MessageCircle className="h-5 w-5 mr-3 text-orange-600" />
-            Messages
+          <Link href="/admin/chat" onClick={isMenu} className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+            <div className="flex items-center">
+              <MessageCircle className="h-5 w-5 mr-3 text-orange-600" />
+              Messages
+            </div>
+          </Link>
+          <Link href="/admin/notifications" onClick={isMenu} className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+            <div className="flex items-center">
+              <Bell className="h-5 w-5 mr-3 text-orange-600" />
+              Notifications
+            </div>
+            {unreadCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
           </Link>
           <Link href="/admin/drivers" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Truck className="h-5 w-5 mr-3 text-orange-600" />
