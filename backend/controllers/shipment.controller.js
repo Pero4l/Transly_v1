@@ -4,16 +4,23 @@ const { buildNotificationTemplate } = require('../utils/emailTemplates');
 const { getIO } = require('../config/socket');
 
 const DEFAULT_PRICE_PER_MILE = 500.0;
+const DEFAULT_BASE_FARE = 1500.0;
 
 const calculatePrice = async (distance) => {
   try {
     let priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
+    let baseSetting = await Setting.findOne({ where: { key: 'BASE_FARE' } });
+    
     let rate = priceSetting ? parseFloat(priceSetting.value) : DEFAULT_PRICE_PER_MILE;
+    let base = baseSetting ? parseFloat(baseSetting.value) : DEFAULT_BASE_FARE;
+    
     if (isNaN(rate)) rate = DEFAULT_PRICE_PER_MILE;
-    return (distance * rate).toFixed(2);
+    if (isNaN(base)) base = DEFAULT_BASE_FARE;
+    
+    return (base + (distance * rate)).toFixed(2);
   } catch (err) {
     console.error('Price calculation error:', err);
-    return (distance * DEFAULT_PRICE_PER_MILE).toFixed(2);
+    return (DEFAULT_BASE_FARE + (distance * DEFAULT_PRICE_PER_MILE)).toFixed(2);
   }
 };
 
@@ -118,6 +125,10 @@ exports.getMyShipments = async (req, res) => {
 exports.updateShipmentStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ success: false, error: 'Status is strictly required to update shipment logistics tracking' });
+  }
 
   try {
     const shipment = await Shipment.findByPk(id, { include: [{ model: User, as: 'customer' }] });

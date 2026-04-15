@@ -155,12 +155,32 @@ export default function RequestPage() {
             destCoords: coords.destination
         }),
       });
-      if (res.ok) {
-        toast.success("Shipment request created successfully!");
-        router.push("/dashboard");
+      
+      const sessionData = await res.json();
+
+      if (res.ok && sessionData.success) {
+        toast.success("Shipment securely logged! Generating invoice...");
+        
+        // IMMEDIATE PAYMENT TRIGGER
+        const payRes = await fetch("https://transly-wr1m.onrender.com/payment/initialize", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ shipmentId: sessionData.shipment.id })
+        });
+        
+        const payData = await payRes.json();
+        if (payData.success && payData.authorization_url) {
+            toast.message("Redirecting to Paystack secure gateway...");
+            window.location.href = payData.authorization_url;
+        } else {
+            toast.error(payData.error || "Payment gateway offline. Please pay via dashboard later.");
+            router.push("/dashboard");
+        }
       } else {
-        const error = await res.json();
-        toast.error(error.error || "Failed to create request");
+        toast.error(sessionData.error || "Failed to create request");
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");

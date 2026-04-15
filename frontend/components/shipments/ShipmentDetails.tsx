@@ -73,17 +73,10 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
         {(!shipment.paymentStatus || shipment.paymentStatus === 'pending') ? (
              <Card className="border-0 shadow-lg bg-orange-600 text-white overflow-hidden relative md:col-span-2">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-white/20 p-3 rounded-2xl">
-                            <CreditCard className="h-8 w-8 text-white" />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-white">Secure Payment Required</h3>
-                            <p className="text-orange-100 text-sm">Amount Due: <span className="font-black">₦{parseFloat(shipment.price).toLocaleString()}</span></p>
-                        </div>
-                    </div>
-                    <PaystackPaymentDemo shipment={shipment} />
+                <CardContent className="p-6 flex flex-col items-center justify-center gap-2 relative z-10 text-center">
+                    <CreditCard className="h-8 w-8 text-white mb-2" />
+                    <h3 className="text-xl font-bold text-white">Payment Pending</h3>
+                    <p className="text-orange-100 text-sm">Please complete payment during the submission or contact support.</p>
                 </CardContent>
              </Card>
         ) : null}
@@ -221,54 +214,4 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
   );
 }
 
-export function PaystackPaymentDemo({ shipment }: { shipment: any }) {
-  const [loading, setLoading] = useState(false);
-  
-  // TOGGLE THIS FOR REAL INTEGRATION
-  const IS_DEMO = true; 
 
-  const handlePayment = () => {
-    setLoading(true);
-    
-    if (IS_DEMO) {
-        // MOCK PAYSTACK FLOW
-        setTimeout(async () => {
-            try {
-                const res = await fetch(`https://transly-wr1m.onrender.com/shipments/${shipment.id}/status`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("transly_token")}`
-                    },
-                    body: JSON.stringify({ paymentStatus: 'paid' })
-                });
-                if (res.ok) {
-                    alert("DEMO PAYMENT SUCCESSFUL! Shipment is now paid.");
-                    window.location.reload();
-                }
-            } catch (err) {
-                alert("Payment processing error");
-            } finally {
-                setLoading(false);
-            }
-        }, 2000);
-    } else {
-        // REAL PAYSTACK LOGIC WOULD GO HERE
-        // import { usePaystackPayment } from 'react-paystack';
-        // initializePayment(onSuccess, onClose);
-        alert("Real Paystack integration enabled. Please provide API Keys.");
-        setLoading(false);
-    }
-  };
-
-  return (
-    <Button 
-        onClick={handlePayment} 
-        disabled={loading}
-        className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-8 h-12 rounded-xl border-0 shadow-lg shadow-orange-950/20"
-    >
-        {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CreditCard className="h-5 w-5 mr-2" />}
-        {loading ? "Authorizing..." : "Pay with Paystack"}
-    </Button>
-  );
-}
