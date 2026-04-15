@@ -3,21 +3,22 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (options) => {
   console.log(`📧 [EMAIL] Attempting to send to: ${options.email}`);
   
-  // Matching idu-group-backend logic 1:1
+  // Matching idu-group-backend logic but forcing Port 587 (often more open than 465)
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false, // STARTTLS
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    // FORCE IPv4 to avoid the ENETUNREACH IPv6 issue
+    family: 4,
     tls: {
       rejectUnauthorized: false
     },
-    debug: true, // Enable debug logs in Render console
-    logger: true // Enable internal logger
+    debug: true,
+    logger: true
   });
 
   const mailOptions = {
