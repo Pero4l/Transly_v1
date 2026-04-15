@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
+const compression = require('compression');
+const helmet = require('helmet');
 const cors = require("cors");
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -11,6 +13,11 @@ const db = require("./config/db");
 
 const app = express();
 const server = http.createServer(app);
+
+// OVERRIDE: Prevent 502 Bad Gateway drops on Render (AWS proxies expect >60s idle keep-alives)
+server.keepAliveTimeout = 120 * 1000;
+server.headersTimeout = 120 * 1000;
+
 socketConfig.init(server);
 
 // Ensure proxy support for Render HTTPS
@@ -34,6 +41,8 @@ app.use(session({
 
 
 // Middleware
+app.use(helmet()); 
+app.use(compression()); // Native GZIP payload compression for faster speeds
 app.use(express.json());
 app.use(cookieParser(process.env.SESSION_SECRET || 'transly_secret_key_2026'));
 const allowedOrigins = [
