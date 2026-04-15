@@ -64,7 +64,7 @@ function ResetPasswordForm() {
               <Input
                 id="otp"
                 type="text"
-                placeholder="ABCDEF"
+                placeholder="AB34EF"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.toUpperCase())}
                 required

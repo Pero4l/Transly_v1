@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { User, Notification } = require('../models');
 const sendEmail = require('../utils/sendEmail');
+const { buildOTPTemplate, buildNotificationTemplate } = require('../utils/emailTemplates');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -57,13 +58,13 @@ exports.register = async (req, res) => {
     sendEmail({
       email: user.email,
       subject: 'Welcome to Transly!',
-      message: `Hello ${user.name},\n\nWelcome to Transly platform! Your account has been created successfully.\n\nBest,\nTransly Team`,
+      html: buildNotificationTemplate('Welcome to Transly!', `Dear ${user.name},\n\nWe are absolutely delighted to welcome you to the Transly platform! Your account has been successfully created and your journey towards seamless logistics starts now.\n\nAt Transly, we pride ourselves on delivering reliable, fast, and secure delivery services. You can now log into your dashboard to create shipments, track your packages in real-time, and manage your account.\n\nShould you need any assistance, our dedicated support team is always here for you.\n\nWarm regards,\nThe Transly Team`),
     }).catch(err => console.error('Background Email Error [Register]:', err.message));
  
     sendEmail({
       email: admin.email || "translynigeria@gmail.com",
       subject: 'New User Registration',
-      message: `Hello ${admin.name},\n\nNew user ${user.name} has registered on Transly platform.\n\nBest,\nTransly Team`,
+      html: buildNotificationTemplate('New User Registration', `Hello ${admin.name},\n\nThis is an automated notification to inform you that a new user, ${user.name}, has successfully registered on the Transly platform.\n\nPlease monitor their initial activity to ensure a smooth onboarding process. You can view their full profile details from your administrative dashboard.\n\nBest regards,\nTransly System Automation`),
     }).catch(err => console.error('Background Email Error [Register]:', err.message));
 
     // Create in-app notification
@@ -216,14 +217,14 @@ exports.googleAuth = async (req, res) => {
             sendEmail({
                 email: admin.email || "translynigeria@gmail.com",
                 subject: 'New Google Registration',
-                message: `Hello ${admin.name},\n\nNew user ${user.name} has registered via Google.\n\nBest,\nTransly Team`,
+                html: buildNotificationTemplate('New Google Registration', `Hello ${admin.name},\n\nThis is an automated notification to inform you that a new user, ${user.name}, has successfully registered on the Transly platform using Google Authentication.\n\nPlease monitor their initial activity to ensure a smooth onboarding process.\n\nBest regards,\nTransly System Automation`),
             }).catch(e => console.error('BG Email Error [Google Admin]:', e.message));
         }
 
         sendEmail({
             email: user.email,
             subject: 'Welcome to Transly!',
-            message: `Hello ${user.name},\n\nWelcome to Transly! Your account was created successfully via Google.\n\nBest,\nTransly Team`,
+            html: buildNotificationTemplate('Welcome to Transly!', `Dear ${user.name},\n\nWe are absolutely delighted to welcome you to the Transly platform! Your account was successfully created via Google Authentication.\n\nAt Transly, we pride ourselves on delivering reliable, fast, and secure delivery services. You can now log into your dashboard to create shipments and track your packages in real-time.\n\nShould you need any assistance, our dedicated support team is always here for you.\n\nWarm regards,\nThe Transly Team`),
         }).catch(e => console.error('BG Email Error [Google Welcome]:', e.message));
     }
 
@@ -264,7 +265,7 @@ exports.forgotPassword = async (req, res) => {
     sendEmail({
       email: user.email,
       subject: 'Password Reset OTP',
-      message: `Your password reset OTP is: ${resetToken}\nIt is valid for 10 minutes.`,
+      html: buildOTPTemplate(resetToken),
     }).catch(err => console.error('Background Email Error [ForgotPass]:', err.message));
 
     res.status(200).json({ success: true, message: 'OTP sent to email' });

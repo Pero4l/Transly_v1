@@ -1,5 +1,6 @@
 const { Shipment, User, DriverProfile, Setting, Notification } = require('../models');
 const sendEmail = require('../utils/sendEmail');
+const { buildNotificationTemplate } = require('../utils/emailTemplates');
 const { getIO } = require('../config/socket');
 
 const DEFAULT_PRICE_PER_MILE = 500.0;
@@ -53,14 +54,14 @@ exports.createShipment = async (req, res) => {
       sendEmail({
         email: adminEmail,
         subject:"New Shipment Created",
-        message: `A new shipment has been created by ${req.user.name} with the phone number ${req.user.phone}. Tracking Number: ${trackingNumber}. Price: ₦${price}`
+        html: buildNotificationTemplate("New Shipment Created", `Hello Admin,\n\nA new shipment has been successfully created on the platform by customer ${req.user.name} (Phone: ${req.user.phone}).\n\nShipment tracking number: ${trackingNumber}\nTotal quoted price: ₦${price}\n\nPlease review the shipment details and ensure a driver is assigned promptly from the administrative panel.\n\nBest regards,\nTransly System Automation`)
       }).catch(err => console.error('Background Email Error [Admin Notify]:', err.message));
 
       // Notify customer
       sendEmail({
         email: req.user.email,
         subject: 'Shipment Created',
-        message: `Your shipment has been created successfully. Tracking Number: ${trackingNumber}. Price: ₦${price}`,
+        html: buildNotificationTemplate('Shipment Created', `Dear ${req.user.name},\n\nThank you for choosing Transly! Your shipment order has been successfully created and is now logged in our system.\n\nYour official Tracking Number is: ${trackingNumber}\nThe total estimated price for this shipment is: ₦${price}\n\nYou can use this tracking number to monitor your package's progress in real-time from your customer dashboard. We will notify you as soon as a driver is assigned to your order.\n\nWarm regards,\nThe Transly Team`),
       }).catch(err => console.error('Background Email Error [Customer Notify]:', err.message));
       
       // Create in-app notification
@@ -137,14 +138,14 @@ exports.updateShipmentStatus = async (req, res) => {
       sendEmail({
         email: shipment.customer.email,
         subject: `Shipment Update: ${status}`,
-        message: `Your shipment ${shipment.trackingNumber} status is now: ${status}`,
+        html: buildNotificationTemplate(`Shipment Update: ${status}`, `Dear ${shipment.customer.name},\n\nWe are writing to inform you of a status update regarding your recent order with Transly.\n\nThe status of your shipment (Tracking Number: ${shipment.trackingNumber}) has been updated to: ${status}.\n\nThank you for trusting us with your logistics needs. You can track further updates directly from your dashboard.\n\nWarm regards,\nThe Transly Team`),
       }).catch(err => console.error('Background Email Error [Status update Customer]:', err.message));
 
       // For Admins (Email)
       sendEmail({
         email: "translynigeria@gmail.com",
         subject: `Shipment Update: ${status}`,
-        message: `A shipment ${shipment.trackingNumber} for ${shipment.customer.name} status is now: ${status}`
+        html: buildNotificationTemplate(`Shipment Update: ${status}`, `Hello Admin,\n\nThis is a system notification detailing a recent shipment status change.\n\nThe shipment ${shipment.trackingNumber} belonging to customer ${shipment.customer.name} has had its status updated to: ${status}.\n\nPlease ensure this transition reflects correctly in the dispatch logs.\n\nBest regards,\nTransly System Automation`)
       }).catch(err => console.error('Background Email Error [Status update Admin]:', err.message));
 
       // Notify customer (In-app)

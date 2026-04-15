@@ -1,5 +1,6 @@
 const { User, DriverProfile, Shipment, Setting, Notification } = require('../models');
 const sendEmail = require('../utils/sendEmail');
+const { buildNotificationTemplate } = require('../utils/emailTemplates');
 const bcrypt = require('bcryptjs');
 
 exports.getAllUsers = async (req, res) => {
@@ -62,7 +63,7 @@ exports.assignDriver = async (req, res) => {
       sendEmail({
         email: driver.email,
         subject: 'New Shipment Assigned',
-        message: `You have been assigned shipment ${shipment.trackingNumber}. Origin: ${shipment.origin}, Destination: ${shipment.destination}.`,
+        html: buildNotificationTemplate('New Shipment Assigned', `Dear ${driver.name},\n\nYou have been officially assigned to a new shipment for Transly.\n\nShipment Details:\nTracking Number: ${shipment.trackingNumber}\nOrigin Address: ${shipment.origin}\nDestination Address: ${shipment.destination}\n\nPlease review these details in your driver dashboard and prepare for dispatch accordingly. Ensure prompt and safe service.\n\nSafe travels,\nThe Transly Dispatch Team`),
       }).catch(err => console.error('Background Email Error [Driver Assign]:', err.message));
       
       await Notification.create({
@@ -145,7 +146,7 @@ exports.createDriver = async (req, res) => {
       sendEmail({
         email: user.email,
         subject: 'Welcome to Transly Driver Team!',
-        message: `You have been added. Password: ${generatedPassword}. Login to start.`
+        html: buildNotificationTemplate('Welcome to Transly Driver Team!', `Dear ${name},\n\nWelcome to the Transly Driver Network! We are thrilled to have you join our fleet of professional drivers.\n\nYour driver profile has been successfully activated by our administrative team. Below are your temporary login credentials:\n\nPassword: ${generatedPassword}\n\nPlease log in immediately to change your password and begin accepting your first shipment pick-ups.\n\nWelcome aboard,\nThe Transly Administrative Team`)
       }).catch(err => console.error('Background Email Error [Driver Created]:', err.message));
  
       await Notification.create({
