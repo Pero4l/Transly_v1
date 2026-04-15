@@ -49,14 +49,14 @@ const sendEmail = async (options) => {
       .replace(/\//g, '_')
       .replace(/=+$/, '');
 
-    // 4. Send using Gmail HTTP REST API (Bypasses Render's port blocks!)
+    // 4. Send using Gmail HTTP REST API
     const response = await axios.post(
-      'https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media',
-      rawEmail,
+      'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+      { raw: rawEmail },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'message/rfc822'
+          'Content-Type': 'application/json'
         }
       }
     );
