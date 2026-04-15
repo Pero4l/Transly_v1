@@ -58,6 +58,10 @@ const Shipment = sequelize.define('Shipment', {
         isIn: [['pending', 'paid']]
     }
   },
+  paymentReference: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   description: {
     type: DataTypes.TEXT,
     allowNull: true,

@@ -70,12 +70,14 @@ const shipmentRoutes = require('./routes/shipment');
 const adminRoutes = require('./routes/admin');
 const notificationRoutes = require('./routes/notification');
 const chatRoutes = require('./routes/chat');
+const paymentRoutes = require('./routes/payment');
 
 app.use('/auth', authRoutes);
 app.use('/shipments', shipmentRoutes);
 app.use('/admin', adminRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/chat', chatRoutes);
+app.use('/payment', paymentRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({

@@ -85,26 +85,29 @@ exports.register = async (req, res) => {
         });
     });
     // Store everything in Redis session (replacing localStorage)
-    req.session.sessionData = {
-      token: generateToken(user.id),
-      user: {
+    const token = generateToken(user.id);
+    const userData = {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
         phone: user.phone,
         address: user.address,
-      }
+    };
+
+    req.session.sessionData = {
+      token,
+      user: userData
     };
 
     req.session.save((err) => {
       if (err) {
-        console.error("Session save error:", err);
-        return res.status(500).json({ success: false, error: "Failed to create session" });
+        console.error("Session save error (falling back to LocalStorage):", err);
       }
       res.status(201).json({
         success: true,
-        ...req.session.sessionData
+        token,
+        user: userData
       });
     });
   } catch (error) {
@@ -128,26 +131,29 @@ exports.login = async (req, res) => {
     }
 
     // Store everything in Redis session (replacing localStorage)
-    req.session.sessionData = {
-      token: generateToken(user.id),
-      user: {
+    const token = generateToken(user.id);
+    const userData = {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
         phone: user.phone,
         address: user.address,
-      }
+    };
+
+    req.session.sessionData = {
+      token,
+      user: userData
     };
 
     req.session.save((err) => {
       if (err) {
-        console.error("Session Save Error [Login]:", err);
-        return res.status(500).json({ success: false, error: "Failed to persist session" });
+        console.error("Session Save Error [Login] (falling back to LocalStorage):", err);
       }
       res.status(200).json({
         success: true,
-        ...req.session.sessionData
+        token,
+        user: userData
       });
     });
   } catch (error) {
@@ -229,19 +235,22 @@ exports.googleAuth = async (req, res) => {
     }
 
     // Store in session for Redis persistence
+    const token = generateToken(user.id);
+    const userData = { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, address: user.address };
+
     req.session.sessionData = {
-      token: generateToken(user.id),
-      user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, address: user.address }
+      token,
+      user: userData
     };
  
     req.session.save((err) => {
       if (err) {
-        console.error("Google Auth Session Error:", err);
-        return res.status(500).json({ success: false, error: "Failed to persist Google session" });
+        console.error("Google Auth Session Error (falling back to LocalStorage):", err);
       }
       res.status(200).json({
         success: true,
-        ...req.session.sessionData
+        token,
+        user: userData
       });
     });
   } catch (error) {
