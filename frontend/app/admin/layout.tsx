@@ -40,7 +40,9 @@ export default function AdminLayout({
     }
   }, [sessionLoading, user, token, router]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const allUnread = notifications.filter(n => !n.read);
+  const unreadMessageCount = allUnread.filter(n => n.message.toLowerCase().includes('message')).length;
+  const unreadCount = allUnread.length - unreadMessageCount;
 
   const markAllAsRead = async () => {
     try {
@@ -61,14 +63,80 @@ export default function AdminLayout({
     <div className="flex h-screen bg-slate-50 font-sans">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
+
+
         {/* Mobile Header */}
         <header className="lg:hidden flex items-center justify-between h-16 px-4 border-b bg-white">
           <div className="font-bold text-orange-600 flex items-center">
             <span className="mr-2">Transly Admin</span>
           </div>
+
+          <div className="flex gap-2">
+            <Link href="/admin/chat">
+              <Button variant="ghost" size="icon" className="relative group">
+                <MessageCircle className="h-5 w-5 text-slate-600 group-hover:text-orange-600 transition-colors" />
+                {unreadMessageCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] text-white font-bold ring-2 ring-white">
+                    {unreadMessageCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            <div className="relative">
+              <Button variant="ghost" size="icon" className="relative group" onClick={() => setShowNotifications(!showNotifications)}>
+                <Bell className="h-5 w-5 text-slate-600 group-hover:text-orange-600 transition-colors" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] text-white font-bold ring-2 ring-white">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
+
+              {showNotifications && (
+                <div className="absolute -left-53 mt-3 w-80 bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 className="font-bold text-slate-900 text-sm">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <button onClick={markAllAsRead} className="text-xs text-orange-600 font-semibold hover:text-orange-700 transition-colors flex items-center">
+                        <Check className="h-3 w-3 mr-1" /> Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center">
+                         <Bell className="h-8 w-8 text-slate-200 mx-auto mb-2" />
+                         <p className="text-sm text-slate-500 font-medium">No system notifications</p>
+                      </div>
+                    ) : (
+                      notifications.slice(0, 15).map((n: any) => (
+                        <div key={n.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors cursor-default ${n.read ? 'opacity-60' : 'bg-orange-50/30'}`}>
+                          <div className="flex gap-3">
+                             <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!n.read ? 'bg-orange-600' : 'bg-transparent'}`} />
+                             <div>
+                                <p className="text-sm text-slate-800 leading-snug">{n.message}</p>
+                                <span className="text-[10px] font-medium text-slate-400 mt-2 block uppercase tracking-wider">
+                                  {new Date(n.createdAt).toLocaleDateString()} at {new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                </span>
+                             </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-3 bg-slate-50 text-center border-t border-slate-100">
+                      <Link href="/admin/notifications" className="text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors">View all updates</Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
           <Button onClick={isMenu} variant="ghost" size="icon">
             {!menu ? <Menu className="h-5 w-5 text-orange-600" /> : <X className="h-5 w-5 text-orange-600" />}
           </Button>
+          </div>
+
+
         </header>
 
   
@@ -92,6 +160,7 @@ export default function AdminLayout({
               <MessageCircle className="h-5 w-5 mr-3 text-orange-600" />
               Messages
             </div>
+            {unreadMessageCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadMessageCount}</span>}
           </Link>
           <Link href="/admin/notifications" onClick={isMenu} className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <div className="flex items-center">

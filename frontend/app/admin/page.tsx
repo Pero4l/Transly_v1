@@ -218,7 +218,12 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3">
                           <div className="font-bold text-orange-600">{req.trackingNumber}</div>
                           <div className="text-xs text-slate-500">{req.origin} → {req.destination}</div>
-                          <Badge variant="outline" className="mt-1 text-[10px]">{req.status.replace('_', ' ').toUpperCase()}</Badge>
+                          <div className="flex gap-1 mt-1">
+                             <Badge variant="outline" className="text-[10px]">{req.status.replace('_', ' ').toUpperCase()}</Badge>
+                             <Badge variant={req.paymentStatus === 'paid' ? 'success' : 'error'} className="text-[10px]">
+                               {(req.paymentStatus || 'unpaid').toUpperCase()}
+                             </Badge>
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           {req.status === 'pending' ? (

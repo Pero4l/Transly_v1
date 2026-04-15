@@ -125,6 +125,7 @@ export default function AdminShipmentsPage() {
                       <th className="px-6 py-4 font-medium">Tracking ID</th>
                       <th className="px-6 py-4 font-medium">Route</th>
                       <th className="px-6 py-4 font-medium">Driver</th>
+                      <th className="px-6 py-4 font-medium text-center">Payment</th>
                       <th className="px-6 py-4 font-medium text-right">Status</th>
                       <th className="px-6 py-4 font-medium text-center">Action</th>
                     </tr>
@@ -138,6 +139,11 @@ export default function AdminShipmentsPage() {
                           <td className="px-6 py-4 font-bold text-slate-900 tracking-tight">{req.trackingNumber}</td>
                           <td className="px-6 py-4 text-slate-500 font-medium">{req.origin} → {req.destination}</td>
                           <td className="px-6 py-4 text-slate-500">{req.driverId ? 'Assigned' : 'Unassigned'}</td>
+                          <td className="px-6 py-4 text-center">
+                            <Badge variant={req.paymentStatus === 'paid' ? 'success' : 'error'} className="text-[10px]">
+                              {(req.paymentStatus || 'unpaid').toUpperCase()}
+                            </Badge>
+                          </td>
                           <td className="px-6 py-4 text-right">
                             <Badge 
                               variant={req.status === 'delivered' ? 'success' : req.status === 'in_transit' ? 'warning' : 'default'}

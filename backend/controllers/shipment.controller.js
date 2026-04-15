@@ -3,13 +3,16 @@ const sendEmail = require('../utils/sendEmail');
 const { buildNotificationTemplate } = require('../utils/emailTemplates');
 const { getIO } = require('../config/socket');
 
-const DEFAULT_PRICE_PER_MILE = 500.0;
-const DEFAULT_BASE_FARE = 1500.0;
+let DEFAULT_PRICE_PER_MILE = 0;
+let DEFAULT_BASE_FARE = 0;
 
 const calculatePrice = async (distance) => {
   try {
     let priceSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
     let baseSetting = await Setting.findOne({ where: { key: 'BASE_FARE' } });
+
+    DEFAULT_BASE_FARE = baseSetting.value;
+    DEFAULT_PRICE_PER_MILE = priceSetting.value;
     
     let rate = priceSetting ? parseFloat(priceSetting.value) : DEFAULT_PRICE_PER_MILE;
     let base = baseSetting ? parseFloat(baseSetting.value) : DEFAULT_BASE_FARE;
