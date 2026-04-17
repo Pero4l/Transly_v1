@@ -6,11 +6,38 @@ import { Button } from "@/components/ui/Button";
 import { MapPin, Package, User, Phone, Mail, Calendar, Navigation, Banknote, Box, Truck, CreditCard, CheckCircle2, Loader2 } from "lucide-react";
 import { useState } from "react";
 
+import { useSession } from "@/lib/sessionContext";
+import { toast } from "sonner";
+
 interface ShipmentDetailsProps {
   shipment: any;
 }
 
 export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
+  const { token } = useSession();
+  const [loading, setLoading] = useState(false);
+
+  const handleLatePayment = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("https://transly-wr1m.onrender.com/payment/initialize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ shipmentId: shipment.id })
+      });
+      const data = await res.json();
+      if (data.success && data.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else {
+        toast.error(data.error || "Payment gateway offline.");
+      }
+    } catch(err) {
+      toast.error("Failed to trigger payment portal.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!shipment) return null;
 
   return (
@@ -75,8 +102,16 @@ export function ShipmentDetails({ shipment }: ShipmentDetailsProps) {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 <CardContent className="p-6 flex flex-col items-center justify-center gap-2 relative z-10 text-center">
                     <CreditCard className="h-8 w-8 text-white mb-2" />
-                    <h3 className="text-xl font-bold text-white">Payment Pending</h3>
-                    <p className="text-orange-100 text-sm">Please complete payment during the submission or contact support.</p>
+                    <h3 className="text-xl font-bold text-white">Payment Outstanding</h3>
+                    <p className="text-orange-400 text-sm mb-3">Please complete the payment to guarantee dispatch assignment for this shipment.</p>
+                    <Button 
+                      onClick={handleLatePayment} 
+                      disabled={loading}
+                      className="bg-white text-orange-600 hover:bg-slate-50 font-black shadow-xl uppercase"
+                    >
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      {loading ? "Initializing Payment Gateway..." : "Pay Now"}
+                    </Button>
                 </CardContent>
              </Card>
         ) : null}

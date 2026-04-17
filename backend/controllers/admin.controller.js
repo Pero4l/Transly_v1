@@ -201,3 +201,29 @@ exports.createAdmin = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+exports.sendBroadcastEmail = async (req, res) => {
+  const { subject, messageBody } = req.body;
+  if (!subject || !messageBody) {
+    return res.status(400).json({ success: false, error: 'Subject and message body are required' });
+  }
+
+  try {
+    const users = await User.findAll({ attributes: ['email', 'name'] });
+    
+    // Asynchronous background dispatch of emails to avoid locking up main thread on Render
+    const emailPromises = users.map(user => 
+      sendEmail({
+        email: user.email,
+        subject: subject,
+        html: buildNotificationTemplate(subject, `Dear ${user.name},\n\n${messageBody}`)
+      }).catch(err => console.error(`Broadcast skip for ${user.email}:`, err.message))
+    );
+    
+    Promise.all(emailPromises);
+
+    res.status(200).json({ success: true, message: `System broadcast initiated to ${users.length} accounts.` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

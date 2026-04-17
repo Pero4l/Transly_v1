@@ -34,7 +34,7 @@ const buildBaseTemplate = (title, content, preheader = "") => `
     </div>
     <div class="footer">
       <div class="social-icons">
-        <a href="https://x.com/translynigeria?s=21" target="_blank"><img src="https://img.icons8.com/ios-filled/24/888888/x-twitter.png" alt="X" /></a>
+        <a href="https://x.com/translynigeria?s=21" target="_blank"><img src="https://img.icons8.com/ios-filled/50/888888/twitterx--v2.png" alt="X" /></a>
         <a href="https://www.facebook.com/share/1AvyMHL6Fi/?mibextid=wwXIfr" target="_blank"><img src="https://img.icons8.com/ios-filled/24/888888/facebook-new.png" alt="Facebook" /></a>
         <a href="https://www.instagram.com/translynigeria?igsh=MWZzcHZxM2Zmc293dQ%3D%3D&utm_source=qr" target="_blank"><img src="https://img.icons8.com/ios-filled/24/888888/instagram-new.png" alt="Instagram" /></a>
         <a href="https://www.tiktok.com/@transly.nigeria?_r=1&_t=ZS-95Y6JDaI5sT" target="_blank"><img src="https://img.icons8.com/ios-filled/24/888888/tiktok.png" alt="TikTok" /></a>
