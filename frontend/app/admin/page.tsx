@@ -25,26 +25,7 @@ export default function AdminDashboardPage() {
   //   guarantor_address: '', guarantor_nin: ''
   // });
 
-  const [broadcastData, setBroadcastData] = useState({ subject: '', messageBody: '' });
-  const [broadcastLoading, setBroadcastLoading] = useState(false);
-
-  const handleBroadcast = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setBroadcastLoading(true);
-    try {
-      const res = await fetch("https://transly-wr1m.onrender.com/admin/broadcast", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(broadcastData)
-      });
-      const data = await res.json();
-      if(data.success) {
-        alert("Broadcast queued successfully!");
-        setBroadcastData({ subject: '', messageBody: '' });
-      } else alert(data.error);
-    } catch(err) { alert("Error sending broadcast."); }
-    setBroadcastLoading(false);
-  };
+  // Broadcast moved to dedicated page
 
   const router = useRouter();
 
@@ -184,33 +165,7 @@ export default function AdminDashboardPage() {
           </Card>
         )} */}
 
-        <Card className="mb-8 border-orange-500 ring-1 ring-orange-500/20 shadow-lg glass overflow-hidden relative">
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-orange-600/5 rounded-full blur-3xl mix-blend-multiply pointer-events-none"></div>
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="text-orange-900 flex items-center">
-               <Activity className="mr-2 h-5 w-5 text-orange-600" /> System Broadcast (Email)
-            </CardTitle>
-            <CardDescription>Send a mass email notification to all registered customers and drivers instantly.</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 relative z-10">
-            <form onSubmit={handleBroadcast} className="flex flex-col gap-4">
-               <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase">Subject Line</label>
-                  <Input placeholder="Important System Update..." required value={broadcastData.subject} onChange={e => setBroadcastData({...broadcastData, subject: e.target.value})} className="mt-1" />
-               </div>
-               <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase">Message Content</label>
-                  <textarea required value={broadcastData.messageBody} onChange={e => setBroadcastData({...broadcastData, messageBody: e.target.value})} className="w-full flex min-h-[100px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1 resize-y" placeholder="Type your full email message here..."></textarea>
-               </div>
-               <div className="flex justify-end">
-                 <Button type="submit" disabled={broadcastLoading} className="bg-orange-600 hover:bg-orange-700 font-bold px-8">
-                   {broadcastLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                   {broadcastLoading ? "Dispatching to Network..." : "Send Global Broadcast"}
-                 </Button>
-               </div>
-            </form>
-          </CardContent>
-        </Card>
+        {/* Broadcast moved to dedicated route */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
            <Card className="border-0 shadow-sm rounded-2xl glass overflow-hidden">

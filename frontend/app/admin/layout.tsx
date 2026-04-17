@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/Button";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Settings, LogOut, Bell, Check, User, Menu, X } from "lucide-react";
+import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Settings, LogOut, Bell, Check, User, Menu, X, Mail } from "lucide-react";
 import { useSession } from "@/lib/sessionContext";
 import { useRouter } from "next/navigation";
 
@@ -168,6 +168,10 @@ export default function AdminLayout({
               Notifications
             </div>
             {unreadCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
+          </Link>
+          <Link href="/admin/broadcast" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+            <Mail className="h-5 w-5 mr-3 text-orange-600" />
+            Broadcast
           </Link>
           <Link href="/admin/drivers" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Truck className="h-5 w-5 mr-3 text-orange-600" />
