@@ -20,6 +20,7 @@ const MapPicker = dynamic<MapPickerProps>(() => import("@/components/shipments/M
 export default function RequestPage() {
   const [formData, setFormData] = useState({
     origin: "", destination: "", description: "", productType: "", 
+    senderName: "", senderPhone: "",
     receiverName: "", receiverPhone: "", receiverAddress: ""
   });
   const [coords, setCoords] = useState<{ origin: [number, number] | null, destination: [number, number] | null }>({
@@ -292,13 +293,31 @@ export default function RequestPage() {
                     </div>
                     <div>
                     <label className="text-sm font-medium text-slate-700 block mb-1">Items Description</label>
-                    <Input name="description" placeholder="Brief details about the package" value={formData.description} onChange={handleChange} />
+                    <Input name="description" placeholder="Brief details about the package" value={formData.description} minLength={10} onChange={handleChange} required />
                     </div>
                 </CardContent>
                 </Card>
             </div>
 
             <div className="space-y-4 md:space-y-6">
+                <Card className="border border-slate-200 shadow-sm rounded-xl bg-white">
+                <CardHeader className="border-b border-slate-100 pb-4 mb-4">
+                    <CardTitle className="text-lg flex items-center">
+                    <User className="h-5 w-5 mr-2 text-indigo-500" /> Sender Details
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div>
+                    <label className="text-sm font-medium text-slate-700 block mb-1">Full Name</label>
+                    <Input name="senderName" placeholder="Full name of sender" value={formData.senderName} onChange={handleChange} required />
+                    </div>
+                    <div>
+                    <label className="text-sm font-medium text-slate-700 block mb-1">Phone Number</label>
+                    <Input name="senderPhone" placeholder="Contact number" value={formData.senderPhone} onChange={handleChange} required />
+                    </div>
+                </CardContent>
+                </Card>
+
                 <Card className="border border-slate-200 shadow-sm rounded-xl bg-white">
                 <CardHeader className="border-b border-slate-100 pb-4 mb-4">
                     <CardTitle className="text-lg flex items-center">

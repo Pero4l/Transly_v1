@@ -75,6 +75,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     localStorage.removeItem("transly_token");
+    document.cookie = 'transly_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     try {
       await apiFetch("/auth/logout", { method: "POST" });
       setUser(null);

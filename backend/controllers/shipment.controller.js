@@ -34,6 +34,8 @@ exports.createShipment = async (req, res) => {
     distance,
     description,
     productType,
+    senderName,
+    senderPhone,
     receiverName,
     receiverPhone,
     receiverAddress
@@ -51,6 +53,8 @@ exports.createShipment = async (req, res) => {
       price,
       description,
       productType,
+      senderName,
+      senderPhone,
       receiverName,
       receiverPhone,
       receiverAddress

@@ -38,7 +38,10 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (data.success) {
-        if (data.token) localStorage.setItem("transly_token", data.token);
+        if (data.token) {
+           localStorage.setItem("transly_token", data.token);
+           document.cookie = `transly_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+        }
         await refreshSession();
         toast.info("Initializing session...");
         let target = "/dashboard";
@@ -94,7 +97,10 @@ export default function LoginPage() {
             });
             const data = await res.json();
             if (data.success) {
-                if (data.token) localStorage.setItem("transly_token", data.token);
+                if (data.token) {
+                   localStorage.setItem("transly_token", data.token);
+                   document.cookie = `transly_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+                }
                 await refreshSession();
                 toast.success("Signed in with Google!");
                 

@@ -14,7 +14,7 @@ function VerificationContent() {
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference");
   
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error" | "already_verified">("loading");
   const [message, setMessage] = useState("We are verifying your transaction with Paystack...");
 
   useEffect(() => {
@@ -38,8 +38,13 @@ function VerificationContent() {
 
         const data = await res.json();
         if (data.success) {
-          setStatus("success");
-          setMessage("Payment verified successfully! Your shipment will now be dispatched.");
+          if (data.message === 'Payment was already verified and processed.') {
+            setStatus("already_verified");
+            setMessage("Your transaction has already been verified previously.");
+          } else {
+            setStatus("success");
+            setMessage("Payment verified successfully! Your shipment will now be dispatched.");
+          }
         } else {
           setStatus("error");
           setMessage(data.error || "Payment verification failed.");
@@ -76,7 +81,21 @@ function VerificationContent() {
                         <div className="bg-emerald-50 p-6 rounded-full mb-6">
                             <CheckCircle2 className="h-12 w-12 text-emerald-500" />
                         </div>
-                        <h2 className="text-2xl font-black text-slate-900 mb-2 font-display">Transaction Secured!</h2>
+                        <h2 className="text-2xl font-black text-slate-900 mb-2 font-display">Transaction Verified</h2>
+                        <p className="text-slate-500 mb-8">{message}</p>
+                        
+                        <Button onClick={() => router.push("/dashboard")} className="w-full bg-slate-900 hover:bg-slate-800 text-white h-12 rounded-xl font-bold">
+                            Return to Dashboard
+                        </Button>
+                    </>
+                )}
+
+                {status === "already_verified" && (
+                    <>
+                        <div className="bg-blue-50 p-6 rounded-full mb-6">
+                            <CheckCircle2 className="h-12 w-12 text-blue-500" />
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900 mb-2 font-display">Payment Already Verified</h2>
                         <p className="text-slate-500 mb-8">{message}</p>
                         
                         <Button onClick={() => router.push("/dashboard")} className="w-full bg-slate-900 hover:bg-slate-800 text-white h-12 rounded-xl font-bold">

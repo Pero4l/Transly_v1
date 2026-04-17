@@ -1,51 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap, Popup, Polyline } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { GoogleMap, useJsApiLoader, Marker, Autocomplete, DirectionsRenderer } from "@react-google-maps/api";
 import { Search, Loader2, Navigation, MapPin } from "lucide-react";
 
-// Fix for default marker icon
-const DefaultIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-const OriginIcon = L.icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-const DestIcon = L.icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
-
-function LocationClickHandler({ onLocationSelect, activeType }: { onLocationSelect: (lat: number, lng: number, type: 'origin' | 'destination') => void, activeType: 'origin' | 'destination' }) {
-  useMapEvents({
-    click(e) {
-      onLocationSelect(e.latlng.lat, e.latlng.lng, activeType);
-    },
-  });
-  return null;
-}
-
-function MapController({ center, zoom }: { center: [number, number], zoom?: number }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, zoom || map.getZoom(), { animate: true });
-  }, [center, map, zoom]);
-  return null;
-}
+const containerStyle = {
+  width: '100%',
+  height: '100%'
+};
 
 export interface MapPickerProps {
   onLocationSelect: (lat: number, lng: number, type: 'origin' | 'destination', address?: string) => void;
@@ -55,93 +17,117 @@ export interface MapPickerProps {
   mapCenter?: [number, number];
 }
 
+const libraries: "places"[] = ["places"];
+
 export default function MapPicker({ onLocationSelect, origin, destination, activeType, mapCenter: externalCenter }: MapPickerProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [internalCenter, setInternalCenter] = useState<[number, number]>([6.5244, 3.3792]); // Lagos
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries
+  });
 
-  const mapCenter = externalCenter || internalCenter;
-  const setMapCenter = externalCenter ? () => {} : setInternalCenter; 
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [internalCenter, setInternalCenter] = useState({ lat: 6.5244, lng: 3.3792 });
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  const center = externalCenter ? { lat: externalCenter[0], lng: externalCenter[1] } : internalCenter;
 
-    setIsSearching(true);
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`);
-      const data = await response.json();
-      if (data && data.length > 0) {
-        const { lat, lon, display_name } = data[0];
-        const newLat = parseFloat(lat);
-        const newLon = parseFloat(lon);
-        setMapCenter([newLat, newLon]);
-        onLocationSelect(newLat, newLon, activeType, display_name);
-      } else {
-        alert("Location not found");
-      }
-    } catch (err) {
-      console.error("Search error:", err);
-    } finally {
-      setIsSearching(false);
+  const onLoad = useCallback(function callback(map: google.maps.Map) {
+    setMap(map);
+  }, []);
+
+  const onUnmount = useCallback(function callback() {
+    setMap(null);
+  }, []);
+
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      onLocationSelect(lat, lng, activeType);
     }
   };
+
+  const onPlaceChanged = () => {
+    if (autocompleteRef.current !== null) {
+      const place = autocompleteRef.current.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setInternalCenter({ lat, lng });
+        if (map) {
+          map.panTo({ lat, lng });
+          map.setZoom(15);
+        }
+        onLocationSelect(lat, lng, activeType, place.formatted_address || place.name);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (origin && destination && isLoaded) {
+      const directionsService = new google.maps.DirectionsService();
+      directionsService.route({
+        origin: { lat: origin[0], lng: origin[1] },
+        destination: { lat: destination[0], lng: destination[1] },
+        travelMode: google.maps.TravelMode.DRIVING
+      }).then(result => {
+        setDirectionsResponse(result);
+      }).catch(e => {
+        console.error("Directions request failed", e);
+      });
+    } else {
+      setDirectionsResponse(null);
+    }
+  }, [origin, destination, isLoaded]);
+
+  if (!isLoaded) {
+    return <div className="h-[300px] md:h-[450px] w-full rounded-2xl bg-slate-100 animate-pulse flex items-center justify-center text-slate-400 font-medium border-2 border-slate-200">Loading Google Maps...</div>;
+  }
 
   return (
     <div className="h-[300px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-100 relative group z-0">
       {/* Search Overlay */}
-      <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-[1000] flex flex-col gap-2 pointer-events-none">
-        <form onSubmit={handleSearch} className="pointer-events-auto max-w-md w-full mx-auto md:mx-0">
+      <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-[1000] flex flex-col gap-2">
+        <div className="max-w-md w-full mx-auto md:mx-0 relative">
+          <Autocomplete
+            onLoad={(autocomplete: google.maps.places.Autocomplete) => { autocompleteRef.current = autocomplete; }}
+            onPlaceChanged={onPlaceChanged}
+          >
             <div className="relative group">
-                <Search className={`absolute left-3 top-2.5 md:left-4 md:top-3.5 h-4 w-4 md:h-5 md:w-5 transition-colors ${isSearching ? 'text-orange-500 animate-pulse' : 'text-slate-400'}`} />
-                <input 
-                    type="text" 
-                    placeholder={`Search for ${activeType}...`} 
-                    className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-xl border-0 focus:ring-2 focus:ring-orange-500/50 text-slate-800 text-base font-medium transition-all"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {isSearching && (
-                    <div className="absolute right-3 top-2.5 md:right-4 md:top-3.5">
-                        <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin text-orange-600" />
-                    </div>
-                )}
+              <Search className="absolute left-3 top-2.5 md:left-4 md:top-3.5 h-4 w-4 md:h-5 md:w-5 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder={`Search for ${activeType}...`} 
+                className="w-full h-10 md:h-12 pl-10 md:pl-12 pr-4 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-xl border-0 focus:ring-2 focus:ring-orange-500/50 text-slate-800 text-base font-medium transition-all"
+              />
             </div>
-        </form>
+          </Autocomplete>
+        </div>
       </div>
 
-      <MapContainer center={mapCenter} zoom={13} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }} zoomControl={false}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        {origin && (
-          <Marker position={origin} icon={OriginIcon}>
-            <Popup className="font-bold">Pickup Point</Popup>
-          </Marker>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={13}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+        onClick={handleMapClick}
+        options={{ disableDefaultUI: true, zoomControl: true }}
+      >
+        {origin && !directionsResponse && (
+          <Marker position={{ lat: origin[0], lng: origin[1] }} label="P" />
         )}
         
-        {destination && (
-          <Marker position={destination} icon={DestIcon}>
-            <Popup className="font-bold">Delivery Point</Popup>
-          </Marker>
+        {destination && !directionsResponse && (
+          <Marker position={{ lat: destination[0], lng: destination[1] }} label="D" />
         )}
 
-        {origin && destination && (
-            <Polyline 
-                positions={[origin, destination]} 
-                color="#f97316" 
-                weight={4} 
-                opacity={0.6} 
-                dashArray="10, 10"
-                lineJoin="round"
-            />
+        {directionsResponse && (
+          <DirectionsRenderer directions={directionsResponse} options={{ suppressMarkers: false }} />
         )}
-
-        <LocationClickHandler onLocationSelect={onLocationSelect} activeType={activeType} />
-        <MapController center={mapCenter} />
-      </MapContainer>
+      </GoogleMap>
       
       {/* Navigation Controls Overlay */}
       <div className="absolute bottom-4 right-4 z-[40] flex flex-col gap-2 pointer-events-none md:pointer-events-auto">

@@ -32,15 +32,16 @@ export default function DashboardPage() {
   const fetchShipments = async () => {
     if (sessionLoading) return;
 
-    setTimeout(() => {
-      if (!user) {
-        router.push("/login");
-      } else if (user.role === "admin") {
-        router.push("/admin");
+    if (!user) {
+      router.push("/login");
+      return;
+    } else if (user.role === "admin") {
+      router.push("/admin");
+      return;
     } else if (user.role === "driver") {
-        router.push("/driver");
+      router.push("/driver");
+      return;
     }
-    }, 10000);
 
     try {
       const res = await apiFetch("/shipments", {}, token);

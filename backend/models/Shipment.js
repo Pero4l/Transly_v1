@@ -70,6 +70,14 @@ const Shipment = sequelize.define('Shipment', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  senderName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  senderPhone: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   receiverName: {
     type: DataTypes.STRING,
     allowNull: false,
