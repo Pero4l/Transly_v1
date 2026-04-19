@@ -42,6 +42,12 @@ export default function RequestPage() {
         router.push("/login");
       } else if (!user?.phone || !user?.address || user.phone === "" || user.address === "") {
         router.push("/onboarding");
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          senderName: prev.senderName || user.name || "",
+          senderPhone: prev.senderPhone || user.phone || ""
+        }));
       }
       fetchRates();
     }
