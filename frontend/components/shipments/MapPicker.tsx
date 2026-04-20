@@ -52,7 +52,7 @@ export default function MapPicker({ onLocationSelect, origin, destination, activ
   const onPlaceChanged = () => {
     if (autocompleteRef.current !== null) {
       const place = autocompleteRef.current.getPlace();
-      if (place.geometry && place.geometry.location) {
+      if (place && place.geometry && place.geometry.location) {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         setInternalCenter({ lat, lng });
