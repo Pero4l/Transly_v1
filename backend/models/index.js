@@ -42,6 +42,9 @@ FoodOrderItem.belongsTo(FoodOrder, { foreignKey: 'orderId' });
 FoodItem.hasMany(FoodOrderItem, { foreignKey: 'foodItemId', as: 'orderItems' });
 FoodOrderItem.belongsTo(FoodItem, { foreignKey: 'foodItemId', as: 'foodItem' });
 
+FoodOrder.belongsTo(Shipment, { foreignKey: 'shipmentId', as: 'shipment' });
+Shipment.hasOne(FoodOrder, { foreignKey: 'shipmentId' });
+
 const syncDB = async () => {
   await sequelize.sync({ alter: true });
   console.log('Database schemas synchronized.');

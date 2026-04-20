@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Package, Search, User, Menu, Bell, Check, X } from "lucide-react";
+import { Package, Search, User, Menu, Bell, Check, X, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send, Loader2 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
@@ -118,6 +118,9 @@ export function Navbar() {
                 Dashboard
               </Link>
             )}
+            <Link href="/food" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+              Food
+            </Link>
             <Link href="/tracking" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
               Track Package
             </Link>
@@ -233,6 +236,11 @@ export function Navbar() {
             <Link href="/tracking" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
               Track Package
+            </Link>
+
+            <Link href="/food" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <Utensils className="h-5 w-5 mr-3 text-slate-400" />
+              Order Food
             </Link>
 
             <Link href="/chat" onClick={toggleMenu} className="flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">

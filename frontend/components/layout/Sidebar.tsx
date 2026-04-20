@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LayoutDashboard, PackageSearch, Users, Truck, Settings, MessageCircle, LogOut, Mail } from "lucide-react";
+import { LayoutDashboard, PackageSearch, Users, Truck, Settings, MessageCircle, LogOut, Mail, Utensils } from "lucide-react";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
 import { getSocket } from "@/lib/socket";
@@ -92,6 +92,10 @@ export function Sidebar() {
           <Link href="/admin/settings" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Settings className="h-5 w-5 mr-3 text-slate-400" />
             Settings
+          </Link>
+          <Link href="/admin/food" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+            <Utensils className="h-5 w-5 mr-3 text-slate-400" />
+            Food Menu
           </Link>
         </nav>
       </div>

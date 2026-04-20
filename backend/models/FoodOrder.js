@@ -19,6 +19,14 @@ const FoodOrder = db.define("FoodOrder", {
   deliveryAddress: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  shipmentId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'Shipments',
+      key: 'id'
+    }
   }
 });
 
