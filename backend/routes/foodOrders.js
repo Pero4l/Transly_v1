@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { FoodOrder, FoodOrderItem, FoodItem, User } = require('../models');
+const { FoodOrder, FoodOrderItem, FoodItem, User, Shipment } = require('../models');
 const db = require('../config/db');
+const { protect } = require('../middlewares/authMiddleware');
+const { authorizeAdmin } = require('../middlewares/adminMiddleware');
 
 // POST /foodOrders - User places an order
-router.post('/', async (req, res) => {
+router.post('/', protect, async (req, res) => {
   const t = await db.transaction();
   try {
-    const { userId, items, deliveryAddress, deliveryType, receiverName, receiverPhone } = req.body;
+    const { items, deliveryAddress, deliveryType, receiverName, receiverPhone } = req.body;
+    const userId = req.user.id;
     // deliveryType: 'self' or 'third_party'
 
-    if (!userId || !items || !items.length || !deliveryAddress) {
+    if (!items || !items.length || !deliveryAddress) {
       await t.rollback();
       return res.status(400).json({ message: 'Invalid order structure or missing delivery address' });
     }
@@ -43,7 +46,6 @@ router.post('/', async (req, res) => {
     }
 
     // 1. Create the Shipment first
-    const { Shipment } = require('../models');
     const trackingNumber = `FOOD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     
     const shipment = await Shipment.create({
@@ -97,9 +99,9 @@ router.post('/', async (req, res) => {
 });
 
 // GET /foodOrders/me - View my orders
-router.get('/me', async (req, res) => {
+router.get('/me', protect, async (req, res) => {
   try {
-    const userId = req.headers['userid'] || req.query.userId; // or get from auth token context
+    const userId = req.user.id;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
     const orders = await FoodOrder.findAll({
@@ -116,7 +118,7 @@ router.get('/me', async (req, res) => {
 });
 
 // GET /foodOrders - Admin view all orders
-router.get('/', async (req, res) => {
+router.get('/', protect, authorizeAdmin, async (req, res) => {
   try {
     const orders = await FoodOrder.findAll({
       include: [
@@ -134,7 +136,7 @@ router.get('/', async (req, res) => {
 });
 
 // PUT /foodOrders/:id/status - Admin update order status
-router.put('/:id/status', async (req, res) => {
+router.put('/:id/status', protect, authorizeAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;

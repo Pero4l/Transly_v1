@@ -5,6 +5,9 @@ const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
 const fs = require('fs');
 
+const { protect } = require('../middlewares/authMiddleware');
+const { authorizeAdmin } = require('../middlewares/adminMiddleware');
+
 const upload = multer({ dest: '/tmp/' });
 
 // GET /food - List all available food items (Public)
@@ -19,7 +22,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /food - Add new food item (Admin Only)
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', protect, authorizeAdmin, upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, isAvailable } = req.body;
     let imageUrl = null;
@@ -46,7 +49,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // PUT /food/:id - Update food item (Admin Only)
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', protect, authorizeAdmin, upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, price, isAvailable } = req.body;
@@ -80,7 +83,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 });
 
 // DELETE /food/:id - Delete food item (Admin Only)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, authorizeAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const foodItem = await FoodItem.findByPk(id);

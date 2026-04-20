@@ -5,6 +5,7 @@ import { Utensils, ShoppingCart, Plus, Minus, X, Truck, User, MapPin, Loader2, A
 import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/sessionContext";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 interface FoodItem {
   id: string;
@@ -39,7 +40,7 @@ export default function FoodStorePage() {
 
   const fetchFoods = async () => {
     try {
-      const res = await fetch("http://localhost:9400/food");
+      const res = await apiFetch("/food");
       const data = await res.json();
       setFoods(data);
     } catch (err) {
@@ -85,21 +86,16 @@ export default function FoodStorePage() {
 
     setOrderLoading(true);
     try {
-      const res = await fetch("http://localhost:9400/foodOrders", {
+      const res = await apiFetch("/foodOrders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
         body: JSON.stringify({
-          userId: user.id,
           deliveryType,
           deliveryAddress: address,
           receiverName: deliveryType === 'self' ? user.name : receiverName,
           receiverPhone: deliveryType === 'self' ? user.phone : receiverPhone,
           items: cart.map(item => ({ foodItemId: item.id, quantity: item.quantity }))
         })
-      });
+      }, token);
 
       if (res.ok) {
         const orderData = await res.json();

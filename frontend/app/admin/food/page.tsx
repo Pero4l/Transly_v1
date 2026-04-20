@@ -5,6 +5,7 @@ import { Plus, Trash2, Edit, Save, X, Utensils, IndianRupee, Loader2, Image as I
 import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/sessionContext";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 
 interface FoodItem {
   id: string;
@@ -34,7 +35,7 @@ export default function AdminFoodPage() {
 
   const fetchFoods = async () => {
     try {
-      const res = await fetch("http://localhost:9400/food");
+      const res = await apiFetch("/food");
       const data = await res.json();
       setFoods(data);
     } catch (err) {
@@ -57,13 +58,10 @@ export default function AdminFoodPage() {
       formData.append("price", price);
       if (image) formData.append("image", image);
 
-      const res = await fetch("http://localhost:9400/food", {
+      const res = await apiFetch("/food", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
-      });
+      }, token);
 
       if (res.ok) {
         toast.success("Food item added!");
@@ -84,10 +82,9 @@ export default function AdminFoodPage() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure?")) return;
     try {
-      const res = await fetch(`http://localhost:9400/food/${id}`, {
+      const res = await apiFetch(`/food/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      }, token);
       if (res.ok) {
         toast.success("Deleted successfully");
         fetchFoods();
