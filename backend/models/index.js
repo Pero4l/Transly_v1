@@ -6,6 +6,9 @@ const Setting = require('./Setting');
 const Notification = require('./Notification');
 const Conversation = require('./Conversation');
 const Message = require('./Message');
+const FoodItem = require('./FoodItem');
+const FoodOrder = require('./FoodOrder');
+const FoodOrderItem = require('./FoodOrderItem');
 
 // Associations
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
@@ -30,10 +33,19 @@ Message.belongsTo(Conversation, { foreignKey: 'conversationId' });
 User.hasMany(Message, { foreignKey: 'senderId' });
 Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
 
+User.hasMany(FoodOrder, { foreignKey: 'userId', as: 'foodOrders' });
+FoodOrder.belongsTo(User, { foreignKey: 'userId' });
+
+FoodOrder.hasMany(FoodOrderItem, { foreignKey: 'orderId', as: 'items' });
+FoodOrderItem.belongsTo(FoodOrder, { foreignKey: 'orderId' });
+
+FoodItem.hasMany(FoodOrderItem, { foreignKey: 'foodItemId', as: 'orderItems' });
+FoodOrderItem.belongsTo(FoodItem, { foreignKey: 'foodItemId', as: 'foodItem' });
+
 const syncDB = async () => {
   await sequelize.sync({ alter: true });
   console.log('Database schemas synchronized.');
 };
 
-module.exports = { User, DriverProfile, Shipment, Setting, Notification, Conversation, Message, syncDB };
+module.exports = { User, DriverProfile, Shipment, Setting, Notification, Conversation, Message, FoodItem, FoodOrder, FoodOrderItem, syncDB };
 
