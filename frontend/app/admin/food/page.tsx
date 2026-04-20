@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Trash2, Edit, Save, X, Utensils, IndianRupee, Loader2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/sessionContext";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 interface FoodItem {
   id: string;
