@@ -28,6 +28,7 @@ export default function AdminFoodPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFoods();
@@ -79,6 +80,20 @@ export default function AdminFoodPage() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImage(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure?")) return;
     try {
@@ -99,6 +114,7 @@ export default function AdminFoodPage() {
     setDescription("");
     setPrice("");
     setImage(null);
+    setImagePreview(null);
   };
 
   if (loading) {
@@ -171,17 +187,23 @@ export default function AdminFoodPage() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Food Image</label>
-                <div className="relative group cursor-pointer">
+                <div className="relative group cursor-pointer h-40">
                   <input 
                     type="file" 
-                    onChange={(e) => setImage(e.target.files?.[0] || null)}
+                    onChange={handleImageChange}
                     className="absolute inset-0 opacity-0 cursor-pointer z-10"
                     accept="image/*"
                   />
-                  <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center group-hover:border-orange-500 transition-colors">
-                    <ImageIcon className="h-8 w-8 text-slate-300 group-hover:text-orange-500 mb-2" />
-                    <p className="text-sm font-medium text-slate-500">{image ? image.name : "Click to upload image"}</p>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tighter">JPG, PNG up to 5MB</p>
+                  <div className="h-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center group-hover:border-orange-500 transition-colors overflow-hidden">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover rounded-xl" />
+                    ) : (
+                      <>
+                        <ImageIcon className="h-8 w-8 text-slate-300 group-hover:text-orange-500 mb-2" />
+                        <p className="text-sm font-medium text-slate-500 text-center">{image ? image.name : "Click to upload image"}</p>
+                        <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-tighter">JPG, PNG up to 5MB</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

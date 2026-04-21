@@ -24,7 +24,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              Now Global in 20+ Countries
+              Now Live in Nigeria — Starting with Jos
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-150">
@@ -61,8 +61,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-orange-600 rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-orange-600/20 group-hover:rotate-6 transition-transform">
                 <Globe className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Worldwide Shipping</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">Efficient air and sea freight solutions spanning across continents with real-time customs clearance.</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Nigeria-wide Shipping</h3>
+              <p className="text-slate-500 leading-relaxed font-medium">Efficient interstate logistics spanning across Nigeria with real-time tracking and secure handling.</p>
             </div>
 
             <div className="group p-10 rounded-[2.5rem] bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 hover:shadow-2xl transition-all duration-500">

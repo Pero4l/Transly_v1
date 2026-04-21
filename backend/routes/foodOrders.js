@@ -51,7 +51,7 @@ router.post('/', protect, async (req, res) => {
     const shipment = await Shipment.create({
       trackingNumber,
       customerId: userId,
-      origin: "Transly HQ, Lagos", // Default origin for food
+      origin: "Transly, Jos", // Default origin for food
       destination: deliveryAddress,
       receiverAddress: deliveryAddress,
       receiverName: deliveryType === 'self' ? user.name : (receiverName || "Third Party"),
