@@ -5,26 +5,23 @@ import { Input } from "@/components/ui/Input";
 import { useState, useEffect } from "react";
 import { Loader2, Save, MapPin } from "lucide-react";
 import { useSession } from "@/lib/sessionContext";
-import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
+import { useGoogleMaps } from "@/components/providers/GoogleMapsProvider";
 
-const libraries: "places"[] = ["places"];
+
 
 export default function AdminSettingsPage() {
   const { user, token, loading: sessionLoading } = useSession();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [settings, setSettings] = useState({
-    BASE_FARE: "1500",
-    PRICE_PER_MILE: "500",
+    BASE_FARE: "100",
+    PRICE_PER_MILE: "200",
     FOOD_ORIGIN_LOCATION: "Transly Kitchen, Jos"
   });
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries
-  });
+  const { isLoaded } = useGoogleMaps();
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 

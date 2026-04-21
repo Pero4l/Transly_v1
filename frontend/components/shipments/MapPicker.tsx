@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { GoogleMap, useJsApiLoader, Marker, Autocomplete, DirectionsRenderer } from "@react-google-maps/api";
+import { GoogleMap, Marker, Autocomplete, DirectionsRenderer } from "@react-google-maps/api";
 import { Search, Loader2, Navigation, MapPin } from "lucide-react";
+import { useGoogleMaps } from "@/components/providers/GoogleMapsProvider";
 
 const containerStyle = {
   width: '100%',
@@ -17,14 +18,10 @@ export interface MapPickerProps {
   mapCenter?: [number, number];
 }
 
-const libraries: "places"[] = ["places"];
+
 
 export default function MapPicker({ onLocationSelect, origin, destination, activeType, mapCenter: externalCenter }: MapPickerProps) {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries
-  });
+  const { isLoaded } = useGoogleMaps();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);

@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/sessionContext";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
-import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useGoogleMaps } from "@/components/providers/GoogleMapsProvider";
+import { Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
 import Link from "next/link";
 import { getSocket } from "@/lib/socket";
 
-const libraries: "places"[] = ["places"];
+
 
 interface FoodItem {
   id: string;
@@ -44,11 +45,7 @@ export default function FoodStorePage() {
   const [receiverPhone, setReceiverPhone] = useState("");
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries
-  });
+  const { isLoaded } = useGoogleMaps();
 
   useEffect(() => {
     fetchFoods();
@@ -251,7 +248,7 @@ export default function FoodStorePage() {
           <div className="z-20 max-w-xl space-y-4 animate-in slide-in-from-left-8 duration-700">
             <span className="px-4 py-1.5 bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full">Fastest Delivery</span>
             <h2 className="text-5xl font-black text-white leading-[1.1]">Craving Something <br/> Delicious?</h2>
-            <p className="text-slate-400 font-medium">Order premium meals from Transly Kitchen and get them delivered to your doorstep in minutes.</p>
+            <p className="text-slate-300 font-medium">Order premium meals from Transly Kitchen and get them delivered to your doorstep in minutes.</p>
           </div>
           <div className="absolute right-0 top-0 h-full w-full opacity-70 group-hover:opacity-60 transition-opacity">
             <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover" alt="Hero" />

@@ -9,10 +9,11 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
-import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
+import { useGoogleMaps } from "@/components/providers/GoogleMapsProvider";
 
-const libraries: "places"[] = ["places"];
+
 
 export default function OnboardingPage() {
   const { user, token, loading: sessionLoading, refreshSession, setUserData } = useSession();
@@ -20,13 +21,8 @@ export default function OnboardingPage() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { isLoaded } = useGoogleMaps();
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries
-  });
 
   useEffect(() => {
     if (user) {

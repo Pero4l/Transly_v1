@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/Input";
 import { MapPin, User, Package, CreditCard, Loader2, Navigation, Target, MousePointer2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import { useSession } from "@/lib/sessionContext";
+import dynamic from "next/dynamic";
 import type { MapPickerProps } from "@/components/shipments/MapPicker";
-import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
+import { useGoogleMaps } from "@/components/providers/GoogleMapsProvider";
 
-const libraries: "places"[] = ["places"];
+
 
 const MapPicker = dynamic<MapPickerProps>(() => import("@/components/shipments/MapPicker"), {
   ssr: false,
@@ -38,11 +39,7 @@ export default function RequestPage() {
   const { user, token, loading: sessionLoading } = useSession();
   const router = useRouter();
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries
-  });
+  const { isLoaded } = useGoogleMaps();
 
   const originAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const destAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);

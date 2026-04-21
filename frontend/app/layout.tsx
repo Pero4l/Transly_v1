@@ -4,6 +4,7 @@ import "./globals.css";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { SessionProvider } from "@/lib/sessionContext";
 import { Toaster } from "sonner";
+import { GoogleMapsProvider } from "@/components/providers/GoogleMapsProvider";
 
 export const metadata: Metadata = {
   title: "Transly",
@@ -41,9 +42,11 @@ export default function RootLayout({
         />
         <GoogleAuthProvider>
           <SessionProvider>
-            <Toaster richColors position="top-center" />
-            <main className="flex-1 flex flex-col">{children}</main>
-            <ChatWidget />
+            <GoogleMapsProvider>
+              <Toaster richColors position="top-center" />
+              <main className="flex-1 flex flex-col">{children}</main>
+              <ChatWidget />
+            </GoogleMapsProvider>
           </SessionProvider>
         </GoogleAuthProvider>
       </body>
