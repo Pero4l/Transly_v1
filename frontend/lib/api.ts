@@ -12,10 +12,14 @@ const API_BASE_URL = getApiBaseUrl();
 export async function apiFetch(endpoint: string, options: RequestInit = {}, token?: string | null) {
     const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
     
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    } as any;
+    const headers: Record<string, string> = {
+        ...options.headers as Record<string, string>,
+    };
+
+    // Automatically set Content-Type to application/json if body is not FormData
+    if (options.body && !(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;

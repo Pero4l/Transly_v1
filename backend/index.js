@@ -42,7 +42,9 @@ app.use(session({
 
 
 // Middleware
-app.use(helmet()); 
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+})); 
 app.use(compression()); // Native GZIP payload compression for faster speeds
 app.use(express.json());
 app.use(cookieParser(process.env.SESSION_SECRET || 'transly_secret_key_2026'));
