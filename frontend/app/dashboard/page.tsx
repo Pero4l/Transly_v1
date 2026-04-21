@@ -126,7 +126,7 @@ export default function DashboardPage() {
             {user?.role === "customer" && (
               <div className="flex gap-4">
                 <Link href="/food">
-                  <Button className="bg-slate-900 border border-slate-700 text-white hover:bg-slate-800 font-semibold shadow-lg rounded-xl">
+                  <Button className="bg-slate-900 border border-slate-300 text-white hover:bg-slate-800 font-semibold shadow-lg rounded-xl">
                     <Utensils className="mr-2 h-5 w-5" />
                     Order Food
                   </Button>

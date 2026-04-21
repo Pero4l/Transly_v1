@@ -41,6 +41,13 @@ export default function FoodStorePage() {
   // Delivery details
   const [deliveryType, setDeliveryType] = useState<'self' | 'third_party'>('self');
   const [address, setAddress] = useState(user?.address || "");
+  const [distance, setDistance] = useState(0);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [settings, setSettings] = useState({
+    FOOD_ORIGIN_LOCATION: "Transly Kitchen, Jos",
+    BASE_FARE: "100",
+    PRICE_PER_MILE: "200"
+  });
   const [receiverName, setReceiverName] = useState("");
   const [receiverPhone, setReceiverPhone] = useState("");
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -51,6 +58,7 @@ export default function FoodStorePage() {
     fetchFoods();
     if (user && token) {
       fetchNotifications();
+      fetchSettings();
       const socket = getSocket();
       socket.emit("join_personal_room", user.id);
       socket.on("notification", (data: any) => {
@@ -65,6 +73,49 @@ export default function FoodStorePage() {
       return () => { socket.off("notification"); };
     }
   }, [user, token]);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await apiFetch('/admin/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.settings) {
+          setSettings(prev => ({ ...prev, ...data.settings }));
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching settings:", err);
+    }
+  };
+
+  const calculateDistance = (destAddress: string) => {
+    if (!isLoaded || !destAddress) return;
+
+    const service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [settings.FOOD_ORIGIN_LOCATION],
+        destinations: [destAddress],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      },
+      (response, status) => {
+        if (status === 'OK' && response && response.rows[0].elements[0].status === 'OK') {
+          const distInMeters = response.rows[0].elements[0].distance.value;
+          const distInMiles = distInMeters / 1609.34;
+          setDistance(distInMiles);
+          
+          const base = parseFloat(settings.BASE_FARE || "100");
+          const rate = parseFloat(settings.PRICE_PER_MILE || "200");
+          const fee = base + (distInMiles * rate);
+          setDeliveryFee(fee);
+        } else {
+          console.error("Distance Matrix failed:", status);
+          setDeliveryFee(parseFloat(settings.BASE_FARE || "100"));
+        }
+      }
+    );
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -138,13 +189,32 @@ export default function FoodStorePage() {
           deliveryAddress: address,
           receiverName: deliveryType === 'self' ? user.name : receiverName,
           receiverPhone: deliveryType === 'self' ? user.phone : receiverPhone,
-          items: cart.map(item => ({ foodItemId: item.id, quantity: item.quantity }))
+          items: cart.map(item => ({ foodItemId: item.id, quantity: item.quantity })),
+          distance: distance
         })
       }, token);
 
       if (res.ok) {
         const orderData = await res.json();
-        toast.success("Order placed successfully! Tracking: " + orderData.shipment.trackingNumber);
+        const shipmentId = orderData.shipment?.id || orderData.shipmentId;
+        
+        if (shipmentId) {
+          toast.success("Order placed! Initializing payment...");
+          const payRes = await apiFetch('/payment/initialize', {
+            method: 'POST',
+            body: JSON.stringify({ shipmentId })
+          }, token);
+          
+          if (payRes.ok) {
+            const payData = await payRes.json();
+            if (payData.authorization_url) {
+              window.location.href = payData.authorization_url;
+              return;
+            }
+          }
+        }
+        
+        toast.success("Order placed successfully!");
         setCart([]);
         setIsCartOpen(false);
       } else {
@@ -384,7 +454,10 @@ export default function FoodStorePage() {
                                 onPlaceChanged={() => {
                                     if (autocompleteRef.current) {
                                         const place = autocompleteRef.current.getPlace();
-                                        if (place.formatted_address) setAddress(place.formatted_address);
+                                        if (place.formatted_address) {
+                                          setAddress(place.formatted_address);
+                                          calculateDistance(place.formatted_address);
+                                        }
                                     }
                                 }}
                             >
@@ -412,10 +485,20 @@ export default function FoodStorePage() {
             </div>
 
             {cart.length > 0 && (
-              <div className="p-8 border-t bg-slate-50 shadow-inner">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-slate-500 font-bold text-sm">Estimated Total</span>
-                  <span className="text-2xl font-black text-slate-900">₦{total.toLocaleString()}</span>
+              <div className="p-8 border-t bg-slate-50 shadow-inner space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-bold">Items Total</span>
+                    <span className="text-slate-900 font-bold">₦{total.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-bold">Delivery Fee</span>
+                    <span className="text-orange-600 font-bold">₦{deliveryFee.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-4 border-t border-slate-200">
+                    <span className="text-slate-900 font-extrabold">Total Amount</span>
+                    <span className="text-2xl font-black text-slate-900">₦{(total + deliveryFee).toLocaleString()}</span>
+                  </div>
                 </div>
                 <Button 
                   onClick={placeOrder}
