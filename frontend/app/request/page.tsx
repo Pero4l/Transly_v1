@@ -35,7 +35,7 @@ export default function RequestPage() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([6.5244, 3.3792]);
   const [activeType, setActiveType] = useState<'origin' | 'destination'>('origin');
   const [loading, setLoading] = useState(false);
-  const [rates, setRates] = useState({ BASE_FARE: 100, PRICE_PER_MILE: 0 });
+  const [rates, setRates] = useState({ BASE_FARE: 100, PRICE_PER_KM: 200 });
   const { user, token, loading: sessionLoading } = useSession();
   const router = useRouter();
 
@@ -89,8 +89,8 @@ export default function RequestPage() {
         const data = await res.json();
         if (data.success && data.settings) {
             setRates({
-                BASE_FARE: parseInt(data.settings.BASE_FARE || "100"),
-                PRICE_PER_MILE: parseInt(data.settings.PRICE_PER_MILE || "220")
+                BASE_FARE: parseInt(data.settings.BASE_FARE || "1500"),
+                PRICE_PER_KM: parseInt(data.settings.PRICE_PER_MILE || "500")
             });
         }
     } catch (err) {
@@ -98,7 +98,7 @@ export default function RequestPage() {
     }
   };
 
-  const calculatedPrice = rates.BASE_FARE + (distance * rates.PRICE_PER_MILE);
+  const calculatedPrice = rates.BASE_FARE + (distance * rates.PRICE_PER_KM);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -413,7 +413,7 @@ export default function RequestPage() {
                     </div>
                     <div className="flex justify-between items-center text-slate-500 text-sm">
                         <span>Mileage ({distance} KM):</span>
-                        <span className="font-bold text-white">₦{(distance * rates.PRICE_PER_MILE).toLocaleString()}</span>
+                        <span className="font-bold text-white">₦{(distance * rates.PRICE_PER_KM).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center pt-4 border-t border-white/10">
                         <span className="text-slate-500 text-md">Total Payable:</span>

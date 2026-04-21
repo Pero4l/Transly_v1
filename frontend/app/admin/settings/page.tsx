@@ -16,8 +16,10 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [settings, setSettings] = useState({
-    BASE_FARE: "100",
-    PRICE_PER_MILE: "200",
+    SHIPMENT_BASE_FARE: "1500",
+    SHIPMENT_PRICE_PER_KM: "500",
+    FOOD_BASE_FARE: "100",
+    FOOD_PRICE_PER_KM: "200",
     FOOD_ORIGIN_LOCATION: "Transly Kitchen, Jos"
   });
 
@@ -40,8 +42,10 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       if (data.success) {
         setSettings({
-          BASE_FARE: data.settings.BASE_FARE || "1500",
-          PRICE_PER_MILE: data.settings.PRICE_PER_MILE || "500",
+          SHIPMENT_BASE_FARE: data.settings.SHIPMENT_BASE_FARE || data.settings.BASE_FARE || "1500",
+          SHIPMENT_PRICE_PER_KM: data.settings.SHIPMENT_PRICE_PER_KM || data.settings.PRICE_PER_MILE || "500",
+          FOOD_BASE_FARE: data.settings.FOOD_BASE_FARE || data.settings.BASE_FARE || "100",
+          FOOD_PRICE_PER_KM: data.settings.FOOD_PRICE_PER_KM || data.settings.PRICE_PER_MILE || "200",
           FOOD_ORIGIN_LOCATION: data.settings.FOOD_ORIGIN_LOCATION || "Transly Kitchen, Jos"
         });
       }
@@ -93,8 +97,8 @@ export default function AdminSettingsPage() {
 
       <Card className="border-0 shadow-sm">
         <CardHeader>
-          <CardTitle>Pricing Model</CardTitle>
-          <CardDescription>Configure the base rates for parcel deliveries (Current Currency: ₦).</CardDescription>
+          <CardTitle>Parcel Shipment Pricing</CardTitle>
+          <CardDescription>Configure the rates for regular parcel deliveries.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -102,30 +106,68 @@ export default function AdminSettingsPage() {
                <label className="text-sm font-medium text-slate-700">Base Fare (₦)</label>
                <div className="flex gap-2">
                 <Input 
-                    value={settings.BASE_FARE} 
-                    onChange={(e) => setSettings({...settings, BASE_FARE: e.target.value})}
+                    value={settings.SHIPMENT_BASE_FARE} 
+                    onChange={(e) => setSettings({...settings, SHIPMENT_BASE_FARE: e.target.value})}
                     placeholder="1500"
                 />
-                <Button size="sm" onClick={() => handleUpdate('BASE_FARE', settings.BASE_FARE)} disabled={loading}>
+                <Button size="sm" onClick={() => handleUpdate('SHIPMENT_BASE_FARE', settings.SHIPMENT_BASE_FARE)} disabled={loading}>
                     <Save className="h-4 w-4" />
                 </Button>
                </div>
              </div>
              <div className="space-y-2">
-               <label className="text-sm font-medium text-slate-700">Per Mile Rate (₦)</label>
+               <label className="text-sm font-medium text-slate-700">Per KM Rate (₦)</label>
                <div className="flex gap-2">
                 <Input 
-                    value={settings.PRICE_PER_MILE}
-                    onChange={(e) => setSettings({...settings, PRICE_PER_MILE: e.target.value})}
+                    value={settings.SHIPMENT_PRICE_PER_KM}
+                    onChange={(e) => setSettings({...settings, SHIPMENT_PRICE_PER_KM: e.target.value})}
                     placeholder="500"
                 />
-                <Button size="sm" onClick={() => handleUpdate('PRICE_PER_MILE', settings.PRICE_PER_MILE)} disabled={loading}>
+                <Button size="sm" onClick={() => handleUpdate('SHIPMENT_PRICE_PER_KM', settings.SHIPMENT_PRICE_PER_KM)} disabled={loading}>
                     <Save className="h-4 w-4" />
                 </Button>
                </div>
              </div>
           </div>
-          <p className="text-xs text-slate-400 italic">Example: A 10 mile delivery will cost ₦{parseInt(settings.BASE_FARE) + (10 * parseInt(settings.PRICE_PER_MILE))}</p>
+          <p className="text-xs text-slate-400 italic">Example: A 10 KM delivery will cost ₦{parseInt(settings.SHIPMENT_BASE_FARE) + (10 * parseInt(settings.SHIPMENT_PRICE_PER_KM))}</p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle>Food Delivery Pricing</CardTitle>
+          <CardDescription>Configure the rates for food orders from Transly Kitchen.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="space-y-2">
+               <label className="text-sm font-medium text-slate-700">Food Base Fare (₦)</label>
+               <div className="flex gap-2">
+                <Input 
+                    value={settings.FOOD_BASE_FARE} 
+                    onChange={(e) => setSettings({...settings, FOOD_BASE_FARE: e.target.value})}
+                    placeholder="100"
+                />
+                <Button size="sm" onClick={() => handleUpdate('FOOD_BASE_FARE', settings.FOOD_BASE_FARE)} disabled={loading}>
+                    <Save className="h-4 w-4" />
+                </Button>
+               </div>
+             </div>
+             <div className="space-y-2">
+               <label className="text-sm font-medium text-slate-700">Food Per KM Rate (₦)</label>
+               <div className="flex gap-2">
+                <Input 
+                    value={settings.FOOD_PRICE_PER_KM}
+                    onChange={(e) => setSettings({...settings, FOOD_PRICE_PER_KM: e.target.value})}
+                    placeholder="200"
+                />
+                <Button size="sm" onClick={() => handleUpdate('FOOD_PRICE_PER_KM', settings.FOOD_PRICE_PER_KM)} disabled={loading}>
+                    <Save className="h-4 w-4" />
+                </Button>
+               </div>
+             </div>
+          </div>
+          <p className="text-xs text-slate-400 italic">Example: A 10 KM food delivery will cost ₦{parseInt(settings.FOOD_BASE_FARE) + (10 * parseInt(settings.FOOD_PRICE_PER_KM))}</p>
         </CardContent>
       </Card>
 

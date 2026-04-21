@@ -10,6 +10,7 @@ import { useGoogleMaps } from "@/components/providers/GoogleMapsProvider";
 import { Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getSocket } from "@/lib/socket";
 
 
@@ -29,6 +30,7 @@ interface CartItem extends FoodItem {
 
 export default function FoodStorePage() {
   const { user, token } = useSession();
+  const router = useRouter();
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,9 +46,9 @@ export default function FoodStorePage() {
   const [distance, setDistance] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [settings, setSettings] = useState({
-    FOOD_ORIGIN_LOCATION: "Transly Kitchen, Jos",
-    BASE_FARE: "100",
-    PRICE_PER_MILE: "200"
+    FOOD_BASE_FARE: "100",
+    FOOD_PRICE_PER_KM: "200",
+    FOOD_ORIGIN_LOCATION: "Transly Kitchen, Jos"
   });
   const [receiverName, setReceiverName] = useState("");
   const [receiverPhone, setReceiverPhone] = useState("");
@@ -80,7 +82,12 @@ export default function FoodStorePage() {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.settings) {
-          setSettings(prev => ({ ...prev, ...data.settings }));
+          setSettings(prev => ({ 
+            ...prev, 
+            FOOD_BASE_FARE: data.settings.FOOD_BASE_FARE || data.settings.BASE_FARE || "100",
+            FOOD_PRICE_PER_KM: data.settings.FOOD_PRICE_PER_KM || data.settings.PRICE_PER_MILE || "200",
+            FOOD_ORIGIN_LOCATION: data.settings.FOOD_ORIGIN_LOCATION || "Transly Kitchen, Jos"
+          }));
         }
       }
     } catch (err) {
@@ -102,16 +109,16 @@ export default function FoodStorePage() {
       (response, status) => {
         if (status === 'OK' && response && response.rows[0].elements[0].status === 'OK') {
           const distInMeters = response.rows[0].elements[0].distance.value;
-          const distInMiles = distInMeters / 1609.34;
-          setDistance(distInMiles);
+          const distInKm = distInMeters / 1000;
+          setDistance(distInKm);
           
-          const base = parseFloat(settings.BASE_FARE || "100");
-          const rate = parseFloat(settings.PRICE_PER_MILE || "200");
-          const fee = base + (distInMiles * rate);
+          const base = parseFloat(settings.FOOD_BASE_FARE || "100");
+          const rate = parseFloat(settings.FOOD_PRICE_PER_KM || "200");
+          const fee = base + (distInKm * rate);
           setDeliveryFee(fee);
         } else {
           console.error("Distance Matrix failed:", status);
-          setDeliveryFee(parseFloat(settings.BASE_FARE || "100"));
+          setDeliveryFee(parseFloat(settings.FOOD_BASE_FARE || "100"));
         }
       }
     );
@@ -196,27 +203,38 @@ export default function FoodStorePage() {
 
       if (res.ok) {
         const orderData = await res.json();
-        const shipmentId = orderData.shipment?.id || orderData.shipmentId;
+        const shipmentId = orderData.shipmentId;
         
         if (shipmentId) {
           toast.success("Order placed! Initializing payment...");
-          const payRes = await apiFetch('/payment/initialize', {
-            method: 'POST',
-            body: JSON.stringify({ shipmentId })
-          }, token);
-          
-          if (payRes.ok) {
-            const payData = await payRes.json();
-            if (payData.authorization_url) {
-              window.location.href = payData.authorization_url;
-              return;
+          try {
+            const payRes = await apiFetch('/payment/initialize', {
+              method: 'POST',
+              body: JSON.stringify({ shipmentId })
+            }, token);
+            
+            if (payRes.ok) {
+              const payData = await payRes.json();
+              if (payData.authorization_url) {
+                // Redirect to Paystack
+                window.location.href = payData.authorization_url;
+                return;
+              }
+            } else {
+               toast.error("Failed to initialize payment, please pay from dashboard");
             }
+          } catch (payErr) {
+            console.error("Payment Init Error:", payErr);
+            toast.error("An error occurred during payment setup");
           }
+        } else {
+           toast.success("Order placed successfully!");
         }
         
-        toast.success("Order placed successfully!");
         setCart([]);
         setIsCartOpen(false);
+        // Route to dashboard since it's a food order (user called it "desktop")
+        router.push('/dashboard');
       } else {
         const errData = await res.json();
         toast.error(errData.message || "Failed to place order");

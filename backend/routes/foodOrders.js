@@ -54,11 +54,17 @@ router.post('/', protect, async (req, res) => {
     
     // Calculate delivery fee if distance is provided
     const distanceParam = req.body.distance || 0;
-    const pricePerMileSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
-    const baseFareSetting = await Setting.findOne({ where: { key: 'BASE_FARE' } });
     
-    const rate = pricePerMileSetting ? parseFloat(pricePerMileSetting.value) : 50;
-    const base = baseFareSetting ? parseFloat(baseFareSetting.value) : 500;
+    // Try to get specific food settings first
+    let pricePerKmSetting = await Setting.findOne({ where: { key: 'FOOD_PRICE_PER_KM' } });
+    let baseFareSetting = await Setting.findOne({ where: { key: 'FOOD_BASE_FARE' } });
+
+    // Fallback to old generic settings if specific ones don't exist
+    if (!pricePerKmSetting) pricePerKmSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
+    if (!baseFareSetting) baseFareSetting = await Setting.findOne({ where: { key: 'BASE_FARE' } });
+    
+    const rate = pricePerKmSetting ? parseFloat(pricePerKmSetting.value) : 200;
+    const base = baseFareSetting ? parseFloat(baseFareSetting.value) : 100;
     const deliveryFee = (base + (distanceParam * rate));
     
     totalAmount += deliveryFee;
@@ -72,7 +78,7 @@ router.post('/', protect, async (req, res) => {
       receiverAddress: deliveryAddress,
       receiverName: deliveryType === 'self' ? user.name : (receiverName || "Third Party"),
       receiverPhone: deliveryType === 'self' ? user.phone : (receiverPhone || "N/A"),
-      senderName: "Transly",
+      senderName: "Transly Kitchen",
       senderPhone: "0800-TRANSLY",
       senderEmail: "translynigeria@gmail.com",
       productType: "Food",
@@ -107,7 +113,11 @@ router.post('/', protect, async (req, res) => {
       ]
     });
 
-    res.status(201).json(fullOrder);
+    res.status(201).json({
+      success: true,
+      order: fullOrder,
+      shipmentId: shipment.id
+    });
   } catch (err) {
     console.error(err);
     await t.rollback();
