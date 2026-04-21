@@ -45,24 +45,40 @@ router.post('/', protect, async (req, res) => {
       });
     }
 
-    // 1. Create the Shipment first
-    const trackingNumber = `FOOD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    // 1. Fetch Food Settings (Origin and Delivery Fee logic)
+    const foodOriginSetting = await Setting.findOne({ where: { key: 'FOOD_ORIGIN_LOCATION' } });
+    const origin = foodOriginSetting ? foodOriginSetting.value : "Transly Kitchen, Jos";
+
+    const trackingNumber = 'FOOD-' + Math.floor(100000 + Math.random() * 900000);
     
+    // Calculate delivery fee if distance is provided
+    const distanceParam = req.body.distance || 0;
+    const pricePerMileSetting = await Setting.findOne({ where: { key: 'PRICE_PER_MILE' } });
+    const baseFareSetting = await Setting.findOne({ where: { key: 'BASE_FARE' } });
+    
+    const rate = pricePerMileSetting ? parseFloat(pricePerMileSetting.value) : 50;
+    const base = baseFareSetting ? parseFloat(baseFareSetting.value) : 500;
+    const deliveryFee = (base + (distanceParam * rate));
+    
+    totalAmount += deliveryFee;
+
     const shipment = await Shipment.create({
       trackingNumber,
       customerId: userId,
-      origin: "Transly, Jos", // Default origin for food
+      origin: origin,
       destination: deliveryAddress,
+      distance: distanceParam,
       receiverAddress: deliveryAddress,
       receiverName: deliveryType === 'self' ? user.name : (receiverName || "Third Party"),
       receiverPhone: deliveryType === 'self' ? user.phone : (receiverPhone || "N/A"),
-      senderName: "Transly Kitchen",
+      senderName: "Transly",
       senderPhone: "0800-TRANSLY",
+      senderEmail: "translynigeria@gmail.com",
       productType: "Food",
       description: `Food Order for ${items.length} items`,
       status: 'pending',
-      paymentStatus: 'pending', // Assuming payment happens separately or via this order total
-      price: 0 // Shipment price might be built into food price or calculated later
+      paymentStatus: 'pending',
+      price: deliveryFee // Store delivery fee in shipment price
     }, { transaction: t });
 
     // 2. Create the Food Order linked to the shipment

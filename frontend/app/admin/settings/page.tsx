@@ -3,8 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useState, useEffect } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, MapPin } from "lucide-react";
 import { useSession } from "@/lib/sessionContext";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useRef } from "react";
+
+const libraries: "places"[] = ["places"];
 
 export default function AdminSettingsPage() {
   const { user, token, loading: sessionLoading } = useSession();
@@ -12,8 +16,17 @@ export default function AdminSettingsPage() {
   const [fetching, setFetching] = useState(true);
   const [settings, setSettings] = useState({
     BASE_FARE: "1500",
-    PRICE_PER_MILE: "500"
+    PRICE_PER_MILE: "500",
+    FOOD_ORIGIN_LOCATION: "Transly Kitchen, Jos"
   });
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries
+  });
+
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   useEffect(() => {
     if (!sessionLoading && token) {
@@ -31,7 +44,8 @@ export default function AdminSettingsPage() {
       if (data.success) {
         setSettings({
           BASE_FARE: data.settings.BASE_FARE || "1500",
-          PRICE_PER_MILE: data.settings.PRICE_PER_MILE || "500"
+          PRICE_PER_MILE: data.settings.PRICE_PER_MILE || "500",
+          FOOD_ORIGIN_LOCATION: data.settings.FOOD_ORIGIN_LOCATION || "Transly Kitchen, Jos"
         });
       }
     } catch (err) {
@@ -59,6 +73,15 @@ export default function AdminSettingsPage() {
         alert("Failed to update settings");
     } finally {
         setLoading(false);
+    }
+  };
+
+  const onPlaceChanged = () => {
+    if (autocompleteRef.current !== null) {
+      const place = autocompleteRef.current.getPlace();
+      if (place && place.formatted_address) {
+        setSettings({ ...settings, FOOD_ORIGIN_LOCATION: place.formatted_address });
+      }
     }
   };
 
@@ -106,6 +129,41 @@ export default function AdminSettingsPage() {
              </div>
           </div>
           <p className="text-xs text-slate-400 italic">Example: A 10 mile delivery will cost ₦{parseInt(settings.BASE_FARE) + (10 * parseInt(settings.PRICE_PER_MILE))}</p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle>Food Delivery Settings</CardTitle>
+          <CardDescription>Configure where food orders originate from for distance calculations.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Food Origin Location (Google Verified)</label>
+            <div className="flex gap-2">
+              {isLoaded ? (
+                <Autocomplete
+                  onLoad={(autocomplete) => { autocompleteRef.current = autocomplete; }}
+                  onPlaceChanged={onPlaceChanged}
+                  className="flex-1"
+                >
+                  <Input 
+                    value={settings.FOOD_ORIGIN_LOCATION}
+                    onChange={(e) => setSettings({...settings, FOOD_ORIGIN_LOCATION: e.target.value})}
+                    placeholder="Enter kitchen address"
+                  />
+                </Autocomplete>
+              ) : (
+                <Input disabled placeholder="Loading Google Maps..." className="flex-1" />
+              )}
+              <Button onClick={() => handleUpdate('FOOD_ORIGIN_LOCATION', settings.FOOD_ORIGIN_LOCATION)} disabled={loading}>
+                <Save className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-[10px] text-slate-400 flex items-center gap-1">
+              <MapPin className="h-3 w-3" /> This location is used as the starting point for all food delivery distance calculations.
+            </p>
+          </div>
         </CardContent>
       </Card>
       

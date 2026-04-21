@@ -11,6 +11,10 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useSession } from "@/lib/sessionContext";
 import type { MapPickerProps } from "@/components/shipments/MapPicker";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useRef } from "react";
+
+const libraries: "places"[] = ["places"];
 
 const MapPicker = dynamic<MapPickerProps>(() => import("@/components/shipments/MapPicker"), {
   ssr: false,
@@ -33,6 +37,15 @@ export default function RequestPage() {
   const [rates, setRates] = useState({ BASE_FARE: 100, PRICE_PER_MILE: 0 });
   const { user, token, loading: sessionLoading } = useSession();
   const router = useRouter();
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries
+  });
+
+  const originAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const destAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const [distance, setDistance] = useState(0);
 
@@ -269,7 +282,26 @@ export default function RequestPage() {
                             {coords.origin && <CheckCircle2 className="h-3 w-3 ml-2 text-orange-500" />}
                         </label>
                         <div className="relative">
-                            <Input name="origin" placeholder="Search or click map for pickup..." value={formData.origin} onChange={handleChange} required className={`pr-10 ${activeType === 'origin' ? 'border-orange-400' : ''}`} />
+                            {isLoaded ? (
+                                <Autocomplete
+                                    onLoad={ac => { originAutocompleteRef.current = ac; }}
+                                    onPlaceChanged={() => {
+                                        if (originAutocompleteRef.current) {
+                                            const place = originAutocompleteRef.current.getPlace();
+                                            if (place.geometry?.location) {
+                                                const lat = place.geometry.location.lat();
+                                                const lng = place.geometry.location.lng();
+                                                handleLocationSelect(lat, lng, 'origin', place.formatted_address);
+                                                setMapCenter([lat, lng]);
+                                            }
+                                        }
+                                    }}
+                                >
+                                    <Input name="origin" placeholder="Search or click map for pickup..." value={formData.origin} onChange={handleChange} required className={`pr-10 ${activeType === 'origin' ? 'border-orange-400' : ''}`} />
+                                </Autocomplete>
+                            ) : (
+                                <Input name="origin" placeholder="Loading maps..." value={formData.origin} onChange={handleChange} required className={`pr-10 ${activeType === 'origin' ? 'border-orange-400' : ''}`} disabled />
+                            )}
                             <MousePointer2 className={`absolute right-3 top-3 h-4 w-4 ${activeType === 'origin' ? 'text-orange-500 animate-pulse' : 'text-slate-300'}`} />
                         </div>
                     </div>
@@ -279,7 +311,25 @@ export default function RequestPage() {
                             {coords.destination && <CheckCircle2 className="h-3 w-3 ml-2 text-blue-500" />}
                         </label>
                         <div className="relative">
-                            <Input name="destination" placeholder="Search or click map for destination..." value={formData.destination} onChange={handleChange} required className={`pr-10 ${activeType === 'destination' ? 'border-blue-400' : ''}`} />
+                            {isLoaded ? (
+                                <Autocomplete
+                                    onLoad={ac => { destAutocompleteRef.current = ac; }}
+                                    onPlaceChanged={() => {
+                                        if (destAutocompleteRef.current) {
+                                            const place = destAutocompleteRef.current.getPlace();
+                                            if (place.geometry?.location) {
+                                                const lat = place.geometry.location.lat();
+                                                const lng = place.geometry.location.lng();
+                                                handleLocationSelect(lat, lng, 'destination', place.formatted_address);
+                                            }
+                                        }
+                                    }}
+                                >
+                                    <Input name="destination" placeholder="Search or click map for destination..." value={formData.destination} onChange={handleChange} required className={`pr-10 ${activeType === 'destination' ? 'border-blue-400' : ''}`} />
+                                </Autocomplete>
+                            ) : (
+                                <Input name="destination" placeholder="Loading maps..." value={formData.destination} onChange={handleChange} required className={`pr-10 ${activeType === 'destination' ? 'border-blue-400' : ''}`} disabled />
+                            )}
                             <MousePointer2 className={`absolute right-3 top-3 h-4 w-4 ${activeType === 'destination' ? 'text-blue-500 animate-pulse' : 'text-slate-300'}`} />
                         </div>
                     </div>

@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Utensils, ShoppingCart, Plus, Minus, X, Truck, User, MapPin, Loader2, ArrowRight } from "lucide-react";
+import { Utensils, ShoppingCart, Plus, Minus, X, Truck, User, MapPin, Loader2, ArrowRight, Menu, Bell } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/sessionContext";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useRef } from "react";
+import Link from "next/link";
+
+const libraries: "places"[] = ["places"];
 
 interface FoodItem {
   id: string;
@@ -33,6 +38,13 @@ export default function FoodStorePage() {
   const [address, setAddress] = useState(user?.address || "");
   const [receiverName, setReceiverName] = useState("");
   const [receiverPhone, setReceiverPhone] = useState("");
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries
+  });
 
   useEffect(() => {
     fetchFoods();
@@ -117,30 +129,50 @@ export default function FoodStorePage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40 px-6 py-4">
+      <div className="bg-white border-b sticky top-0 z-40 px-4 md:px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-             <div className="bg-orange-600 p-2.5 rounded-2xl shadow-lg ring-4 ring-orange-50">
-                <Utensils className="h-6 w-6 text-white" />
-             </div>
-             <div>
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">Transly <span className="text-orange-600">Food</span></h1>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-0.5">Premium Delivery</p>
-             </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-6 w-6 text-slate-600" />
+            </Button>
+            <div className="flex items-center gap-3">
+               <div className="bg-orange-600 p-2 rounded-xl shadow-lg ring-4 ring-orange-50 shrink-0">
+                  <Utensils className="h-5 w-5 text-white" />
+               </div>
+               <div className="hidden sm:block">
+                  <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">Transly <span className="text-orange-600">Food</span></h1>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Premium Delivery</p>
+               </div>
+            </div>
           </div>
 
-          <Button 
-            onClick={() => setIsCartOpen(true)}
-            className="bg-slate-900 hover:bg-slate-800 text-white rounded-2xl flex gap-3 px-6 h-12 shadow-xl hover:shadow-2xl transition-all relative group"
-          >
-            <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-            <span className="font-bold">Cart</span>
-            {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-[10px] h-6 w-6 flex items-center justify-center rounded-full border-2 border-white font-black animate-in zoom-in duration-300">
-                {cart.reduce((s, i) => s + i.quantity, 0)}
-              </span>
-            )}
-          </Button>
+          <div className="flex items-center gap-2 md:gap-4">
+            <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-50 rounded-full">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-2 right-2 h-2 w-2 bg-orange-600 rounded-full border-2 border-white"></span>
+            </Button>
+            
+            <Button 
+                onClick={() => setIsCartOpen(true)}
+                variant="ghost"
+                size="icon"
+                className="relative text-slate-600 hover:bg-slate-50 rounded-full group"
+            >
+                <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-[9px] h-5 w-5 flex items-center justify-center rounded-full border-2 border-white font-black animate-in zoom-in duration-300 shadow-sm">
+                    {cart.reduce((s, i) => s + i.quantity, 0)}
+                </span>
+                )}
+            </Button>
+
+            <Link href="/profile" className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors border border-slate-100">
+                <div className="h-6 w-6 rounded-full bg-slate-200 overflow-hidden">
+                    <User className="h-full w-full p-1 text-slate-500" />
+                </div>
+                <span className="text-xs font-bold text-slate-700">{user?.name?.split(' ')[0] || "Profile"}</span>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -262,7 +294,7 @@ export default function FoodStorePage() {
                             <input 
                               value={receiverName}
                               onChange={e => setReceiverName(e.target.value)}
-                              className="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-orange-500 transition-all"
+                             className="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                               placeholder="Who is receiving?"
                             />
                           </div>
@@ -271,7 +303,7 @@ export default function FoodStorePage() {
                             <input 
                               value={receiverPhone}
                               onChange={e => setReceiverPhone(e.target.value)}
-                              className="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-orange-500 transition-all"
+                              className="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                               placeholder="Contact number"
                             />
                           </div>
@@ -280,14 +312,34 @@ export default function FoodStorePage() {
                       <div>
                         <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Delivery Address</label>
                         <div className="relative group">
-                          <MapPin className="absolute left-4 top-4.5 h-4 w-4 text-slate-400 group-focus-within:text-orange-600 transition-colors" />
-                          <textarea 
-                            value={address}
-                            onChange={e => setAddress(e.target.value)}
-                            className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-2 focus:ring-orange-500 transition-all"
-                            placeholder="Enter drop-off location"
-                            rows={2}
-                          />
+                          <MapPin className="absolute left-4 top-5 h-4 w-4 text-slate-400 group-focus-within:text-orange-600 transition-colors z-10" />
+                          {isLoaded ? (
+                            <Autocomplete
+                                onLoad={autocomplete => { autocompleteRef.current = autocomplete; }}
+                                onPlaceChanged={() => {
+                                    if (autocompleteRef.current) {
+                                        const place = autocompleteRef.current.getPlace();
+                                        if (place.formatted_address) setAddress(place.formatted_address);
+                                    }
+                                }}
+                            >
+                                <textarea 
+                                    value={address}
+                                    onChange={e => setAddress(e.target.value)}
+                                    className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all min-h-[80px]"
+                                    placeholder="Enter drop-off location"
+                                    rows={2}
+                                />
+                            </Autocomplete>
+                          ) : (
+                            <textarea 
+                              value={address}
+                              onChange={e => setAddress(e.target.value)}
+                              className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
+                              placeholder="Loading maps..."
+                              rows={2}
+                            />
+                          )}
                         </div>
                       </div>
                     </div>

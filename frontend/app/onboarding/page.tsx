@@ -9,6 +9,10 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useRef } from "react";
+
+const libraries: "places"[] = ["places"];
 
 export default function OnboardingPage() {
   const { user, token, loading: sessionLoading, refreshSession, setUserData } = useSession();
@@ -16,6 +20,13 @@ export default function OnboardingPage() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries
+  });
 
   useEffect(() => {
     if (user) {
@@ -93,13 +104,34 @@ export default function OnboardingPage() {
             {(!user?.address || user.address === "") && (
               <div>
                 <label className="text-sm font-semibold text-slate-700 block mb-2">Primary Address</label>
-                <Input 
-                  placeholder="Full Home or Business Address" 
-                  value={address} 
-                  onChange={(e) => setAddress(e.target.value)} 
-                  required 
-                  className="h-12 bg-slate-50 border-slate-200"
-                />
+                {isLoaded ? (
+                    <Autocomplete
+                        onLoad={ac => { autocompleteRef.current = ac; }}
+                        onPlaceChanged={() => {
+                            if (autocompleteRef.current) {
+                                const place = autocompleteRef.current.getPlace();
+                                if (place.formatted_address) setAddress(place.formatted_address);
+                            }
+                        }}
+                    >
+                        <Input 
+                            placeholder="Full Home or Business Address" 
+                            value={address} 
+                            onChange={(e) => setAddress(e.target.value)} 
+                            required 
+                            className="h-12 bg-slate-50 border-slate-200"
+                        />
+                    </Autocomplete>
+                ) : (
+                    <Input 
+                        placeholder="Loading maps..." 
+                        value={address} 
+                        onChange={(e) => setAddress(e.target.value)} 
+                        required 
+                        className="h-12 bg-slate-50 border-slate-200"
+                        disabled
+                    />
+                )}
               </div>
             )}
             <Button type="submit" className="w-full h-12 shadow-lg mt-4 shadow-orange-500/20 hover:-translate-y-0.5 transition-transform" disabled={loading}>

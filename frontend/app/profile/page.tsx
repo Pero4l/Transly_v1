@@ -9,6 +9,10 @@ import { Navbar } from "@/components/layout/Navbar";
 import { toast } from "sonner";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { useRef } from "react";
+
+const libraries: "places"[] = ["places"];
 
 export default function ProfilePage() {
   const { user, token, loading: sessionLoading, refreshSession, setUserData } = useSession();
@@ -19,6 +23,13 @@ export default function ProfilePage() {
     address: ""
   });
   const [message, setMessage] = useState({ type: "", content: "" });
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries
+  });
 
   useEffect(() => {
     if (!sessionLoading) {
@@ -150,14 +161,35 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <label htmlFor="address" className="text-sm font-medium text-slate-700">Home Address</label>
                    <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                    <Input 
-                        id="address"
-                        className="pl-10"
-                        placeholder="123 Lagos St, Nigeria"
-                        value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    />
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400 z-10" />
+                    {isLoaded ? (
+                        <Autocomplete
+                            onLoad={ac => { autocompleteRef.current = ac; }}
+                            onPlaceChanged={() => {
+                                if (autocompleteRef.current) {
+                                    const place = autocompleteRef.current.getPlace();
+                                    if (place.formatted_address) setFormData({ ...formData, address: place.formatted_address });
+                                }
+                            }}
+                        >
+                            <Input 
+                                id="address"
+                                className="pl-10"
+                                placeholder="123 Lagos St, Nigeria"
+                                value={formData.address}
+                                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                            />
+                        </Autocomplete>
+                    ) : (
+                        <Input 
+                            id="address"
+                            className="pl-10"
+                            placeholder="Loading maps..."
+                            value={formData.address}
+                            onChange={(e) => setFormData({...formData, address: e.target.value})}
+                            disabled
+                        />
+                    )}
                   </div>
                 </div>
               </div>
