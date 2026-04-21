@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Utensils, ShoppingCart, Plus, Minus, X, Truck, User, MapPin, Loader2, ArrowRight, Menu, Bell } from "lucide-react";
+import { Utensils, ShoppingCart, Plus, Minus, X, Truck, User, MapPin, Loader2, ArrowRight, Menu, Bell, Check, LayoutDashboard, PackageSearch, Users, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSession } from "@/lib/sessionContext";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { apiFetch } from "@/lib/api";
 import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 import { useRef } from "react";
 import Link from "next/link";
+import { getSocket } from "@/lib/socket";
 
 const libraries: "places"[] = ["places"];
 
@@ -32,6 +33,9 @@ export default function FoodStorePage() {
   const [loading, setLoading] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orderLoading, setOrderLoading] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Delivery details
   const [deliveryType, setDeliveryType] = useState<'self' | 'third_party'>('self');
@@ -48,7 +52,39 @@ export default function FoodStorePage() {
 
   useEffect(() => {
     fetchFoods();
-  }, []);
+    if (user && token) {
+      fetchNotifications();
+      const socket = getSocket();
+      socket.emit("join_personal_room", user.id);
+      socket.on("notification", (data: any) => {
+        setNotifications(prev => [{
+          id: `notif-${Date.now()}`,
+          message: data.message,
+          read: false,
+          createdAt: data.createdAt || new Date().toISOString(),
+          type: data.type || 'info'
+        }, ...prev]);
+      });
+      return () => { socket.off("notification"); };
+    }
+  }, [user, token]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await apiFetch("/notifications", {}, token);
+      const data = await res.json();
+      if (data.success) setNotifications(data.notifications);
+    } catch (err) { console.error(err); }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const res = await apiFetch("/notifications/read-all", { method: "PUT" }, token);
+      if (res.ok) setNotifications(notifications.map(n => ({ ...n, read: true })));
+    } catch (err) { console.error(err); }
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const fetchFoods = async () => {
     try {
@@ -132,9 +168,6 @@ export default function FoodStorePage() {
       <div className="bg-white border-b sticky top-0 z-40 px-4 md:px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-6 w-6 text-slate-600" />
-            </Button>
             <div className="flex items-center gap-3">
                <div className="bg-orange-600 p-2 rounded-xl shadow-lg ring-4 ring-orange-50 shrink-0">
                   <Utensils className="h-5 w-5 text-white" />
@@ -147,10 +180,41 @@ export default function FoodStorePage() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-50 rounded-full">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2 right-2 h-2 w-2 bg-orange-600 rounded-full border-2 border-white"></span>
-            </Button>
+            <div className="relative">
+              <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-50 rounded-full" onClick={() => setShowNotifications(!showNotifications)}>
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[8px] text-white font-bold">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
+                  <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <button onClick={markAllAsRead} className="text-xs text-orange-600 hover:underline flex items-center">
+                        <Check className="h-3 w-3 mr-1" /> Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-sm text-slate-500">No notifications yet.</div>
+                    ) : (
+                      notifications.slice(0, 10).map((n: any) => (
+                        <div key={n.id} className={`p-3 border-b border-slate-50 text-sm ${n.read ? 'opacity-60 bg-white' : 'bg-orange-50/50'}`}>
+                          <p className="text-slate-800 font-medium">{n.message}</p>
+                          <span className="text-xs text-slate-500 mt-1 block">{new Date(n.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             
             <Button 
                 onClick={() => setIsCartOpen(true)}
@@ -172,6 +236,10 @@ export default function FoodStorePage() {
                 </div>
                 <span className="text-xs font-bold text-slate-700">{user?.name?.split(' ')[0] || "Profile"}</span>
             </Link>
+
+            <Button variant="ghost" size="icon" className="lg:hidden text-slate-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
         </div>
       </div>
@@ -323,21 +391,19 @@ export default function FoodStorePage() {
                                     }
                                 }}
                             >
-                                <textarea 
+                                <input 
                                     value={address}
                                     onChange={e => setAddress(e.target.value)}
-                                    className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all min-h-[80px]"
+                                    className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                                     placeholder="Enter drop-off location"
-                                    rows={2}
                                 />
                             </Autocomplete>
                           ) : (
-                            <textarea 
+                            <input 
                               value={address}
                               onChange={e => setAddress(e.target.value)}
                               className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                               placeholder="Loading maps..."
-                              rows={2}
                             />
                           )}
                         </div>
@@ -372,6 +438,47 @@ export default function FoodStorePage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-[100] animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <nav className="absolute top-0 right-0 bottom-0 w-72 bg-white flex flex-col p-6 space-y-2 shadow-2xl animate-in slide-in-from-right duration-500">
+            <div className="flex justify-between items-center mb-8">
+              <span className="font-black text-xl text-slate-900">Menu</span>
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+                <X className="h-6 w-6 text-slate-400" />
+              </Button>
+            </div>
+
+            <Link href={user?.role === 'admin' ? "/admin" : "/dashboard"} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <LayoutDashboard className="h-5 w-5 mr-3 text-slate-400" />
+              Dashboard
+            </Link>
+
+            <Link href="/profile" className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <User className="h-5 w-5 mr-3 text-slate-400" />
+              Profile Settings
+            </Link>
+
+            {user?.role !== 'admin' && user?.role !== 'driver' && (
+              <Link href="/request" className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+                <Send className="h-5 w-5 mr-3 text-slate-400" />
+                Send Package
+              </Link>
+            )}
+
+            <Link href="/tracking" className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
+              Track Package
+            </Link>
+
+            <Link href="/food" className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-orange-600 text-white shadow-lg">
+              <Utensils className="h-5 w-5 mr-3" />
+              Order Food
+            </Link>
+          </nav>
         </div>
       )}
     </div>

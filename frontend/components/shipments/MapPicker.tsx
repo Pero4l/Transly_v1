@@ -83,11 +83,11 @@ export default function MapPicker({ onLocationSelect, origin, destination, activ
   }, [origin, destination, isLoaded]);
 
   if (!isLoaded) {
-    return <div className="h-[300px] md:h-[450px] w-full rounded-2xl bg-slate-100 animate-pulse flex items-center justify-center text-slate-400 font-medium border-2 border-slate-200">Loading Google Maps...</div>;
+    return <div className="h-[400px] md:h-[550px] w-full bg-slate-100 animate-pulse flex items-center justify-center text-slate-400 font-medium">Loading Google Maps...</div>;
   }
 
   return (
-    <div className="h-[300px] md:h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-100 relative group z-0">
+    <div className="h-[400px] md:h-[550px] w-full overflow-hidden relative group z-0">
       {/* Search Overlay */}
       <div className="absolute top-2 left-2 right-2 md:top-4 md:left-4 md:right-4 z-[1000] flex flex-col gap-2">
         <div className="max-w-md w-full mx-auto md:mx-0 relative">
