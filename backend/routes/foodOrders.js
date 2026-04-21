@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { FoodOrder, FoodOrderItem, FoodItem, User, Shipment } = require('../models');
+const { FoodOrder, FoodOrderItem, FoodItem, User, Shipment, Setting } = require('../models');
 const db = require('../config/db');
 const { protect } = require('../middlewares/authMiddleware');
 const { authorizeAdmin } = require('../middlewares/adminMiddleware');

@@ -172,7 +172,7 @@ export default function FoodStorePage() {
                <div className="bg-orange-600 p-2 rounded-xl shadow-lg ring-4 ring-orange-50 shrink-0">
                   <Utensils className="h-5 w-5 text-white" />
                </div>
-               <div className="hidden sm:block">
+               <div className="sm:block">
                   <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">Transly <span className="text-orange-600">Food</span></h1>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Premium Delivery</p>
                </div>
@@ -191,7 +191,7 @@ export default function FoodStorePage() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
+                <div className="absolute -left-36 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -245,7 +245,7 @@ export default function FoodStorePage() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-6 md:p-10 space-y-12">
+      <main className="max-w-7xl mx-auto p-4 md:p-10 space-y-12">
         <div className="relative rounded-[3rem] overflow-hidden bg-slate-900 h-[300px] flex items-center px-12 group shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/40 to-transparent z-10" />
           <div className="z-20 max-w-xl space-y-4 animate-in slide-in-from-left-8 duration-700">
@@ -253,7 +253,7 @@ export default function FoodStorePage() {
             <h2 className="text-5xl font-black text-white leading-[1.1]">Craving Something <br/> Delicious?</h2>
             <p className="text-slate-400 font-medium">Order premium meals from Transly Kitchen and get them delivered to your doorstep in minutes.</p>
           </div>
-          <div className="absolute right-0 top-0 h-full w-1/2 opacity-40 group-hover:opacity-60 transition-opacity">
+          <div className="absolute right-0 top-0 h-full w-full opacity-70 group-hover:opacity-60 transition-opacity">
             <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover" alt="Hero" />
           </div>
         </div>
