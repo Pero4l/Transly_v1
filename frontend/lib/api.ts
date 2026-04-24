@@ -1,10 +1,14 @@
 const getApiBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
   if (typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return "https://transly-wr1m.onrender.com"; // Local backend port
+      return "http://localhost:5000"; // Assuming local backend port
     }
   }
-  return "https://transly-wr1m.onrender.com"; // Production Render backend
+  return "https://transly-wr1m.onrender.com"; // Final fallback
 };
 
 const API_BASE_URL = getApiBaseUrl();

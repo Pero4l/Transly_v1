@@ -205,9 +205,11 @@ export function Navbar() {
             </div>
           )}
 
-          <Button onClick={toggleMenu} variant="ghost" size="icon" className="lg:hidden">
-            {!mobileMenuOpen ? <Menu className="h-5 w-5 text-black" /> : <X className="h-5 w-5 text-orange-700" />}
-          </Button>
+          {user && (
+            <Button onClick={toggleMenu} variant="ghost" size="icon" className="lg:hidden">
+              {!mobileMenuOpen ? <Menu className="h-5 w-5 text-black" /> : <X className="h-5 w-5 text-orange-700" />}
+            </Button>
+          )}
 
 
         </div>

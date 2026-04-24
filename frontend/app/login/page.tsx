@@ -84,10 +84,8 @@ export default function LoginPage() {
             });
             const profile = await profileRes.json();
             
-            const res = await fetch("https://transly-wr1m.onrender.com/auth/google", {
+            const res = await apiFetch("/auth/google", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
                 body: JSON.stringify({ 
                     name: profile.name, 
                     email: profile.email,
@@ -101,15 +99,26 @@ export default function LoginPage() {
                    localStorage.setItem("transly_token", data.token);
                    document.cookie = `transly_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
                 }
-                await refreshSession();
-                toast.success("Signed in with Google!");
                 
                 // Determine target
                 let target = "/dashboard";
                 if (data.user?.role === 'admin') target = "/admin";
                 else if (data.user?.role === 'driver') target = "/driver";
                 
-                router.push(target);
+                // Fast routing
+                router.replace(target);
+                
+                // Sync session in background
+                refreshSession();
+                
+                toast.success("Signed in with Google!");
+
+                // Reliable routing fallback for iOS
+                setTimeout(() => {
+                  if (window.location.pathname !== target) {
+                    window.location.replace(target);
+                  }
+                }, 1500);
             } else {
                 toast.error(data.error || "Google Sign-In failed");
             }
