@@ -248,7 +248,7 @@ export default function RequestPage() {
             {/* Map Section */}
             <div className="lg:col-span-12">
                 <Card className="border border-slate-200 shadow-sm rounded-xl overflow-hidden bg-white">
-                   <CardContent className="p-0">
+                   <div className="p-1">
                       <MapPicker 
                         onLocationSelect={handleLocationSelect} 
                         origin={coords.origin} 
@@ -256,7 +256,7 @@ export default function RequestPage() {
                         activeType={activeType}
                         mapCenter={mapCenter}
                       />
-                   </CardContent>
+                   </div>
                 </Card>
             </div>
 

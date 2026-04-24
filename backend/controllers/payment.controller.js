@@ -16,10 +16,14 @@ exports.initializeTransaction = async (req, res) => {
       include: [{ model: User, as: 'customer' }]
     });
 
-    if (!shipment) return res.status(404).json({ success: false, error: 'Shipment not found' });
+    if (!shipment) {
+      console.error(`[PAYMENT_INIT] Shipment ${shipmentId} not found`);
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
     
     // Authorization check
-    if (shipment.customerId !== req.user.id) {
+    if (shipment.customerId !== req.user.id && req.user.role !== 'admin') {
+      console.error(`[PAYMENT_INIT] Auth mismatch: shipment ${shipment.customerId} vs user ${req.user.id}`);
       return res.status(403).json({ success: false, error: 'Not authorized for this shipment payment' });
     }
 
@@ -27,13 +31,29 @@ exports.initializeTransaction = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Shipment is already paid' });
     }
 
+    if (!shipment.customer) {
+      console.error(`[PAYMENT_INIT] Customer data missing for shipment ${shipmentId}`);
+      return res.status(400).json({ success: false, error: 'Customer data associated with this shipment is missing' });
+    }
+
+    const amount = parseFloat(shipment.price);
+    if (isNaN(amount) || amount <= 0) {
+      console.error(`[PAYMENT_INIT] Invalid amount: ${shipment.price}`);
+      return res.status(400).json({ success: false, error: 'Invalid shipment price for payment' });
+    }
+
     // Generate a unique reference
-    const reference = `PAY_${shipment.id.substring(0, 8)}_${Date.now()}`;
+    const reference = `PAY_${shipment.id.toString().substring(0, 8)}_${Date.now()}`;
     
     shipment.paymentReference = reference;
     await shipment.save();
 
-    const paystackRes = await initializePayment(shipment.customer.email, shipment.price, reference);
+    console.log(`[PAYMENT_INIT] Initializing Paystack for ${shipment.customer.email}, amount: ${amount}`);
+    const paystackRes = await initializePayment(shipment.customer.email, amount, reference);
+
+    if (!paystackRes || !paystackRes.data) {
+        throw new Error('Paystack initialization returned empty response');
+    }
 
     res.status(200).json({ 
       success: true, 
@@ -42,7 +62,7 @@ exports.initializeTransaction = async (req, res) => {
       reference
     });
   } catch (error) {
-    console.error('Payment Init Error:', error);
+    console.error('[PAYMENT_INIT_CRITICAL] Error:', error);
     res.status(500).json({ success: false, error: error.message || 'Payment initialization failed' });
   }
 };
