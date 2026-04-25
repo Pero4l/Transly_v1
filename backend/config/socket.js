@@ -38,7 +38,7 @@ const init = (server) => {
             const jwt = require('jsonwebtoken');
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             socket.join(decoded.id);
-            console.log(`Socket automatically joined personal room: ${decoded.id}`);
+            console.log(`Socket automatically joined personal room: ${decoded.id.slice(0, 8)}...`);
         } catch (err) {
             console.error('Socket Auth Error:', err.message);
         }
