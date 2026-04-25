@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
     return res.status(400).json({ success: false, error: 'All fields are required' });
   }
 
-  
+
   if (password.length < 6) {
     return res.status(400).json({ success: false, error: "Password must be at least 6 characters" });
   } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
@@ -60,7 +60,7 @@ exports.register = async (req, res) => {
       subject: 'Welcome to Transly!',
       html: buildNotificationTemplate('Welcome to Transly!', `Dear ${user.name},\n\nWe are absolutely delighted to welcome you to the Transly platform! Your account has been successfully created and your journey towards seamless logistics starts now.\n\nAt Transly, we pride ourselves on delivering reliable, fast, and secure delivery services. You can now log into your dashboard to create shipments, track your packages in real-time, and manage your account.\n\nShould you need any assistance, our dedicated support team is always here for you.\n\nWarm regards,\nThe Transly Team`),
     }).catch(err => console.error('Background Email Error [Register]:', err.message));
- 
+
     sendEmail({
       email: admin.email || "translynigeria@gmail.com",
       subject: 'New User Registration',
@@ -76,23 +76,23 @@ exports.register = async (req, res) => {
 
     // Notify all Admins
     User.findAll({ where: { role: 'admin' } }).then(admins => {
-        admins.forEach(admin => {
-            Notification.create({
-                userId: admin.id,
-                message: `New user ${user.name} has registered on Transly platform.`,
-                type: 'info'
-            }).catch(err => console.error('Background Notification Error [Register Admin]:', err.message));
-        });
+      admins.forEach(admin => {
+        Notification.create({
+          userId: admin.id,
+          message: `New user ${user.name} has registered on Transly platform.`,
+          type: 'info'
+        }).catch(err => console.error('Background Notification Error [Register Admin]:', err.message));
+      });
     });
     // Store everything in Redis session (replacing localStorage)
     const token = generateToken(user.id);
     const userData = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone,
-        address: user.address,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      address: user.address,
     };
 
     req.session.sessionData = {
@@ -133,12 +133,12 @@ exports.login = async (req, res) => {
     // Store everything in Redis session (replacing localStorage)
     const token = generateToken(user.id);
     const userData = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone,
-        address: user.address,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      address: user.address,
     };
 
     req.session.sessionData = {
@@ -178,7 +178,7 @@ exports.getMe = async (req, res) => {
 
 exports.googleAuth = async (req, res) => {
   const { name, email, googleId, image } = req.body;
-  
+
   if (!email) {
     return res.status(400).json({ success: false, error: 'Google authentication failed to provide email' });
   }
@@ -203,35 +203,35 @@ exports.googleAuth = async (req, res) => {
     }
 
     if (isNewUser) {
-        let admin = await User.findOne({ where: { role: 'admin' } });
-        
-        // Welcome notification
-        Notification.create({
-            userId: user.id,
-            message: `Welcome to Transly, ${user.name}! Your account was created via Google and we're happy to have you onboard.`,
-            type: 'success'
-        }).catch(err => console.error('BG Notif Error [Google Signup]:', err.message));
+      let admin = await User.findOne({ where: { role: 'admin' } });
 
-        // Admin notification
-        if (admin) {
-            Notification.create({
-                userId: admin?.id,
-                message: `New user ${user.name} registered via Google.`,
-                type: 'success'
-            }).catch(err => console.error('BG Notif Error [Google Admin]:', err.message));
-            
-            sendEmail({
-                email: admin.email || "translynigeria@gmail.com",
-                subject: 'New Google Registration',
-                html: buildNotificationTemplate('New Google Registration', `Hello ${admin.name},\n\nThis is an automated notification to inform you that a new user, ${user.name}, has successfully registered on the Transly platform using Google Authentication.\n\nPlease monitor their initial activity to ensure a smooth onboarding process.\n\nBest regards,\nTransly System Automation`),
-            }).catch(e => console.error('BG Email Error [Google Admin]:', e.message));
-        }
+      // Welcome notification
+      Notification.create({
+        userId: user.id,
+        message: `Welcome to Transly, ${user.name}! Your account was created via Google and we're happy to have you onboard.`,
+        type: 'success'
+      }).catch(err => console.error('BG Notif Error [Google Signup]:', err.message));
+
+      // Admin notification
+      if (admin) {
+        Notification.create({
+          userId: admin?.id,
+          message: `New user ${user.name} registered via Google.`,
+          type: 'success'
+        }).catch(err => console.error('BG Notif Error [Google Admin]:', err.message));
 
         sendEmail({
-            email: user.email,
-            subject: 'Welcome to Transly!',
-            html: buildNotificationTemplate('Welcome to Transly!', `Dear ${user.name},\n\nWe are absolutely delighted to welcome you to the Transly platform! Your account was successfully created via Google Authentication.\n\nAt Transly, we pride ourselves on delivering reliable, fast, and secure delivery services. You can now log into your dashboard to create shipments and track your packages in real-time.\n\nShould you need any assistance, our dedicated support team is always here for you.\n\nWarm regards,\nThe Transly Team`),
-        }).catch(e => console.error('BG Email Error [Google Welcome]:', e.message));
+          email: admin.email || "translynigeria@gmail.com",
+          subject: 'New Google Registration',
+          html: buildNotificationTemplate('New Google Registration', `Hello ${admin.name},\n\nThis is an automated notification to inform you that a new user, ${user.name}, has successfully registered on the Transly platform using Google Authentication.\n\nPlease monitor their initial activity to ensure a smooth onboarding process.\n\nBest regards,\nTransly System Automation`),
+        }).catch(e => console.error('BG Email Error [Google Admin]:', e.message));
+      }
+
+      sendEmail({
+        email: user.email,
+        subject: 'Welcome to Transly!',
+        html: buildNotificationTemplate('Welcome to Transly!', `Dear ${user.name},\n\nWe are absolutely delighted to welcome you to the Transly platform! Your account was successfully created via Google Authentication.\n\nAt Transly, we pride ourselves on delivering reliable, fast, and secure delivery services. You can now log into your dashboard to create shipments and track your packages in real-time.\n\nShould you need any assistance, our dedicated support team is always here for you.\n\nWarm regards,\nThe Transly Team`),
+      }).catch(e => console.error('BG Email Error [Google Welcome]:', e.message));
     }
 
     // Store in session for Redis persistence
@@ -242,7 +242,7 @@ exports.googleAuth = async (req, res) => {
       token,
       user: userData
     };
- 
+
     req.session.save((err) => {
       if (err) {
         console.error("Google Auth Session Error (falling back to LocalStorage):", err);
@@ -318,9 +318,9 @@ exports.updateProfile = async (req, res) => {
 
     // CRITICAL: Update session data to ensure persistence after refresh
     if (req.session && req.session.sessionData) {
-        req.session.sessionData.user.phone = user.phone;
-        req.session.sessionData.user.address = user.address;
-        req.session.save();
+      req.session.sessionData.user.phone = user.phone;
+      req.session.sessionData.user.address = user.address;
+      req.session.save();
     }
 
     res.status(200).json({ success: true, user: { phone: user.phone, address: user.address } });

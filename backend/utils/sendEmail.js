@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 
 const sendEmail = async (options) => {
-  console.log(`📧 [EMAIL] Attempting to send (HTTP API) to: ${options.email}`);
+  console.log(`📧 [EMAIL] Attempting to send (HTTP API) to: "New User"`);
   
   // 1. Setup OAuth2 Client (Using environment variables you will set)
   const oauth2Client = new OAuth2Client(
@@ -61,11 +61,25 @@ const sendEmail = async (options) => {
       }
     );
 
-    console.log("✅ [EMAIL] Message sent via HTTP API: %s", response.data.id);
+    console.log("✅ [EMAIL] Message sent via HTTP API: %s", "user");
     return response.data;
   } catch (error) {
-    console.error("❌ [EMAIL] Critical error (HTTP):", error.response?.data || error.message);
-    throw error;
+    let errorMessage = error.message;
+    
+    // Check for common OAuth2 Playground / Google API errors
+    if (error.response && error.response.data && error.response.data.error) {
+      const gError = error.response.data.error;
+      const gDesc = error.response.data.error_description;
+      
+      if (gError === 'invalid_grant') {
+        errorMessage = "Google Refresh Token is expired or revoked.";
+      } else {
+        errorMessage = `Google API Error: ${gError}${gDesc ? ` - ${gDesc}` : ''}`;
+      }
+    }
+    
+    console.error("❌ [EMAIL] Critical error (HTTP):", errorMessage);
+    throw new Error(errorMessage);
   }
 };
 
