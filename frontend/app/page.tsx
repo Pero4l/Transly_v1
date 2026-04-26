@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ArrowRight, PackageSearch, ShieldCheck, Zap, Utensils, Globe, Clock, Box } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -96,9 +97,12 @@ export default function Home() {
             <div className="lg:w-1/2 relative">
                <div className="absolute -top-10 -left-10 w-40 h-40 bg-orange-200/50 blur-[80px] rounded-full" />
                <div className="relative rounded-[3rem] overflow-hidden shadow-2xl shadow-slate-200">
-                  <img 
+                  <Image 
                     src="https://images.unsplash.com/photo-1526367790999-0150786486a9?q=80&w=2070&auto=format&fit=crop" 
                     alt="Food Delivery" 
+                    width={2070}
+                    height={2588}
+                    priority
                     className="w-full h-full object-cover aspect-[4/5] hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-xl">
