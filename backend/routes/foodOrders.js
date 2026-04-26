@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { FoodOrder, FoodOrderItem, FoodItem, User, Shipment, Setting } = require('../models');
+const { FoodOrder, FoodOrderItem, FoodItem, User, Shipment, Setting, Notification } = require('../models');
 // Ensure Setting is imported correctly to avoid ReferenceError on some environments
 const db = require('../config/db');
 const { protect } = require('../middlewares/authMiddleware');
 const { authorizeAdmin } = require('../middlewares/adminMiddleware');
+const sendEmail = require('../utils/sendEmail');
+const { buildNotificationTemplate } = require('../utils/emailTemplates');
+const { getIO } = require('../config/socket');
 
 // POST /foodOrders - User places an order
 router.post('/', protect, async (req, res) => {
@@ -118,6 +121,57 @@ router.post('/', protect, async (req, res) => {
       order: fullOrder,
       shipmentId: shipment.id
     });
+
+    // --- NOTIFICATIONS ---
+    try {
+      const admin = await User.findOne({ where: { role: 'admin' } });
+      const adminEmail = admin ? admin.email : "translynigeria@gmail.com";
+
+      // 1. Notify Admin (Email)
+      sendEmail({
+        email: adminEmail,
+        subject: "New Food Order Received",
+        html: buildNotificationTemplate("New Food Order", `Hello Admin,\n\nA new food order (${trackingNumber}) has been placed by ${user.name}.\n\nTotal Amount: ₦${totalAmount.toFixed(2)}\nDelivery Address: ${deliveryAddress}\n\nPlease check the admin dashboard to process this order.\n\nBest regards,\nTransly System Automation`)
+      }).catch(err => console.error('BG Email Error [Admin Food Order]:', err.message));
+
+      // 2. Notify Customer (Email)
+      sendEmail({
+        email: user.email,
+        subject: "Food Order Confirmed",
+        html: buildNotificationTemplate("Order Confirmed", `Dear ${user.name},\n\nYour food order has been successfully placed! Our kitchen is now preparing and packaging your delicious meal.\n\nOrder Tracking Number: ${trackingNumber}\nTotal Amount: ₦${totalAmount.toFixed(2)}\n\nYou can track your delivery in real-time from your dashboard. Thank you for choosing Transly Food!\n\nWarm regards,\nThe Transly Team`)
+      }).catch(err => console.error('BG Email Error [Customer Food Order]:', err.message));
+
+      // 3. In-App Notifications
+      await Notification.create({
+        userId: userId,
+        message: `Your food order ${trackingNumber} has been placed successfully.`,
+        type: 'success'
+      });
+
+      if (admin) {
+        await Notification.create({
+          userId: admin.id,
+          message: `New food order ${trackingNumber} placed by ${user.name}`,
+          type: 'info'
+        });
+      }
+
+      // 4. Socket Notifications
+      getIO().to(userId).emit('notification', {
+        message: `Your food order ${trackingNumber} is being prepared!`,
+        type: 'success',
+        createdAt: new Date()
+      });
+
+      getIO().emit('admin_notification', {
+        message: `New food order: ${trackingNumber}`,
+        type: 'info'
+      });
+
+    } catch (notifErr) {
+      console.error('Failed to send food order notifications:', notifErr.message);
+    }
+
   } catch (err) {
     console.error(err);
     await t.rollback();
@@ -172,6 +226,46 @@ router.put('/:id/status', protect, authorizeAdmin, async (req, res) => {
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     await order.update({ status });
+    
+    // --- STATUS UPDATE NOTIFICATIONS ---
+    try {
+      const customer = await User.findByPk(order.userId);
+      const shipment = await Shipment.findByPk(order.shipmentId);
+
+      if (customer) {
+        // 1. Notify Customer (Email)
+        sendEmail({
+          email: customer.email,
+          subject: `Food Order Update: ${status}`,
+          html: buildNotificationTemplate(`Food Order: ${status}`, `Dear ${customer.name},\n\nYour food order (${shipment?.trackingNumber || 'N/A'}) status has been updated to: ${status}.\n\nThank you for choosing Transly Food!\n\nWarm regards,\nThe Transly Team`)
+        }).catch(err => console.error('BG Email Error [Food Status Update]:', err.message));
+
+        // 2. In-App Notification
+        await Notification.create({
+          userId: customer.id,
+          message: `Your food order status is now: ${status}`,
+          type: 'info'
+        });
+
+        // 3. Socket Notification
+        getIO().to(customer.id).emit('notification', {
+          message: `Order update: Your food is now ${status}!`,
+          type: 'info',
+          createdAt: new Date()
+        });
+      }
+
+      // Notify Admins (Email)
+      sendEmail({
+        email: "translynigeria@gmail.com",
+        subject: `Food Order Status Changed: ${status}`,
+        html: buildNotificationTemplate("Order Status Update", `Hello Admin,\n\nThe status of food order ${shipment?.trackingNumber || 'N/A'} for user ${customer?.name || 'Unknown'} has been changed to: ${status}.\n\nBest regards,\nTransly System Automation`)
+      }).catch(err => console.error('BG Email Error [Admin Food Status Update]:', err.message));
+
+    } catch (notifErr) {
+      console.error('Failed to send food status notifications:', notifErr.message);
+    }
+
     res.json(order);
   } catch (err) {
     console.error(err);
