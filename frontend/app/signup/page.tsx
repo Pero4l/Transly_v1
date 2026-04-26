@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useSession } from "@/lib/sessionContext";
 import { useGoogleLogin } from "@react-oauth/google";
+import Image from "next/image";
+
 
 export default function SignupPage() {
   const { refreshSession } = useSession();
@@ -102,13 +104,14 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <Link href="/" className="flex items-center space-x-2 text-orange-600 font-bold text-2xl">
-            <Package className="h-8 w-8" />
-            <span>Transly</span>
+          <Link href="/" className="flex justify-center">
+            <Image src="/logo.jpeg" alt="Transly Logo" width={180} height={60} className="h-12 w-auto object-contain" />
           </Link>
+
         </div>
 
-        <Card className="glass border-0 shadow-xl rounded-2xl">
+        <Card className="bg-white border border-slate-200 shadow-xl rounded-xl">
+
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
             <CardDescription>

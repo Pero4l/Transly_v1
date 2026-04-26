@@ -2,180 +2,300 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { ArrowRight, PackageSearch, ShieldCheck, Zap, Utensils, Globe, Clock, Box } from "lucide-react";
+import { ArrowRight, PackageSearch, ShieldCheck, Zap, Utensils, Globe, Clock, Box, CheckCircle2, Star, Truck, Smartphone, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-orange-100 selection:text-orange-900">
+    <div className="min-h-screen bg-white font-sans selection:bg-orange-100 selection:text-orange-900">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-[0.03] scale-110 pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none">
-           <div className="absolute top-24 left-0 w-72 h-72 bg-orange-400/20 blur-[120px] rounded-full" />
-           <div className="absolute bottom-24 right-0 w-96 h-96 bg-slate-400/10 blur-[120px] rounded-full" />
-        </div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold uppercase tracking-widest animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-              </span>
-              Now Live in Nigeria — Starting with Jos
-            </div>
-            
-            <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-150">
-              Modern Logistics & <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">Premium Delivery.</span>
-            </h1>
-            
-            <p className="max-w-2xl mx-auto text-lg lg:text-xl text-slate-500 font-medium leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-              Transly is the end-to-end OS for modern commerce. Ship packages worldwide, manage warehousing, and order premium meals—all in one place.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
-              <Link href="/request" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-80 h-16 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white text-lg font-black shadow-2xl shadow-orange-600/20 group transition-all">
-                  Get Started Now
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="/tracking" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full sm:w-48 h-16 rounded-2xl border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 font-bold">
-                  Track Package
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Services Grid */}
-      <section className="py-24 bg-white border-y border-slate-100">
+      <section className="relative pt-20 pb-24 lg:pt-32 lg:pb-40 bg-slate-50 border-b border-slate-100 overflow-hidden">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="group p-10 rounded-[2.5rem] bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 hover:shadow-2xl transition-all duration-500">
-              <div className="w-16 h-16 bg-orange-600 rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-orange-600/20 group-hover:rotate-6 transition-transform">
-                <Globe className="w-8 h-8 text-white" />
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-3/5 space-y-10 z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-orange-600"></span>
+                Directly from Terminus to your door
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Nigeria-wide Shipping</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">Efficient interstate logistics spanning across Nigeria with real-time tracking and secure handling.</p>
-            </div>
-
-            <div className="group p-10 rounded-[2.5rem] bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 hover:shadow-2xl transition-all duration-500">
-              <div className="w-16 h-16 bg-slate-900 rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-slate-900/20 group-hover:rotate-6 transition-transform">
-                <Box className="w-8 h-8 text-white" />
+              
+              <h1 className="text-6xl lg:text-8xl font-black text-slate-900 tracking-tight leading-[0.95]">
+                Logistics that<br/>
+                <span className="text-orange-600">Moves Jos.</span>
+              </h1>
+              
+              <p className="max-w-xl text-lg lg:text-xl text-slate-500 font-medium leading-relaxed">
+                The most reliable delivery network in Plateau State. From Terminus to Bukuru, we handle your packages and food with professional care.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Link href="/request" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-64 h-14 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-lg shadow-slate-200 group">
+                    Send a Package
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link href="/tracking" className="w-full sm:w-auto">
+                  <Button variant="outline" size="lg" className="w-full sm:w-48 h-14 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-bold">
+                    Track Now
+                  </Button>
+                </Link>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Smart Warehousing</h3>
-              <p className="text-slate-500 leading-relaxed font-medium">Automated inventory management and secure storage solutions for businesses of all sizes.</p>
-            </div>
 
-            <div className="group p-10 rounded-[2.5rem] bg-orange-600 shadow-2xl shadow-orange-600/30 transform lg:scale-105">
-              <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-lg group-hover:rotate-6 transition-transform">
-                <Utensils className="w-8 h-8 text-orange-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Transly Food</h3>
-              <p className="text-orange-50 font-medium leading-relaxed mb-8">Premium meals from our kitchen to your doorstep. Fast, fresh, and exceptionally delicious.</p>
-              <Link href="/food">
-                 <button className="flex items-center gap-2 text-white font-black text-sm uppercase tracking-widest group/btn">
-                   Order Food <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                 </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Showcase - Food focus */}
-      <section className="py-24 overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-20">
-            <div className="lg:w-1/2 relative">
-               <div className="absolute -top-10 -left-10 w-40 h-40 bg-orange-200/50 blur-[80px] rounded-full" />
-               <div className="relative rounded-[3rem] overflow-hidden shadow-2xl shadow-slate-200">
-                  <Image 
-                    src="https://images.unsplash.com/photo-1526367790999-0150786486a9?q=80&w=2070&auto=format&fit=crop" 
-                    alt="Food Delivery" 
-                    width={2070}
-                    height={2588}
-                    priority
-                    className="w-full h-full object-cover aspect-[4/5] hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-xl">
-                    <div className="flex items-center gap-4 mb-2">
-                       <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                          <ShieldCheck className="w-6 h-6 text-white" />
-                       </div>
-                       <p className="font-bold text-slate-900 italic">"The fastest meal I've ever ordered!"</p>
+              <div className="flex items-center gap-8 pt-4">
+                <div className="flex -space-x-3">
+                  {[
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop"
+                  ].map((url, i) => (
+                    <div key={i} className="w-12 h-12 rounded-lg border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
+                       <Image src={url} alt="User" width={48} height={48} className="object-cover h-full w-full" />
                     </div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider ml-14">— Sarah Jenkins, Lagos</p>
+                  ))}
+                </div>
+                <div>
+                   <div className="flex items-center gap-1 text-orange-500">
+                      <Star className="w-3 h-3 fill-current" />
+                      <Star className="w-3 h-3 fill-current" />
+                      <Star className="w-3 h-3 fill-current" />
+                      <Star className="w-3 h-3 fill-current" />
+                      <Star className="w-3 h-3 fill-current" />
+                   </div>
+                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">5,000+ Verified Jos Users</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:w-2/5 relative">
+               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-8 border-white group">
+                  <Image 
+                    src="/hero-biker.png" 
+                    alt="Jos Delivery Biker" 
+                    width={1200}
+                    height={1600}
+                    priority
+                    className="w-full h-full object-cover aspect-[4/5] group-hover:scale-105 transition-transform duration-1000"
+                  />
+
+                  <div className="absolute inset-0 bg-slate-900/10 pointer-events-none" />
+                  <div className="absolute top-6 left-6 right-6">
+                     <div className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl flex items-center gap-4 border border-white">
+                        <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                           <Truck className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Live Tracking</p>
+                           <p className="text-sm font-bold text-slate-900 leading-none">Biker: Terminus → Rayfield</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               
+               {/* Decorative floating element */}
+               <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-2xl border border-slate-100 z-20 hidden lg:block animate-bounce-subtle">
+                  <div className="flex items-center gap-4">
+                     <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                        <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                     </div>
+                     <div>
+                        <p className="text-xs font-black text-slate-900 uppercase">Insured</p>
+                        <p className="text-[10px] text-slate-400">Secure Delivery</p>
+                     </div>
                   </div>
                </div>
             </div>
-            
-            <div className="lg:w-1/2 space-y-10">
-              <div className="space-y-4">
-                <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                  Hungry? We’ve got <br/> you covered.
-                </h2>
-                <p className="text-lg text-slate-500 font-medium font-serif">
-                  Our dedicated food fleet ensures your meals arrive precisely as the chef intended. No cold fries, no missing sodas—just perfect delivery.
-                </p>
-              </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <h4 className="text-lg font-bold text-slate-900">30 Min Delivery</h4>
-                  <p className="text-sm text-slate-400 font-medium">Hyper-local routing for record-breaking speeds.</p>
-                </div>
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-slate-900" />
-                  </div>
-                  <h4 className="text-lg font-bold text-slate-900">Live Tracking</h4>
-                  <p className="text-sm text-slate-400 font-medium">Watch your order move in real-time on our map.</p>
-                </div>
-              </div>
+      {/* Trusted By Section */}
+      <div className="py-12 border-b border-slate-50 overflow-hidden bg-white">
+        <div className="container mx-auto px-6">
+           <div className="flex flex-wrap items-center justify-center gap-12 opacity-30 grayscale transition-all hover:opacity-50 hover:grayscale-0">
+              <span className="text-xl font-black tracking-tighter text-slate-400 italic">LOGISTIX</span>
+              <span className="text-xl font-black tracking-tighter text-slate-400">METROLINE</span>
+              <span className="text-xl font-black tracking-tighter text-slate-400 italic">SWIFTPACK</span>
+              <span className="text-xl font-black tracking-tighter text-slate-400">NEXUSFLY</span>
+              <span className="text-xl font-black tracking-tighter text-slate-400 italic">CITYDROP</span>
+           </div>
+        </div>
+      </div>
 
-              <Link href="/food" className="inline-block">
-                <Button className="bg-slate-900 hover:bg-slate-800 text-white rounded-2xl px-10 h-16 text-lg font-black group">
-                  Explore The Menu
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
+      {/* Services Section */}
+      <section className="py-32 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-2xl mb-20 space-y-4">
+             <h2 className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">Our Core Services</h2>
+             <p className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Professional solutions for <br/> the Jos community.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="group p-12 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
+              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-8 shadow-sm border border-slate-100">
+                <Globe className="w-6 h-6 text-orange-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Inter-City Shipping</h3>
+              <p className="text-slate-500 leading-relaxed font-medium text-sm">Send and receive packages across Jos and other major cities with guaranteed safety.</p>
+            </div>
+
+            <div className="group p-12 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
+              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-8 shadow-sm border border-slate-100">
+                <Box className="w-6 h-6 text-slate-900" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Last-Mile Delivery</h3>
+              <p className="text-slate-500 leading-relaxed font-medium text-sm">Hyper-local delivery from Terminus to every corner of Jos in under 45 minutes.</p>
+            </div>
+
+            <div className="group p-12 rounded-2xl bg-orange-600 shadow-xl shadow-orange-600/20 text-white">
+              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-8 shadow-sm">
+                <Utensils className="w-6 h-6 text-orange-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 tracking-tight">Transly Food</h3>
+              <p className="text-orange-50/80 leading-relaxed font-medium text-sm mb-8">Premium meals from our kitchen to your Jos doorstep. Fresh, hot, and exceptionally fast.</p>
+              <Link href="/food" className="inline-flex items-center gap-2 font-black text-[10px] uppercase tracking-widest hover:translate-x-1 transition-transform">
+                Browse Menu <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trust Stats */}
-      <section className="py-20 bg-slate-950">
+      {/* How It Works */}
+      <section className="py-32 bg-slate-50 border-y border-slate-100">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-            <div className="space-y-2">
-              <p className="text-4xl lg:text-6xl font-black text-white italic tracking-tighter">1M+</p>
-              <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.3em]">Packages Delivered</p>
+           <div className="text-center max-w-2xl mx-auto mb-20 space-y-4">
+              <h2 className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">How It Works</h2>
+              <p className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Delivery in three simple steps.</p>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
+              {/* Connector Line */}
+              <div className="hidden md:block absolute top-12 left-1/4 right-1/4 h-px border-t border-dashed border-slate-300 z-0" />
+              
+              <div className="relative z-10 text-center space-y-6">
+                 <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-xl border border-slate-100 group-hover:scale-110 transition-transform">
+                    <Search className="w-10 h-10 text-orange-600" />
+                 </div>
+                 <div className="space-y-2">
+                    <h4 className="text-xl font-bold text-slate-900">1. Request</h4>
+                    <p className="text-slate-500 text-sm font-medium">Enter your pick-up and drop-off locations in Jos.</p>
+                 </div>
+              </div>
+
+              <div className="relative z-10 text-center space-y-6">
+                 <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-xl border border-slate-100 group-hover:scale-110 transition-transform">
+                    <Truck className="w-10 h-10 text-orange-600" />
+                 </div>
+                 <div className="space-y-2">
+                    <h4 className="text-xl font-bold text-slate-900">2. Match</h4>
+                    <p className="text-slate-500 text-sm font-medium">We instantly match you with the nearest available biker.</p>
+                 </div>
+              </div>
+
+              <div className="relative z-10 text-center space-y-6">
+                 <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-xl border border-slate-100 group-hover:scale-110 transition-transform">
+                    <CheckCircle2 className="w-10 h-10 text-orange-600" />
+                 </div>
+                 <div className="space-y-2">
+                    <h4 className="text-xl font-bold text-slate-900">3. Delivered</h4>
+                    <p className="text-slate-500 text-sm font-medium">Track your biker in real-time until they reach your door.</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-32 bg-slate-950 text-white overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row gap-20">
+            <div className="lg:w-1/2 space-y-12">
+               <div className="space-y-4">
+                  <h2 className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em]">The Transly Advantage</h2>
+                  <p className="text-5xl font-black tracking-tight leading-tight">Built for Jos. <br/> Optimized for reliability.</p>
+               </div>
+               
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                     <div className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                     </div>
+                     <h4 className="text-lg font-bold">Jos Local Experts</h4>
+                     <p className="text-sm text-slate-400 leading-relaxed">Our bikers know every street in Jos, ensuring no delays.</p>
+                  </div>
+                  <div className="space-y-4">
+                     <div className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                     </div>
+                     <h4 className="text-lg font-bold">Secure Logistics</h4>
+                     <p className="text-sm text-slate-400 leading-relaxed">State-of-the-art tracking and background-verified riders.</p>
+                  </div>
+                  <div className="space-y-4">
+                     <div className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                     </div>
+                     <h4 className="text-lg font-bold">Transparent Pricing</h4>
+                     <p className="text-sm text-slate-400 leading-relaxed">No hidden fees. See your price before you book.</p>
+                  </div>
+                  <div className="space-y-4">
+                     <div className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800">
+                        <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                     </div>
+                     <h4 className="text-lg font-bold">24/7 Local Support</h4>
+                     <p className="text-sm text-slate-400 leading-relaxed">Dedicated agents in Jos ready to help you anytime.</p>
+                  </div>
+               </div>
             </div>
-            <div className="space-y-2">
-              <p className="text-4xl lg:text-6xl font-black text-white italic tracking-tighter">99.9%</p>
-              <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.3em]">Delivery Success</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-4xl lg:text-6xl font-black text-white italic tracking-tighter">24/7</p>
-              <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.3em]">Premium Support</p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-4xl lg:text-6xl font-black text-white italic tracking-tighter">150+</p>
-              <p className="text-[10px] text-orange-500 font-black uppercase tracking-[0.3em]">Corporate Partners</p>
+
+            <div className="lg:w-1/2 relative">
+               <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4 pt-12">
+                     <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
+                        <p className="text-3xl font-black mb-1">10k+</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Delivered in Jos</p>
+                     </div>
+                     <div className="bg-orange-600 p-8 rounded-2xl text-white">
+                        <p className="text-3xl font-black mb-1">99.9%</p>
+                        <p className="text-[10px] font-black text-orange-200 uppercase tracking-widest">Success Rate</p>
+                     </div>
+                  </div>
+                  <div className="space-y-4">
+                     <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700">
+                        <p className="text-3xl font-black mb-1">24/7</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Help</p>
+                     </div>
+                     <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 h-64 overflow-hidden relative group">
+                        <Image src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" width={2070} height={1380} alt="Dashboard" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700" />
+                        <div className="relative z-10">
+                           <p className="text-sm font-bold leading-tight">Optimized <br/> Jos Logistics</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+
+      <section className="py-32 bg-slate-50 border-t border-slate-100">
+        <div className="container mx-auto px-6">
+           <div className="bg-white rounded-2xl p-12 lg:p-24 text-center space-y-10 border border-slate-200 shadow-xl">
+              <h2 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight">Experience the future of <br/> Jos logistics today.</h2>
+              <p className="max-w-xl mx-auto text-lg text-slate-500 font-medium">Join thousands of Jos residents and businesses who trust Transly for their daily needs.</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                 <Link href="/signup">
+                    <Button size="lg" className="h-14 px-10 rounded-lg font-bold bg-slate-900 text-white">Get Started Free</Button>
+                 </Link>
+                 <Link href="/request">
+                    <Button variant="outline" size="lg" className="h-14 px-10 rounded-lg font-bold border-slate-200">Book a Biker</Button>
+                 </Link>
+              </div>
+           </div>
         </div>
       </section>
 

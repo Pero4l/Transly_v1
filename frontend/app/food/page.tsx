@@ -12,8 +12,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSocket } from "@/lib/socket";
-
-
+import Image from "next/image";
 
 interface FoodItem {
   id: string;
@@ -233,7 +232,6 @@ export default function FoodStorePage() {
         
         setCart([]);
         setIsCartOpen(false);
-        // Route to dashboard since it's a food order (user called it "desktop")
         router.push('/dashboard');
       } else {
         const errData = await res.json();
@@ -253,20 +251,18 @@ export default function FoodStorePage() {
       <div className="bg-white border-b sticky top-0 z-40 px-4 md:px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-               <div className="bg-orange-600 p-2 rounded-xl shadow-lg ring-4 ring-orange-50 shrink-0">
-                  <Utensils className="h-5 w-5 text-white" />
+            <Link href="/" className="flex items-center gap-3">
+               <Image src="/logo.jpeg" alt="Transly Logo" width={120} height={40} className="h-10 w-auto object-contain" />
+               <div className="sm:block border-l pl-3 border-slate-200">
+                  <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">Food</h1>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Premium Delivery in Jos</p>
                </div>
-               <div className="sm:block">
-                  <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none">Transly <span className="text-orange-600">Food</span></h1>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">Premium Delivery</p>
-               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
             <div className="relative">
-              <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-50 rounded-full" onClick={() => setShowNotifications(!showNotifications)}>
+              <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-50 rounded-lg" onClick={() => setShowNotifications(!showNotifications)}>
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[8px] text-white font-bold">
@@ -276,7 +272,7 @@ export default function FoodStorePage() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute -left-36 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
+                <div className="absolute -left-36 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-lg overflow-hidden z-[100]">
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -305,7 +301,7 @@ export default function FoodStorePage() {
                 onClick={() => setIsCartOpen(true)}
                 variant="ghost"
                 size="icon"
-                className="relative text-slate-600 hover:bg-slate-50 rounded-full group"
+                className="relative text-slate-600 hover:bg-slate-50 rounded-lg group"
             >
                 <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
                 {cart.length > 0 && (
@@ -315,8 +311,8 @@ export default function FoodStorePage() {
                 )}
             </Button>
 
-            <Link href="/profile" className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors border border-slate-100">
-                <div className="h-6 w-6 rounded-full bg-slate-200 overflow-hidden">
+            <Link href="/profile" className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-100">
+                <div className="h-6 w-6 rounded-md bg-slate-200 overflow-hidden">
                     <User className="h-full w-full p-1 text-slate-500" />
                 </div>
                 <span className="text-xs font-bold text-slate-700">{user?.name?.split(' ')[0] || "Profile"}</span>
@@ -331,12 +327,12 @@ export default function FoodStorePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-4 md:p-10 space-y-12">
-        <div className="relative rounded-[3rem] overflow-hidden bg-slate-900 h-[300px] flex items-center px-12 group shadow-2xl">
+        <div className="relative rounded-2xl overflow-hidden bg-slate-900 h-[300px] flex items-center px-12 group shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/40 to-transparent z-10" />
           <div className="z-20 max-w-xl space-y-4 animate-in slide-in-from-left-8 duration-700">
-            <span className="px-4 py-1.5 bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full">Fastest Delivery</span>
+            <span className="px-4 py-1.5 bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-md">Fastest Delivery in Jos</span>
             <h2 className="text-5xl font-black text-white leading-[1.1]">Craving Something <br/> Delicious?</h2>
-            <p className="text-slate-300 font-medium">Order premium meals from Transly Kitchen and get them delivered to your doorstep in minutes.</p>
+            <p className="text-slate-300 font-medium">Order premium meals from Transly Kitchen and get them delivered to your Jos doorstep in minutes.</p>
           </div>
           <div className="absolute right-0 top-0 h-full w-full opacity-70 group-hover:opacity-60 transition-opacity">
             <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover" alt="Hero" />
@@ -345,19 +341,19 @@ export default function FoodStorePage() {
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {[1,2,3,4].map(n => <div key={n} className="h-80 bg-white rounded-[2.5rem] animate-pulse shadow-sm border border-slate-100" />)}
+            {[1,2,3,4].map(n => <div key={n} className="h-80 bg-white rounded-2xl animate-pulse shadow-sm border border-slate-100" />)}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
             {foods.map((food) => (
-              <div key={food.id} className="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col h-full">
+              <div key={food.id} className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col h-full">
                 <div className="aspect-[4/3] w-full overflow-hidden relative">
                    <img 
                     src={food.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2080&auto=format&fit=crop"} 
                     alt={food.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                   />
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-4 py-2 rounded-2xl shadow-xl border border-slate-100">
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-4 py-2 rounded-lg shadow-xl border border-slate-100">
                     <span className="text-orange-600 font-black text-lg">₦{food.price.toLocaleString()}</span>
                   </div>
                 </div>
@@ -366,7 +362,7 @@ export default function FoodStorePage() {
                   <p className="text-slate-500 text-xs line-clamp-2 mb-6 font-medium leading-relaxed">{food.description}</p>
                   <Button 
                     onClick={() => addToCart(food)}
-                    className="mt-auto w-full bg-slate-50 hover:bg-orange-600 text-slate-800 hover:text-white rounded-2xl py-6 font-bold flex gap-2 transition-all border border-slate-100 hover:border-orange-500"
+                    className="mt-auto w-full bg-slate-50 hover:bg-orange-600 text-slate-800 hover:text-white rounded-lg py-6 font-bold flex gap-2 transition-all border border-slate-100 hover:border-orange-500"
                   >
                     <Plus className="h-4 w-4" /> Add to Cart
                   </Button>
@@ -385,9 +381,9 @@ export default function FoodStorePage() {
             <div className="p-8 border-b bg-slate-50/50 flex justify-between items-center">
               <div>
                 <h2 className="text-2xl font-black text-slate-900">Your Basket</h2>
-                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Transly Food Delivery</p>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Transly Food Delivery Jos</p>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(false)} className="rounded-full hover:bg-white shadow-sm">
+              <Button variant="ghost" size="icon" onClick={() => setIsCartOpen(false)} className="rounded-lg hover:bg-white shadow-sm">
                 <X className="h-6 w-6 text-slate-400" />
               </Button>
             </div>
@@ -403,14 +399,14 @@ export default function FoodStorePage() {
                   <div className="space-y-6">
                     {cart.map((item) => (
                       <div key={item.id} className="flex gap-4 items-center animate-in slide-in-from-right-4 duration-300">
-                        <div className="h-16 w-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                        <div className="h-16 w-16 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                            <img src={item.imageUrl} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-slate-800 text-sm">{item.name}</h4>
-                          <p className="text-orange-600 font-extrabold text-xs">₦{item.price.toLocaleString()}</p>
+                           <h4 className="font-bold text-slate-800 text-sm">{item.name}</h4>
+                           <p className="text-orange-600 font-extrabold text-xs">₦{item.price.toLocaleString()}</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-slate-50 px-3 py-2 rounded-2xl border">
+                        <div className="flex items-center gap-3 bg-slate-50 px-3 py-2 rounded-xl border">
                           <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-orange-600 transition-colors"><Minus className="h-3 w-3" /></button>
                           <span className="font-black text-sm text-slate-800 min-w-[20px] text-center">{item.quantity}</span>
                           <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-orange-600 transition-colors"><Plus className="h-3 w-3" /></button>
@@ -425,14 +421,14 @@ export default function FoodStorePage() {
                     <div className="grid grid-cols-2 gap-3">
                        <button 
                         onClick={() => setDeliveryType('self')}
-                        className={`flex flex-col items-center gap-2 p-4 rounded-3xl border-2 transition-all ${deliveryType === 'self' ? 'border-orange-500 bg-orange-50/50' : 'border-slate-100 bg-slate-50 grayscale opacity-60'}`}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${deliveryType === 'self' ? 'border-orange-500 bg-orange-50/50' : 'border-slate-100 bg-slate-50 grayscale opacity-60'}`}
                        >
                          <User className={`h-5 w-5 ${deliveryType === 'self' ? 'text-orange-600' : 'text-slate-400'}`} />
                          <span className={`text-[10px] font-black uppercase tracking-tight ${deliveryType === 'self' ? 'text-orange-700' : 'text-slate-500'}`}>For Myself</span>
                        </button>
                        <button 
                         onClick={() => setDeliveryType('third_party')}
-                        className={`flex flex-col items-center gap-2 p-4 rounded-3xl border-2 transition-all ${deliveryType === 'third_party' ? 'border-orange-500 bg-orange-50/50' : 'border-slate-100 bg-slate-50 grayscale opacity-60'}`}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${deliveryType === 'third_party' ? 'border-orange-500 bg-orange-50/50' : 'border-slate-100 bg-slate-50 grayscale opacity-60'}`}
                        >
                          <Truck className={`h-5 w-5 ${deliveryType === 'third_party' ? 'text-orange-600' : 'text-slate-400'}`} />
                          <span className={`text-[10px] font-black uppercase tracking-tight ${deliveryType === 'third_party' ? 'text-orange-700' : 'text-slate-500'}`}>Third Party</span>
@@ -447,7 +443,7 @@ export default function FoodStorePage() {
                             <input 
                               value={receiverName}
                               onChange={e => setReceiverName(e.target.value)}
-                             className="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
+                             className="w-full bg-slate-50 border-0 rounded-xl p-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                               placeholder="Who is receiving?"
                             />
                           </div>
@@ -456,14 +452,14 @@ export default function FoodStorePage() {
                             <input 
                               value={receiverPhone}
                               onChange={e => setReceiverPhone(e.target.value)}
-                              className="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
+                              className="w-full bg-slate-50 border-0 rounded-xl p-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                               placeholder="Contact number"
                             />
                           </div>
                         </>
                       )}
                       <div>
-                        <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Delivery Address</label>
+                        <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-2">Delivery Address in Jos</label>
                         <div className="relative group">
                           <MapPin className="absolute left-4 top-5 h-4 w-4 text-slate-400 group-focus-within:text-orange-600 transition-colors z-10" />
                           {isLoaded ? (
@@ -482,15 +478,15 @@ export default function FoodStorePage() {
                                 <input 
                                     value={address}
                                     onChange={e => setAddress(e.target.value)}
-                                    className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
-                                    placeholder="Enter drop-off location"
+                                    className="w-full bg-slate-50 border-0 rounded-xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
+                                    placeholder="Enter Jos drop-off location"
                                 />
                             </Autocomplete>
                           ) : (
                             <input 
                               value={address}
                               onChange={e => setAddress(e.target.value)}
-                              className="w-full bg-slate-50 border-0 rounded-2xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
+                              className="w-full bg-slate-50 border-0 rounded-xl pl-10 pr-4 py-4 text-sm font-medium focus:ring-0 focus:outline-none transition-all"
                               placeholder="Loading maps..."
                             />
                           )}
@@ -510,7 +506,7 @@ export default function FoodStorePage() {
                     <span className="text-slate-900 font-bold">₦{total.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-bold">Delivery Fee</span>
+                    <span className="text-slate-500 font-bold">Delivery Fee (Jos)</span>
                     <span className="text-orange-600 font-bold">₦{deliveryFee.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center pt-4 border-t border-slate-200">
@@ -521,7 +517,7 @@ export default function FoodStorePage() {
                 <Button 
                   onClick={placeOrder}
                   disabled={orderLoading}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-8 rounded-[2rem] text-lg font-black shadow-xl hover:shadow-orange-600/30 transition-all group"
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-8 rounded-xl text-lg font-black shadow-xl transition-all group"
                 >
                   {orderLoading ? (
                     <Loader2 className="h-6 w-6 animate-spin" />

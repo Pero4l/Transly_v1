@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Package, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
+
 
 const SocialIcons = {
   X: (props: any) => <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>,
@@ -17,10 +19,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand section */}
           <div className="space-y-6">
-            <Link href="/" className="flex items-center space-x-2 text-white font-bold text-2xl">
-              <Package className="h-8 w-8 text-orange-600" />
-              <span>Transly</span>
+            <Link href="/" className="flex items-center space-x-2">
+              <Image src="/logo.jpeg" alt="Transly Logo" width={140} height={50} className="h-12 w-auto object-contain " />
             </Link>
+
             <p className="text-sm leading-relaxed text-slate-400">
               Revolutionizing logistics with transparency, speed, and real-time intelligence. 
               Delivering excellence across borders and making every shipment count.

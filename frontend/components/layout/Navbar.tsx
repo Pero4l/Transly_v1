@@ -8,6 +8,8 @@ import { LayoutDashboard, PackageSearch, Users, MessageCircle, Truck, Send, Load
 import { getSocket } from "@/lib/socket";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
+import Image from "next/image";
+
 
 export function Navbar() {
   const { user, token, logout } = useSession();
@@ -103,10 +105,10 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-6">
-          <Link href="/" className="flex items-center space-x-2 text-orange-600 font-bold text-xl">
-            <Package className="h-6 w-6" />
-            <span>Transly</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <Image src="/logo.jpeg" alt="Transly Logo" width={120} height={40} className="h-10 w-auto object-contain" />
           </Link>
+
           <div className="hidden lg:flex items-center space-x-4">
             {user?.role === 'driver' && (
               <Link href="/driver" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
@@ -138,8 +140,10 @@ export function Navbar() {
             <input
               type="text"
               placeholder="Tracking number..."
-              className="h-9 w-64 rounded-full border border-slate-300 bg-white pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-transparent transition-all"
+              className="h-9 w-64 rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
             />
+
+
           </div>
 
           {user && (
@@ -154,7 +158,8 @@ export function Navbar() {
               </Button>
 
               {showNotifications && (
-                <div className="absolute left-[-180px] md:left-auto md:right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-[100]">
+                <div className="absolute left-[-180px] md:left-auto md:right-0 mt-2 w-72 md:w-80 bg-white border border-slate-200 shadow-xl rounded-lg overflow-hidden z-[100]">
+
                   <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800 text-sm">Notifications</h3>
                     {unreadCount > 0 && (
@@ -187,21 +192,24 @@ export function Navbar() {
 
           {!user ? (
             <Link href="/login">
-              <Button variant="ghost" size="sm" className="hidden md:flex text-orange-600 font-semibold hover:bg-orange-50">
+              <Button size="sm" className="hidden md:flex bg-slate-900 text-white font-bold px-6">
                 Sign In
               </Button>
             </Link>
+
           ) : (
             <div className="hidden md:flex items-center space-x-2">
               <Link href={user.role === 'driver' ? '/driver' : '/profile'}>
-                <Button size="sm" className="rounded-full bg-slate-800 hover:bg-slate-900 border-none px-4">
+                <Button size="sm" className="rounded-lg bg-slate-900 hover:bg-slate-800 border-none px-4">
                   <User className="h-4 w-4 mr-2 text-white" />
                   Profile
                 </Button>
               </Link>
-              <Button size="sm" variant="outline" onClick={logout} className="rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 px-4">
+              <Button size="sm" variant="outline" onClick={logout} className="rounded-lg border-slate-200 text-slate-600 hover:bg-slate-50 px-4">
                 Logout
               </Button>
+
+
             </div>
           )}
 
