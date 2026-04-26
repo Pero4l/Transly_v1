@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Script from "next/script";
+
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { SessionProvider } from "@/lib/sessionContext";
@@ -27,19 +29,20 @@ export default function RootLayout({
       </head>
       <body className={`font-sans antialiased min-h-screen flex flex-col`}>
         {/* Suppression of console logs in production */}
-        <script
+        <Script
+          id="suppress-logs"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
                 console.log = () => {};
                 console.debug = () => {};
                 console.info = () => {};
-                // console.warn = () => {};
-                // console.error = () => {};
               }
             `,
           }}
         />
+
         <GoogleAuthProvider>
           <SessionProvider>
             <GoogleMapsProvider>
