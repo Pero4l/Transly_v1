@@ -85,6 +85,7 @@ const chatRoutes = require('./routes/chat');
 const paymentRoutes = require('./routes/payment');
 const foodRoutes = require('./routes/food');
 const foodOrderRoutes = require('./routes/foodOrders');
+const countRoutes = require('./routes/count');
 
 app.use('/auth', authRoutes);
 app.use('/shipments', shipmentRoutes);
@@ -100,6 +101,8 @@ app.get("/", (req, res) => {
     message: "Welcome to Transly API",
   });
 });
+
+app.use("/counts", countRoutes)
 
 // DB CONNECTION & Server Start
 const PORT = process.env.PORT || 5000;

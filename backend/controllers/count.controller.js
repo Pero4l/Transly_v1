@@ -5,6 +5,7 @@ const countAll = async (req, res) => {
     try {
         const allUsers = await Users.count()
         const allShipment = await Shipment.count();
+        
         res.status(200).json({ 
             success: true, 
             allUsers, 
