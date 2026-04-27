@@ -120,7 +120,7 @@ export function Navbar() {
                 Dashboard
               </Link>
             )}
-          {user?.role !== 'admin' && user?.role !== 'driver' && (
+            {user?.role !== 'admin' && user?.role !== 'driver' && (
               <Link href="/food" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
                 Order Food
               </Link>
@@ -270,9 +270,9 @@ export function Navbar() {
               </div>
               {unreadCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
             </Link>
-            
+
             <div className="pt-4 mt-4 border-t border-slate-100">
-              <button 
+              <button
                 onClick={() => { logout(); toggleMenu(); }}
                 className="w-full flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
               >

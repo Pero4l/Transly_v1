@@ -26,7 +26,7 @@ export function Sidebar() {
       };
 
       socket.on("new_message_notification", handleNewMessage);
-      
+
       // We also need to clear count when messages are read, 
       // but simpler to just refetch or rely on socket events
       // For now, let's keep it simple.
@@ -112,7 +112,7 @@ export function Sidebar() {
             <p className="text-xs text-slate-500 truncate capitalize">{user?.role || "System Admin"}</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={logout}
           className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-600 hover:bg-red-50 transition-colors"
         >

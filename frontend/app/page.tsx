@@ -31,7 +31,7 @@ export default function Home() {
               
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <Link href="/request" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full sm:w-64 h-14 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-lg shadow-slate-200 group">
+                  <Button size="lg" className="w-full sm:w-64 h-14 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg shadow-slate-200 group">
                     Send a Package
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -289,7 +289,7 @@ export default function Home() {
               <p className="max-w-xl mx-auto text-lg text-slate-500 font-medium">Join thousands of Jos residents and businesses who trust Transly for their daily needs.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                  <Link href="/signup">
-                    <Button size="lg" className="h-14 px-10 rounded-lg font-bold bg-slate-900 text-white">Get Started Free</Button>
+                    <Button size="lg" className="h-14 px-10 rounded-lg font-bold bg-orange-500 text-white">Get Started Free</Button>
                  </Link>
                  <Link href="/request">
                     <Button variant="outline" size="lg" className="h-14 px-10 rounded-lg font-bold border-slate-200">Book a Biker</Button>
