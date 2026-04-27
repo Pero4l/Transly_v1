@@ -7,9 +7,15 @@ import { Package, Lock, Key, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import Image from "next/image";
-
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -29,11 +35,14 @@ function ResetPasswordForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp, password }),
-      });
+      const res = await fetch(
+        "https://transly-wr1m.onrender.com/auth/reset-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp, password }),
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -51,7 +60,6 @@ function ResetPasswordForm() {
 
   return (
     <Card className="bg-white border border-slate-200 shadow-xl rounded-xl">
-
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
         <CardDescription>
@@ -61,7 +69,9 @@ function ResetPasswordForm() {
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700" htmlFor="otp">OTP Code</label>
+            <label className="text-sm font-medium text-slate-700" htmlFor="otp">
+              OTP Code
+            </label>
             <div className="relative">
               <Key className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
               <Input
@@ -78,7 +88,12 @@ function ResetPasswordForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700" htmlFor="password">New Password</label>
+            <label
+              className="text-sm font-medium text-slate-700"
+              htmlFor="password"
+            >
+              New Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
               <Input
@@ -94,15 +109,24 @@ function ResetPasswordForm() {
           </div>
 
           <div className="pt-2">
-            <Button className="w-full text-md h-12" type="submit" disabled={loading}>
-              {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+            <Button
+              className="w-full text-md h-12"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              ) : null}
               {loading ? "Resetting..." : "Reset Password"}
             </Button>
           </div>
         </form>
       </CardContent>
       <CardFooter className="flex flex-col space-y-4 pt-0 pb-6">
-        <Link href="/login" className="text-center text-sm text-slate-600 hover:text-orange-600 flex items-center justify-center gap-2">
+        <Link
+          href="/login"
+          className="text-center text-sm text-slate-600 hover:text-orange-600 flex items-center justify-center gap-2"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to login
         </Link>
       </CardFooter>
@@ -116,9 +140,14 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link href="/" className="flex justify-center">
-            <Image src="/logo.jpeg" alt="Transly Logo" width={180} height={60} className="h-12 w-auto object-contain" />
+            <Image
+              src="/logo.png"
+              alt="Transly Logo"
+              width={180}
+              height={60}
+              className="h-12 w-auto object-contain"
+            />
           </Link>
-
         </div>
         <Suspense fallback={<div className="text-center">Loading...</div>}>
           <ResetPasswordForm />

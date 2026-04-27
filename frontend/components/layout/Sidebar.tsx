@@ -54,7 +54,7 @@ export function Sidebar() {
     <aside className="w-64 border-r bg-white h-screen flex flex-col hidden lg:flex">
       <div className="h-16 flex items-center px-6 border-b">
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="/logo.jpeg" alt="Transly Logo" width={120} height={40} className="h-9 w-auto object-contain" />
+          <Image src="/logo.png" alt="Transly Logo" width={120} height={40} className="h-9 w-auto object-contain" />
           <span className="text-xs font-black text-slate-400 uppercase tracking-tighter border-l pl-2">Admin</span>
         </Link>
 

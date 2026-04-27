@@ -17,7 +17,7 @@ export default function Home() {
             <div className="lg:w-3/5 space-y-10 z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">
                 <span className="flex h-1.5 w-1.5 rounded-full bg-orange-600"></span>
-                Directly from Terminus to your door
+                Directly from PickUp to your door
               </div>
               
               <h1 className="text-6xl lg:text-8xl font-black text-slate-900 tracking-tight leading-[0.95]">
@@ -26,7 +26,7 @@ export default function Home() {
               </h1>
               
               <p className="max-w-xl text-lg lg:text-xl text-slate-500 font-medium leading-relaxed">
-                The most reliable delivery network in Plateau State. From Terminus to Bukuru, we handle your packages and food with professional care.
+                The most reliable delivery network in Plateau State. From Any PickUp Location to Delivery Location Within Jos, we handle your packages and food with professional care.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -64,7 +64,7 @@ export default function Home() {
                       <Star className="w-3 h-3 fill-current" />
                       <Star className="w-3 h-3 fill-current" />
                    </div>
-                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">5,000+ Verified Jos Users</p>
+                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">400+ Verified Jos Users</p>
                 </div>
               </div>
             </div>
@@ -115,11 +115,11 @@ export default function Home() {
       <div className="py-12 border-b border-slate-50 overflow-hidden bg-white">
         <div className="container mx-auto px-6">
            <div className="flex flex-wrap items-center justify-center gap-12 opacity-30 grayscale transition-all hover:opacity-50 hover:grayscale-0">
-              <span className="text-xl font-black tracking-tighter text-slate-400 italic">LOGISTIX</span>
-              <span className="text-xl font-black tracking-tighter text-slate-400">METROLINE</span>
-              <span className="text-xl font-black tracking-tighter text-slate-400 italic">SWIFTPACK</span>
-              <span className="text-xl font-black tracking-tighter text-slate-400">NEXUSFLY</span>
-              <span className="text-xl font-black tracking-tighter text-slate-400 italic">CITYDROP</span>
+              <span className="text-xl font-black tracking-tighter text-slate-500 italic">EVERYONE</span>
+              <span className="text-xl font-black tracking-tighter text-slate-500">METROLINE</span>
+              <span className="text-xl font-black tracking-tighter text-slate-500 italic">SWIFTPACK</span>
+              <span className="text-xl font-black tracking-tighter text-slate-500">NEXUSFLY</span>
+              <span className="text-xl font-black tracking-tighter text-slate-500 italic">CITYDROP</span>
            </div>
         </div>
       </div>

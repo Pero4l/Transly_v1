@@ -20,7 +20,7 @@ export function Footer() {
           {/* Brand section */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center space-x-2">
-              <Image src="/logo.jpeg" alt="Transly Logo" width={140} height={50} className="h-12 w-auto object-contain " />
+              <Image src="/logo.png" alt="Transly Logo" width={140} height={50} className="h-12 w-auto object-contain " />
             </Link>
 
             <p className="text-sm leading-relaxed text-slate-400">

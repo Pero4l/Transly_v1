@@ -106,7 +106,7 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-6">
           <Link href="/" className="flex items-center space-x-2">
-            <Image src="/logo.jpeg" alt="Transly Logo" width={120} height={40} className="h-10 w-auto object-contain" />
+            <Image src="/logo.png" alt="Transly Logo" width={120} height={40} className="h-10 w-auto object-contain" />
           </Link>
 
           <div className="hidden lg:flex items-center space-x-4">
@@ -120,9 +120,11 @@ export function Navbar() {
                 Dashboard
               </Link>
             )}
-            <Link href="/food" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
-              Food
-            </Link>
+          {user?.role !== 'admin' && user?.role !== 'driver' && (
+              <Link href="/food" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+                Order Food
+              </Link>
+            )}
             <Link href="/tracking" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
               Track Package
             </Link>
@@ -192,7 +194,7 @@ export function Navbar() {
 
           {!user ? (
             <Link href="/login">
-              <Button size="sm" className="hidden md:flex bg-slate-900 text-white font-bold px-6">
+              <Button size="sm" className="hidden md:flex bg-orange-500 text-white font-bold px-6">
                 Sign In
               </Button>
             </Link>
@@ -200,12 +202,12 @@ export function Navbar() {
           ) : (
             <div className="hidden md:flex items-center space-x-2">
               <Link href={user.role === 'driver' ? '/driver' : '/profile'}>
-                <Button size="sm" className="rounded-lg bg-slate-900 hover:bg-slate-800 border-none px-4">
+                <Button size="sm" className="rounded-lg bg-orange-500 hover:bg-orange-600 border-none px-4">
                   <User className="h-4 w-4 mr-2 text-white" />
                   Profile
                 </Button>
               </Link>
-              <Button size="sm" variant="outline" onClick={logout} className="rounded-lg border-slate-200 text-slate-600 hover:bg-slate-50 px-4">
+              <Button size="sm" variant="outline" onClick={logout} className="rounded-lg border-red-500 text-slate-600 hover:bg-red-700 px-4">
                 Logout
               </Button>
 

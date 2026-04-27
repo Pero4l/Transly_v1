@@ -7,9 +7,15 @@ import { Package, ArrowLeft, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import Image from "next/image";
-
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -21,11 +27,14 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://transly-wr1m.onrender.com/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        "https://transly-wr1m.onrender.com/auth/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -46,15 +55,21 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link href="/" className="flex justify-center">
-            <Image src="/logo.jpeg" alt="Transly Logo" width={180} height={60} className="h-12 w-auto object-contain" />
+            <Image
+              src="/logo.png"
+              alt="Transly Logo"
+              width={180}
+              height={60}
+              className="h-12 w-auto object-contain"
+            />
           </Link>
-
         </div>
 
         <Card className="bg-white border border-slate-200 shadow-xl rounded-xl">
-
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Forgot Password?</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Forgot Password?
+            </CardTitle>
             <CardDescription>
               Enter your email and we'll send you an OTP to reset your password.
             </CardDescription>
@@ -62,7 +77,12 @@ export default function ForgotPasswordPage() {
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
+                <label
+                  className="text-sm font-medium text-slate-700"
+                  htmlFor="email"
+                >
+                  Email
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
                   <Input
@@ -78,15 +98,24 @@ export default function ForgotPasswordPage() {
               </div>
 
               <div className="pt-2">
-                <Button className="w-full text-md h-12" type="submit" disabled={loading}>
-                  {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                <Button
+                  className="w-full text-md h-12"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : null}
                   {loading ? "Sending OTP..." : "Send OTP"}
                 </Button>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-0 pb-6">
-            <Link href="/login" className="text-center text-sm text-slate-600 hover:text-orange-600 flex items-center justify-center gap-2">
+            <Link
+              href="/login"
+              className="text-center text-sm text-slate-600 hover:text-orange-600 flex items-center justify-center gap-2"
+            >
               <ArrowLeft className="h-4 w-4" /> Back to login
             </Link>
           </CardFooter>
