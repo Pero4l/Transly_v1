@@ -1,9 +1,9 @@
-const {Users, Shipment} = require("../models")
+const {User, Shipment} = require("../models")
 
 const countAll = async (req, res) => {
     
     try {
-        const allUsers = await Users.count()
+        const allUsers = await User.count()
         const allShipment = await Shipment.count();
         
         res.status(200).json({ 
