@@ -80,13 +80,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       await apiFetch("/auth/logout", { method: "POST" });
       setUser(null);
       setToken(null);
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch (err) {
       console.error("Logout failed:", err);
       // Even if server logout fails, clear local state
       setUser(null);
       setToken(null);
-      window.location.href = "/login";
+      window.location.href = "/";
     }
   };
 

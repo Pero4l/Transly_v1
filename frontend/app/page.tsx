@@ -1,15 +1,47 @@
+"use client";
+
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { ArrowRight, PackageSearch, ShieldCheck, Zap, Utensils, Globe, Clock, Box, CheckCircle2, Star, Truck, Smartphone, MapPin, Search } from "lucide-react";
 import Image from "next/image";
+import { apiFetch } from "@/lib/api";
 
 export default function Home() {
+
+   const [count, setCount] = useState({
+    ALL_USERS: "1k",
+    ALL_SHIPMENT: "500"
+   });
+
+
+  const fetchCount = async () => {
+    try {
+        const res = await apiFetch("/counts");
+        const data = await res.json();
+        if (data.success) {
+            setCount({
+                ALL_USERS: data.allUsers || 0,
+                ALL_SHIPMENT: data.allShipment || 0
+            });
+        }
+    } catch (err) {
+        console.error("Failed to fetch counts", err);
+    }
+  };
+
+   useEffect(() => {
+      (async () => {
+         await fetchCount();
+      })();
+   }, []);
+
+
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-orange-100 selection:text-orange-900">
-      <Navbar />
-      
+      <Navbar />      
       {/* Hero Section */}
       <section className="relative pt-20 pb-24 lg:pt-32 lg:pb-40 bg-slate-50 border-b border-slate-100 overflow-hidden">
         <div className="container mx-auto px-6">
@@ -64,7 +96,7 @@ export default function Home() {
                       <Star className="w-3 h-3 fill-current" />
                       <Star className="w-3 h-3 fill-current" />
                    </div>
-                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">400+ Verified Jos Users</p>
+                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{`${count.ALL_USERS.toLocaleString()}+ Verified Jos Users`}</p>
                 </div>
               </div>
             </div>
@@ -254,7 +286,7 @@ export default function Home() {
                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-4 pt-12">
                      <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
-                        <p className="text-3xl font-black mb-1">10k+</p>
+                        <p className="text-3xl font-black mb-1">{`${count.ALL_SHIPMENT.toLocaleString()}+`}</p>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Delivered in Jos</p>
                      </div>
                      <div className="bg-orange-600 p-8 rounded-2xl text-white">
