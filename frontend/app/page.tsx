@@ -5,11 +5,14 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import {useRouter} from "next/navigation";
 import { ArrowRight, PackageSearch, ShieldCheck, Zap, Utensils, Globe, Clock, Box, CheckCircle2, Star, Truck, Smartphone, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 import { apiFetch } from "@/lib/api";
 
 export default function Home() {
+
+   const navigate = useRouter();
 
    const [count, setCount] = useState({
     ALL_USERS: "1k",
@@ -62,12 +65,12 @@ export default function Home() {
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-4">
-                <Link href="/request" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full sm:w-64 h-14 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg shadow-slate-200 group">
+                
+                  <Button onClick={() => navigate.push("/request")} size="lg" className="w-full sm:w-64 h-14 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg shadow-slate-200 group">
                     Send a Package
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </Link>
+              
                 <Link href="/tracking" className="w-full sm:w-auto">
                   <Button variant="outline" size="lg" className="w-full sm:w-48 h-14 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-bold">
                     Track Now

@@ -496,7 +496,7 @@ export default function FoodStorePage() {
                   </p>
                   <Button
                     onClick={() => addToCart(food)}
-                    className="mt-auto w-full bg-slate-50 hover:bg-orange-600 text-slate-800 hover:text-white rounded-lg py-6 font-bold flex gap-2 transition-all border border-slate-100 hover:border-orange-500"
+                    className="mt-auto w-full bg-orange-500 hover:bg-orange-600 text-slate-800 hover:text-white rounded-lg py-6 font-bold flex gap-2 transition-all border border-slate-100 hover:border-orange-500"
                   >
                     <Plus className="h-4 w-4" /> Add to Cart
                   </Button>
