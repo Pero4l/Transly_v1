@@ -71,11 +71,9 @@ export default function Home() {
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
               
-                <Link href="/tracking" className="w-full sm:w-auto">
-                  <Button variant="outline" size="lg" className="w-full sm:w-48 h-14 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-bold">
-                    Track Now
-                  </Button>
-                </Link>
+                <Button onClick={() => navigate.push("/tracking")} variant="outline" size="lg" className="w-full sm:w-auto sm:w-48 h-14 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-bold">
+                  Track Now
+                </Button>
               </div>
 
               <div className="flex items-center gap-8 pt-4">
@@ -190,9 +188,9 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold mb-4 tracking-tight">Transly Food</h3>
               <p className="text-orange-50/80 leading-relaxed font-medium text-sm mb-8">Premium meals from our kitchen to your Jos doorstep. Fresh, hot, and exceptionally fast.</p>
-              <Link href="/food" className="inline-flex items-center gap-2 font-black text-[10px] uppercase tracking-widest hover:translate-x-1 transition-transform">
+              <button onClick={() => navigate.push("/food")} className="inline-flex items-center gap-2 font-black text-[10px] uppercase tracking-widest hover:translate-x-1 transition-transform">
                 Browse Menu <ArrowRight className="w-3 h-3" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -323,12 +321,8 @@ export default function Home() {
               <h2 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tight">Experience the future of <br/> Jos logistics today.</h2>
               <p className="max-w-xl mx-auto text-lg text-slate-500 font-medium">Join thousands of Jos residents and businesses who trust Transly for their daily needs.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                 <Link href="/signup">
-                    <Button size="lg" className="h-14 px-10 rounded-lg font-bold bg-orange-500 text-white">Get Started Free</Button>
-                 </Link>
-                 <Link href="/request">
-                    <Button variant="outline" size="lg" className="h-14 px-10 rounded-lg font-bold border-slate-200">Book a Biker</Button>
-                 </Link>
+                 <Button onClick={() => navigate.push("/signup")} size="lg" className="h-14 px-10 rounded-lg font-bold bg-orange-500 text-white">Get Started Free</Button>
+                 <Button onClick={() => navigate.push("/request")} variant="outline" size="lg" className="h-14 px-10 rounded-lg font-bold border-slate-200">Book a Biker</Button>
               </div>
            </div>
         </div>

@@ -72,16 +72,14 @@ export default function AdminLayout({
           </div>
 
           <div className="flex gap-2">
-            <Link href="/admin/chat">
-              <Button variant="ghost" size="icon" className="relative group">
-                <MessageCircle className="h-5 w-5 text-slate-600 group-hover:text-orange-600 transition-colors" />
-                {unreadMessageCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] text-white font-bold ring-2 ring-white">
-                    {unreadMessageCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <Button onClick={() => router.push("/admin/chat")} variant="ghost" size="icon" className="relative group">
+              <MessageCircle className="h-5 w-5 text-slate-600 group-hover:text-orange-600 transition-colors" />
+              {unreadMessageCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] text-white font-bold ring-2 ring-white">
+                  {unreadMessageCount}
+                </span>
+              )}
+            </Button>
             <div className="relative">
               <Button variant="ghost" size="icon" className="relative group" onClick={() => setShowNotifications(!showNotifications)}>
                 <Bell className="h-5 w-5 text-slate-600 group-hover:text-orange-600 transition-colors" />
@@ -125,7 +123,7 @@ export default function AdminLayout({
                     )}
                   </div>
                   <div className="p-3 bg-slate-50 text-center border-t border-slate-100">
-                      <Link href="/admin/notifications" className="text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors">View all updates</Link>
+                      <button onClick={() => router.push("/admin/notifications")} className="text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors w-full text-center">View all updates</button>
                   </div>
                 </div>
               )}
@@ -143,52 +141,52 @@ export default function AdminLayout({
             {menu && (
               <div>
                   <nav className="space-y-2 px-3 pt-5 pb-5 bg-orange-600/30">
-          <Link href="/admin" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
+          <button onClick={() => { isMenu(); router.push("/admin"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
             <LayoutDashboard className="h-5 w-5 mr-3" />
             Overview
-          </Link>
-          <Link href="/admin/shipments" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/shipments"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
             Shipments
-          </Link>
-          <Link href="/admin/customers" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/customers"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Users className="h-5 w-5 mr-3 text-orange-600" />
             Customers
-          </Link>
-          <Link href="/admin/chat" onClick={isMenu} className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/chat"); }} className="w-full text-left flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <div className="flex items-center">
               <MessageCircle className="h-5 w-5 mr-3 text-orange-600" />
               Messages
             </div>
             {unreadMessageCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadMessageCount}</span>}
-          </Link>
-          <Link href="/admin/notifications" onClick={isMenu} className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/notifications"); }} className="w-full text-left flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <div className="flex items-center">
               <Bell className="h-5 w-5 mr-3 text-orange-600" />
               Notifications
             </div>
             {unreadCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
-          </Link>
-          <Link href="/admin/broadcast" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/broadcast"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Mail className="h-5 w-5 mr-3 text-orange-600" />
             Broadcast
-          </Link>
-          <Link href="/admin/drivers" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/drivers"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Truck className="h-5 w-5 mr-3 text-orange-600" />
             Drivers
-          </Link>
-          <Link href="/tracking" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/tracking"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <PackageSearch className="h-5 w-5 mr-3 text-orange-600" />
             Track Product
-          </Link>
-          <Link href="/admin/settings" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/settings"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Settings className="h-5 w-5 mr-3 text-orange-600" />
             Settings
-          </Link>
-          <Link href="/admin/food" onClick={isMenu} className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => { isMenu(); router.push("/admin/food"); }} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600 hover:bg-slate-50 hover:text-slate-900">
             <Utensils className="h-5 w-5 mr-3 text-orange-600" />
             Manage Food
-          </Link>
+          </button>
           <button 
             onClick={sessionLogout}
             className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-red-600 text-white mt-4"
@@ -249,16 +247,16 @@ export default function AdminLayout({
                     )}
                   </div>
                   <div className="p-3 bg-slate-50 text-center border-t border-slate-100">
-                      <Link href="/admin/notifications" className="text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors">View all updates</Link>
+                      <button onClick={() => router.push("/admin/notifications")} className="text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors w-full text-center">View all updates</button>
                   </div>
                 </div>
               )}
             </div>
             
             <div className="flex items-center space-x-3 border-l pl-6">
-              <Link href="/profile" className="h-9 w-9 rounded-full bg-orange-600/10 text-orange-600 flex items-center justify-center hover:bg-orange-600/20 transition-colors">
+              <button onClick={() => router.push("/profile")} className="h-9 w-9 rounded-full bg-orange-600/10 text-orange-600 flex items-center justify-center hover:bg-orange-600/20 transition-colors">
                 <User className="h-5 w-5" />
-              </Link>
+              </button>
             </div>
           </div>
         </header>

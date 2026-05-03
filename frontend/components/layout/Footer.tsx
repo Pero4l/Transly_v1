@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Package, Mail, Phone, MapPin } from "lucide-react";
 import Image from "next/image";
-
+import { useRouter } from "next/navigation";
 
 const SocialIcons = {
   X: (props: any) => <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>,
@@ -13,15 +13,16 @@ const SocialIcons = {
 };
 
 export function Footer() {
+  const router = useRouter();
   return (
     <footer className="bg-slate-900 text-slate-300 py-16 border-t border-slate-800">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand section */}
           <div className="space-y-6">
-            <Link href="/" className="flex items-center space-x-2">
+            <button onClick={() => router.push("/")} className="flex items-center space-x-2">
               <Image src="/./logo.png" alt="Transly Logo" width={140} height={50} className="h-12 w-auto object-contain " />
-            </Link>
+            </button>
 
             <p className="text-sm leading-relaxed text-slate-400">
               Revolutionizing logistics with transparency, speed, and real-time intelligence.
@@ -47,10 +48,10 @@ export function Footer() {
           <div>
             <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-xs">Platform</h3>
             <ul className="space-y-4 text-sm">
-              <li><Link href="/tracking" className="hover:text-orange-500 transition-colors">Track Shipment</Link></li>
-              <li><Link href="/request" className="hover:text-orange-500 transition-colors">Create Request</Link></li>
-              <li><Link href="/dashboard" className="hover:text-orange-500 transition-colors">Client Dashboard</Link></li>
-              <li><Link href="/driver" className="hover:text-orange-500 transition-colors">Driver Portal</Link></li>
+              <li><button onClick={() => router.push("/tracking")} className="hover:text-orange-500 transition-colors text-left w-full">Track Shipment</button></li>
+              <li><button onClick={() => router.push("/request")} className="hover:text-orange-500 transition-colors text-left w-full">Create Request</button></li>
+              <li><button onClick={() => router.push("/dashboard")} className="hover:text-orange-500 transition-colors text-left w-full">Client Dashboard</button></li>
+              <li><button onClick={() => router.push("/driver")} className="hover:text-orange-500 transition-colors text-left w-full">Driver Portal</button></li>
             </ul>
           </div>
 
@@ -58,10 +59,10 @@ export function Footer() {
           <div>
             <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-xs">Support</h3>
             <ul className="space-y-4 text-sm">
-              <li><Link href="#" className="hover:text-orange-500 transition-colors">Help Center</Link></li>
-              <li><Link href="#" className="hover:text-orange-500 transition-colors">Shipping Guide</Link></li>
-              <li><Link href="#" className="hover:text-orange-500 transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="hover:text-orange-500 transition-colors">Privacy Policy</Link></li>
+              <li><button onClick={() => router.push("#")} className="hover:text-orange-500 transition-colors text-left w-full">Help Center</button></li>
+              <li><button onClick={() => router.push("#")} className="hover:text-orange-500 transition-colors text-left w-full">Shipping Guide</button></li>
+              <li><button onClick={() => router.push("#")} className="hover:text-orange-500 transition-colors text-left w-full">Terms of Service</button></li>
+              <li><button onClick={() => router.push("#")} className="hover:text-orange-500 transition-colors text-left w-full">Privacy Policy</button></li>
             </ul>
           </div>
 

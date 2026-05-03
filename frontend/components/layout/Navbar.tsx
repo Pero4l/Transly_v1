@@ -9,10 +9,11 @@ import { getSocket } from "@/lib/socket";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
 import Image from "next/image";
-
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { user, token, logout } = useSession();
+  const router = useRouter();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -111,27 +112,27 @@ export function Navbar() {
 
           <div className="hidden lg:flex items-center space-x-4">
             {user?.role === 'driver' && (
-              <Link href="/driver" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+              <button onClick={() => router.push("/driver")} className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
                 Driver Portal
-              </Link>
+              </button>
             )}
             {user?.role !== 'driver' && (
-              <Link href="/dashboard" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+              <button onClick={() => router.push("/dashboard")} className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
                 Dashboard
-              </Link>
+              </button>
             )}
             {user?.role !== 'admin' && user?.role !== 'driver' && (
-              <Link href="/food" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+              <button onClick={() => router.push("/food")} className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
                 Order Food
-              </Link>
+              </button>
             )}
-            <Link href="/tracking" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+            <button onClick={() => router.push("/tracking")} className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
               Track Package
-            </Link>
+            </button>
             {user?.role !== 'driver' && user?.role !== 'admin' && (
-              <Link href="/request" className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
+              <button onClick={() => router.push("/request")} className="text-sm font-medium text-slate-600 hover:text-orange-600 transition-colors">
                 Send Package
-              </Link>
+              </button>
             )}
           </div>
         </div>
@@ -193,20 +194,16 @@ export function Navbar() {
           )}
 
           {!user ? (
-            <Link href="/login">
-              <Button size="sm" className="hidden md:flex bg-orange-500 text-white font-bold px-6">
-                Sign In
-              </Button>
-            </Link>
+            <Button onClick={() => router.push("/login")} size="sm" className="hidden md:flex bg-orange-500 text-white font-bold px-6">
+              Sign In
+            </Button>
 
           ) : (
             <div className="hidden md:flex items-center space-x-2">
-              <Link href={user.role === 'driver' ? '/driver' : '/profile'}>
-                <Button size="sm" className="rounded-lg bg-orange-500 hover:bg-orange-600 border-none px-4">
-                  <User className="h-4 w-4 mr-2 text-white" />
-                  Profile
-                </Button>
-              </Link>
+              <Button onClick={() => router.push(user.role === 'driver' ? '/driver' : '/profile')} size="sm" className="rounded-lg bg-orange-500 hover:bg-orange-600 border-none px-4">
+                <User className="h-4 w-4 mr-2 text-white" />
+                Profile
+              </Button>
               <Button size="sm" variant="outline" onClick={logout} className="rounded-lg border-red-500 text-slate-600 hover:bg-red-700 px-4">
                 Logout
               </Button>
@@ -228,48 +225,48 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="space-y-1 px-4 pt-4 pb-6">
-            <Link href={user?.role === 'admin' ? "/admin" : "/dashboard"} onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <button onClick={() => { toggleMenu(); router.push(user?.role === 'admin' ? "/admin" : "/dashboard"); }} className="w-full text-left flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <LayoutDashboard className="h-5 w-5 mr-3 text-slate-400" />
               {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
-            </Link>
+            </button>
 
-            <Link href={user?.role === 'driver' ? '/driver' : '/profile'} onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <button onClick={() => { toggleMenu(); router.push(user?.role === 'driver' ? '/driver' : '/profile'); }} className="w-full text-left flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <User className="h-5 w-5 mr-3 text-slate-400" />
               {user?.role === 'driver' ? 'Driver Portal' : 'Profile Settings'}
-            </Link>
+            </button>
 
             {user?.role !== 'admin' && user?.role !== 'driver' && (
-              <Link href="/request" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+              <button onClick={() => { toggleMenu(); router.push("/request"); }} className="w-full text-left flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
                 <Send className="h-5 w-5 mr-3 text-slate-400" />
                 Send Package
-              </Link>
+              </button>
             )}
 
-            <Link href="/tracking" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <button onClick={() => { toggleMenu(); router.push("/tracking"); }} className="w-full text-left flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
               Track Package
-            </Link>
+            </button>
 
-            <Link href="/food" onClick={toggleMenu} className="flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <button onClick={() => { toggleMenu(); router.push("/food"); }} className="w-full text-left flex items-center px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <Utensils className="h-5 w-5 mr-3 text-slate-400" />
               Order Food
-            </Link>
+            </button>
 
-            <Link href="/chat" onClick={toggleMenu} className="flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <button onClick={() => { toggleMenu(); router.push("/chat"); }} className="w-full text-left flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <div className="flex items-center">
                 <MessageCircle className="h-5 w-5 mr-3 text-slate-400" />
                 Support Chat
               </div>
               {/* Optional message counter logic could be injected here */}
-            </Link>
+            </button>
 
-            <Link href={user?.role === 'admin' ? '/admin/notifications' : '/notifications'} onClick={toggleMenu} className="flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
+            <button onClick={() => { toggleMenu(); router.push(user?.role === 'admin' ? '/admin/notifications' : '/notifications'); }} className="w-full text-left flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-lg bg-slate-50 text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-all">
               <div className="flex items-center">
                 <Bell className="h-5 w-5 mr-3 text-slate-400" />
                 Notifications
               </div>
               {unreadCount > 0 && <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
-            </Link>
+            </button>
 
             <div className="pt-4 mt-4 border-t border-slate-100">
               <button

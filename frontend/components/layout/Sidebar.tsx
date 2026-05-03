@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LayoutDashboard, PackageSearch, Users, Truck, Settings, MessageCircle, LogOut, Mail, Utensils } from "lucide-react";
 import { useSession } from "@/lib/sessionContext";
 import { apiFetch } from "@/lib/api";
 import { getSocket } from "@/lib/socket";
 import Image from "next/image";
 
-
 export function Sidebar() {
   const { user, token, logout } = useSession();
+  const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -61,19 +62,19 @@ export function Sidebar() {
       </div>
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="space-y-1 px-3">
-          <Link href="/admin" className="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
+          <button onClick={() => router.push("/admin")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md bg-orange-600/10 text-orange-600">
             <LayoutDashboard className="h-5 w-5 mr-3" />
             Overview
-          </Link>
-          <Link href="/admin/shipments" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/shipments")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <PackageSearch className="h-5 w-5 mr-3 text-slate-400" />
             Shipments
-          </Link>
-          <Link href="/admin/customers" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/customers")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Users className="h-5 w-5 mr-3 text-slate-400" />
             Customers
-          </Link>
-          <Link href="/admin/chat" className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/chat")} className="w-full text-left flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <div className="flex items-center">
               <MessageCircle className="h-5 w-5 mr-3 text-slate-400" />
               Messages
@@ -83,23 +84,23 @@ export function Sidebar() {
                 {unreadCount}
               </span>
             )}
-          </Link>
-          <Link href="/admin/broadcast" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/broadcast")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Mail className="h-5 w-5 mr-3 text-slate-400" />
             Broadcast
-          </Link>
-          <Link href="/admin/drivers" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/drivers")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Truck className="h-5 w-5 mr-3 text-slate-400" />
             Drivers
-          </Link>
-          <Link href="/admin/settings" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/settings")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Settings className="h-5 w-5 mr-3 text-slate-400" />
             Settings
-          </Link>
-          <Link href="/admin/food" className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
+          </button>
+          <button onClick={() => router.push("/admin/food")} className="w-full text-left flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-700 hover:bg-slate-50 hover:text-slate-900">
             <Utensils className="h-5 w-5 mr-3 text-slate-400" />
             Food Menu
-          </Link>
+          </button>
         </nav>
       </div>
       <div className="p-4 border-t space-y-4">
